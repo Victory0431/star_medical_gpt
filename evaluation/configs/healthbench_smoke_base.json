@@ -1,0 +1,17 @@
+{
+  "benchmark": "healthbench",
+  "subset_name": "consensus",
+  "mode": "full",
+  "judge_mode": "openai",
+  "judge_model": "gpt-4.1-mini",
+  "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+  "adapter_path": null,
+  "model_alias": "qwen3_8b_base",
+  "max_examples": 10,
+  "generator_device": "cuda:0",
+  "dtype": "bfloat16",
+  "enable_thinking": false,
+  "max_new_tokens": 512,
+  "temperature": 0.0,
+  "top_p": 0.95
+}

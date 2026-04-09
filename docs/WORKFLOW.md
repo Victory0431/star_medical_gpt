@@ -91,7 +91,24 @@ By default it skips:
 - `dryrun` directories
 - obvious failed runs
 
-## 7. Commit what belongs in Git
+## 7. Run benchmark evaluation
+
+After you have a stable base run or LoRA checkpoint, run external evaluation.
+
+Recommended first step:
+
+- use `HealthBench consensus` as the first open-ended medical benchmark
+- run `generate_only` first if the judge API key is not ready
+- then run `judge_only` later on the saved `responses.jsonl`
+
+This keeps generation and rubric scoring decoupled, which is cleaner for repeated `SFT`, `DPO`, and `GRPO` comparisons.
+
+Main docs:
+
+- [`docs/EVALUATION.md`](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.md)
+- [`evaluation/README.md`](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.md)
+
+## 8. Commit what belongs in Git
 
 Recommended Git policy:
 
@@ -102,7 +119,7 @@ Recommended Git policy:
 - do not commit processed datasets
 - do not commit model weights or checkpoint binaries
 
-## 8. Suggested project narrative
+## 9. Suggested project narrative
 
 For interview discussion, the most natural story is:
 
@@ -110,4 +127,5 @@ For interview discussion, the most natural story is:
 2. Use assistant-only loss to perform standard SFT.
 3. Start with a small smoke-test dataset to validate the whole pipeline.
 4. Scale to a larger formal dataset with periodic evaluation and W&B monitoring.
-5. Export lightweight experiment records so each training run is traceable and reviewable.
+5. Evaluate with an open-ended rubric benchmark rather than relying only on medical multiple-choice sets.
+6. Export lightweight experiment records so each training run is traceable and reviewable.

@@ -2,6 +2,8 @@
 
 This document explains the purpose, commands, parameters, and outputs of the core scripts in this repository.
 
+Evaluation scripts are included at the end so training and benchmark usage live in one place.
+
 ## 1. `sft_data_prepare.py`
 
 Path:
@@ -309,7 +311,112 @@ final_model/
 wandb/
 ```
 
-## 3. `run_sft_qwen3_8b_medical_1k.sh`
+## 3. `evaluation/run_eval.py`
+
+Path:
+
+- [`evaluation/run_eval.py`](/home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py)
+
+### What it does
+
+- Loads `HealthBench`
+- Runs local generation with the base model or base-plus-LoRA
+- Optionally calls the official OpenAI rubric judge
+- Saves reusable responses, judgments, summary JSON, summary Markdown, and logs
+
+### Standard command
+
+```bash
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --benchmark healthbench \
+  --subset-name consensus \
+  --mode full \
+  --judge-mode openai \
+  --judge-model gpt-4.1-mini \
+  --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
+  --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model \
+  --run-name 20260409_healthbench_huatuo1k \
+  --max-examples 10 \
+  --generator-device cuda:0
+```
+
+### Common examples
+
+Base model generate-only smoke test:
+
+```bash
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_base.json \
+  --mode generate_only \
+  --judge-mode none \
+  --run-name 20260409_healthbench_base_generate
+```
+
+LoRA model full evaluation:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_huatuo_1k_lora.json \
+  --run-name 20260409_healthbench_huatuo1k_full
+```
+
+Judge-only retry on existing responses:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_base.json \
+  --mode judge_only \
+  --responses-path /home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260409_healthbench_base_generate/responses.jsonl \
+  --run-name 20260409_healthbench_base_judge
+```
+
+### Parameters
+
+| Parameter | Meaning | Typical value |
+| --- | --- | --- |
+| `--config` | Optional JSON config | `evaluation/configs/*.json` |
+| `--subset-name` | HealthBench subset | `consensus`, `hard`, `full` |
+| `--mode` | Run mode | `full`, `generate_only`, `judge_only` |
+| `--judge-mode` | Judge backend | `openai`, `none` |
+| `--judge-model` | Judge model name | `gpt-4.1-mini` |
+| `--model-name-or-path` | Base model path | `/home/qjh/llm_learning/base_model/qwen3_8B` |
+| `--adapter-path` | Optional LoRA path | `.../final_model` |
+| `--max-examples` | Sample cap for smoke tests | `1`, `10`, `50` |
+| `--generator-device` | Generation device | `cuda:0` |
+| `--enable-thinking` | Enable Qwen3 thinking mode | usually keep off |
+| `--responses-path` | Reuse an existing response file | optional |
+| `--judgments-path` | Reuse an existing judgment file | optional |
+| `--overwrite-responses` | Force regenerate responses | optional |
+| `--overwrite-judgments` | Force rejudge outputs | optional |
+
+### Output files
+
+- `outputs/eval/<run_name>/artifacts/run_args.json`
+- `outputs/eval/<run_name>/artifacts/dataset_manifest.json`
+- `outputs/eval/<run_name>/logs/eval.log`
+- `outputs/eval/<run_name>/responses.jsonl`
+- `outputs/eval/<run_name>/judgments.jsonl`
+- `outputs/eval/<run_name>/summary.json`
+- `outputs/eval/<run_name>/summary.md`
+
+### Launcher scripts
+
+- [`script/run_eval_healthbench_qwen3_8b_base.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh)
+- [`script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh)
+
+Launcher default behavior:
+
+- default mode is `generate_only`
+- default judge mode is `none`
+- to run official scoring, export `OPENAI_API_KEY` and override `MODE=full JUDGE_MODE=openai`
+
+## 4. `run_sft_qwen3_8b_medical_1k.sh`
 
 Path:
 
@@ -371,7 +478,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 | `WANDB_PROJECT` | W&B project | `my-medical-gpt-sft` |
 | `WANDB_MODE` | W&B mode | `online` |
 
-## 4. `run_sft_qwen3_8b_huatuo_5w.sh`
+## 5. `run_sft_qwen3_8b_huatuo_5w.sh`
 
 Path:
 
@@ -406,7 +513,7 @@ SAVE_INTERVAL=20 \
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
-## 5. `export_experiment_records.py`
+## 6. `export_experiment_records.py`
 
 Path:
 

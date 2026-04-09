@@ -15,6 +15,14 @@ A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chine
 ## Repo layout
 
 ```text
+evaluation/
+  benchmarks/
+  generators/
+  judges/
+  configs/
+script/
+  run_eval_healthbench_qwen3_8b_base.sh
+  run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
 script/
   sft_data_prepare.py
   train_sft.py
@@ -36,6 +44,10 @@ experiment_records/
   Detailed usage for every core script, including commands, parameters, examples, and output files.
 - [Workflow Guide](/home/qjh/llm_learning/my_medical_gpt/docs/WORKFLOW.md)
   Recommended project workflow from raw data to smoke test, formal run, and experiment archival.
+- [Evaluation Design](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.md)
+  Explains why `HealthBench` is the main open-ended benchmark and how it maps to `SFT`, `DPO`, and `GRPO`.
+- [Evaluation README](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.md)
+  Covers evaluation modes, output files, recovery behavior, and benchmark-facing code layout.
 - [Experiment Records README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.md)
   Explains what gets exported into git-tracked experiment snapshots.
 
@@ -72,6 +84,20 @@ Export lightweight experiment records:
 
 ```bash
 python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+```
+
+Run a HealthBench base-model smoke evaluation without official judging:
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+```
+
+Run official HealthBench judging after exporting the API key:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+MODE=full JUDGE_MODE=openai \
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 ## Data policy
