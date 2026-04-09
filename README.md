@@ -1,83 +1,97 @@
 # Star Medical GPT
 
-A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chinese medical SFT data, LoRA training, and W&B-based experiment tracking.
+A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chinese medical SFT data, LoRA training, evaluation during training, W&B experiment tracking, and lightweight reproducibility records.
 
-## What is in this repo
-
-- `script/sft_data_prepare.py`
-  Preprocesses raw SFT datasets into unified `conversations` format.
-- `script/train_sft.py`
-  Runs standard SFT with assistant-only loss, LoRA, periodic evaluation, checkpointing, and W&B logging.
-- `script/run_sft_qwen3_8b_medical_1k.sh`
-  Smoke-test launcher for `huatuo_1k + valid_zh_500`.
-- `script/run_sft_qwen3_8b_huatuo_5w.sh`
-  Formal small-version launcher for `huatuo_5w + valid_zh_500`.
-- `script/export_experiment_records.py`
-  Exports lightweight, git-friendly experiment records from `outputs/` into `experiment_records/`.
-
-## Current training design
+## Project focus
 
 - Base model: `Qwen3-8B`
 - Fine-tuning method: `LoRA`
-- Loss design: only assistant response tokens contribute to loss
+- Loss design: standard SFT with assistant-only loss by default
 - Runtime: single-node 2-GPU `torchrun`
 - Tracking: Weights & Biases
-- Evaluation: periodic `eval_loss` during training, plus final evaluation
+- Evaluation: periodic `eval_loss` during training plus final evaluation
+- Experiment traceability: lightweight exported records under `experiment_records/`
 
-## Data policy
-
-Large raw and processed datasets are intentionally **not committed** to this repository.
-Large checkpoints, LoRA weights, optimizer states, tokenizer dumps, and local W&B artifacts are also intentionally **not committed**.
-
-Typical local layout:
+## Repo layout
 
 ```text
+script/
+  sft_data_prepare.py
+  train_sft.py
+  run_sft_qwen3_8b_medical_1k.sh
+  run_sft_qwen3_8b_huatuo_5w.sh
+  export_experiment_records.py
 data/
   sft/
     raw/
     processed/
+outputs/
+  sft/
+experiment_records/
 ```
 
-You can regenerate processed datasets locally with:
+## Documentation
 
-```bash
-python /path/to/script/sft_data_prepare.py ...
-```
+- [Script Guide](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.md)
+  Detailed usage for every core script, including commands, parameters, examples, and output files.
+- [Workflow Guide](/home/qjh/llm_learning/my_medical_gpt/docs/WORKFLOW.md)
+  Recommended project workflow from raw data to smoke test, formal run, and experiment archival.
+- [Experiment Records README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.md)
+  Explains what gets exported into git-tracked experiment snapshots.
 
-## Example runs
+## Quick start
 
-Smoke test:
+Activate the environment:
 
 ```bash
 conda activate medicalgpt
+```
+
+Prepare a dataset:
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+  --input-files /path/to/raw.jsonl \
+  --split train \
+  --input-format auto
+```
+
+Run the 1k smoke test:
+
+```bash
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 ```
 
-Formal small version:
+Run the 5w formal version:
 
 ```bash
-conda activate medicalgpt
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 Export lightweight experiment records:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
-  --run-name 20260409_1204_qwen3-8b_huatuo-1k_eval_smoke \
-  --force
-```
-
-Or export every discovered run under `outputs/sft`:
-
-```bash
 python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
 ```
 
-By default, `--all` skips `dryrun` directories and obvious failed runs. If you really want everything, add `--include-dryrun --include-failed`.
+## Data policy
+
+Large raw and processed datasets are intentionally **not committed** to this repository.
+Large checkpoints, LoRA weights, optimizer states, tokenizer dumps, and local W&B artifacts are also intentionally **not committed**.
+
+Only lightweight reproducibility artifacts such as:
+
+- run arguments
+- dataset statistics
+- metrics history
+- final train/eval summaries
+- sanitized logs
+
+are exported into `experiment_records/` and suitable for GitHub.
 
 ## Notes
 
 - The current environment falls back to standard attention when `flash_attn` is not installed.
 - Validation can come from an external validation set or from a train split holdout, depending on launcher arguments.
-- This repo is intentionally organized to support later extension toward larger medical SFT experiments, evaluation benchmarks, and alignment stages.
+- `export_experiment_records.py --all` skips `dryrun` directories and obvious failed runs by default.
+- This repo is organized to support later extension toward larger medical SFT experiments, evaluation benchmarks, and alignment stages.
