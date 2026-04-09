@@ -1,0 +1,108 @@
+{
+  "overall": {
+    "raw_mean": 0.2833333333333333,
+    "clipped_mean": 0.2833333333333333,
+    "n": 10
+  },
+  "by_axis": {
+    "axis:accuracy": {
+      "raw_mean": 0.14285714285714285,
+      "clipped_mean": 0.14285714285714285,
+      "n": 7
+    },
+    "axis:communication_quality": {
+      "raw_mean": 0.6666666666666666,
+      "clipped_mean": 0.6666666666666666,
+      "n": 3
+    },
+    "axis:context_awareness": {
+      "raw_mean": 0.125,
+      "clipped_mean": 0.125,
+      "n": 8
+    },
+    "axis:instruction_following": {
+      "raw_mean": 1.0,
+      "clipped_mean": 1.0,
+      "n": 1
+    }
+  },
+  "by_theme": {
+    "theme:complex_responses": {
+      "raw_mean": 0.5,
+      "clipped_mean": 0.5,
+      "n": 1
+    },
+    "theme:context_seeking": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 1
+    },
+    "theme:emergency_referrals": {
+      "raw_mean": 0.25,
+      "clipped_mean": 0.25,
+      "n": 2
+    },
+    "theme:global_health": {
+      "raw_mean": 0.25,
+      "clipped_mean": 0.25,
+      "n": 2
+    },
+    "theme:health_data_tasks": {
+      "raw_mean": 1.0,
+      "clipped_mean": 1.0,
+      "n": 1
+    },
+    "theme:hedging": {
+      "raw_mean": 0.1111111111111111,
+      "clipped_mean": 0.1111111111111111,
+      "n": 3
+    }
+  },
+  "by_physician_category": {
+    "physician_agreed_category:any-reducible-uncertainty": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 2
+    },
+    "physician_agreed_category:context-matters-is-clear": {
+      "raw_mean": 0.25,
+      "clipped_mean": 0.25,
+      "n": 2
+    },
+    "physician_agreed_category:enough-context": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 1
+    },
+    "physician_agreed_category:non-emergent": {
+      "raw_mean": 0.25,
+      "clipped_mean": 0.25,
+      "n": 2
+    },
+    "physician_agreed_category:not-enough-info-to-complete-task": {
+      "raw_mean": 1.0,
+      "clipped_mean": 1.0,
+      "n": 1
+    },
+    "physician_agreed_category:only-irreducible-uncertainty": {
+      "raw_mean": 0.3333333333333333,
+      "clipped_mean": 0.3333333333333333,
+      "n": 1
+    },
+    "physician_agreed_category:simple": {
+      "raw_mean": 0.5,
+      "clipped_mean": 0.5,
+      "n": 1
+    }
+  },
+  "num_judged_examples": 10,
+  "benchmark": "healthbench",
+  "subset_name": "consensus",
+  "judge_model": "gpt-5.2",
+  "model_alias": "qwen3_8b_huatuo_1k_lora",
+  "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+  "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model",
+  "run_name": "20260409_healthbench_huatuo1k_gpt52_full_10",
+  "judge_api_base_url": "https://big-model.smart-agi.com/v1/chat/completions",
+  "judge_actual_model": "gpt-5.2"
+}

@@ -46,6 +46,10 @@ experiment_records/
   Recommended project workflow from raw data to smoke test, formal run, and experiment archival.
 - [Evaluation Design](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.md)
   Explains why `HealthBench` is the main open-ended benchmark and how it maps to `SFT`, `DPO`, and `GRPO`.
+- [Evaluation Results](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_RESULTS.md)
+  Summarizes the current base vs `huatuo_1k` smoke comparison and how to read the result.
+- [Evaluation Integration](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_INTEGRATION.md)
+  Shows how to plug future `SFT`, `DPO`, `GRPO`, merged models, or LoRA adapters into the same evaluation harness.
 - [Evaluation README](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.md)
   Covers evaluation modes, output files, recovery behavior, and benchmark-facing code layout.
 - [Experiment Records README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.md)
