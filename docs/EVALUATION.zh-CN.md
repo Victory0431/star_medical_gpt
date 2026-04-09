@@ -36,6 +36,26 @@
 - 用于 `DPO` 看回答风格与沟通质量
 - 用于 `GRPO` 看指令遵循、补问能力与细粒度行为对齐
 
+## 当前推荐采样方式
+
+当前仓库已经支持两种采样模式：
+
+- `sequential`：顺序取前 `N` 条，适合最早期 smoke test
+- `stratified_theme`：按 `theme` 分层抽样，更适合正式对比实验
+
+对 `HealthBench consensus` 来说，当前常用的正式小规模配置是：
+
+- 7 个主题
+- 每个主题抽 `15` 条
+- 总计 `105` 条样本
+- 固定 `seed=42`
+
+这样做的好处是：
+
+- 不会因为某一个主题恰好抽多了而让结果失真
+- 更适合比较 `base / SFT / DPO / GRPO` 的阶段性差异
+- 面试里更容易说明“我不是随手抽 10 条，而是按主题做了平衡采样”
+
 ## 这套 benchmark 能测什么
 
 根据公开 rubric tag，目前比较核心的 axis 有：
@@ -145,6 +165,12 @@
 
 这两段式流程很符合真实工业使用方式。
 
+另外，`run_eval.py` 现在还支持：
+
+- 断点续跑：已有 `responses.jsonl` 或 `judgments.jsonl` 时会自动跳过已完成样本
+- 中央日志：除了每个 run 自己的日志，还会在 `evaluation/logs/` 下额外写一份带时间戳的总日志
+- 数据清单：每次运行都会把本次采样到的 prompt 清单落到 `artifacts/dataset_manifest.json`
+
 ## 分数是怎么构成的
 
 当前仓库把分数分成四层：
@@ -253,6 +279,22 @@ axis 结果：
 
 - [summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)
 - [README.md](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/README.md)
+
+## 当前正式评测配置
+
+为方便复现，仓库中已经补了三份 `theme15` 配置：
+
+- [evaluation/configs/healthbench_theme15_base.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json)
+- [evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json)
+- [evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json)
+
+它们统一使用：
+
+- `subset_name=consensus`
+- `sampling_mode=stratified_theme`
+- `per_theme_examples=15`
+- `judge_model=gpt-5.2`
+- `temperature=0`
 
 ## 现阶段的限制
 

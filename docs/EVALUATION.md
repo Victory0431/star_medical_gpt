@@ -34,6 +34,26 @@ This makes it much more suitable for:
 - `DPO` evaluation on answer style and communication
 - `GRPO` evaluation on instruction following, hedging, and context-seeking behavior
 
+## Recommended sampling mode in this repo
+
+The repo now supports two practical sampling modes:
+
+- `sequential`: take the first `N` examples, mainly for early smoke tests
+- `stratified_theme`: sample evenly by `theme`, which is better for formal model comparisons
+
+For `HealthBench consensus`, the current small-but-serious setting is:
+
+- 7 themes
+- `15` examples per theme
+- `105` examples in total
+- fixed `seed=42`
+
+Why this matters:
+
+- it reduces the chance that one theme dominates the score by accident
+- it is much more suitable for `base / SFT / DPO / GRPO` stage comparisons
+- it is also easier to defend in interviews than “I just sampled 10 examples”
+
 ## What HealthBench can measure for this project
 
 From the released rubric tags, the benchmark naturally exposes these axes:
@@ -142,6 +162,12 @@ The practical run modes are:
 - `judge_only`: reuse an existing `responses.jsonl` and only call the judge
 
 The last two modes are especially useful for industrial workflows, because API judging is often retried separately from local inference.
+
+In addition, `run_eval.py` now supports:
+
+- resume behavior: existing `responses.jsonl` and `judgments.jsonl` are reused automatically
+- central timestamped logs under `evaluation/logs/`
+- dataset manifests saved to `artifacts/dataset_manifest.json` so the sampled prompt set is traceable
 
 ## Score construction
 
@@ -252,6 +278,22 @@ The corresponding lightweight record is stored under:
 
 - [`experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json`](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)
 - [`experiment_records/eval/20260409_healthbench_base_gpt52_full_10/README.md`](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/README.md)
+
+## Current formal evaluation configs
+
+To make reruns easier, the repo now includes three `theme15` config files:
+
+- [`evaluation/configs/healthbench_theme15_base.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json)
+- [`evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json)
+- [`evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json)
+
+They consistently use:
+
+- `subset_name=consensus`
+- `sampling_mode=stratified_theme`
+- `per_theme_examples=15`
+- `judge_model=gpt-5.2`
+- `temperature=0`
 
 ## Important limitation
 

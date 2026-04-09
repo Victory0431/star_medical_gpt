@@ -4,7 +4,86 @@
 
 这份文档记录了当前最值得在面试里讨论的一组 benchmark 快照。
 
-## 当前 smoke 结果矩阵
+## 正式分层结果矩阵
+
+对比配置：
+
+- benchmark：`HealthBench consensus`
+- 采样方式：`stratified_theme`
+- 采样配置：`7` 个主题，每个主题 `15` 条，总计 `105` 条
+- 随机种子：`42`
+- 请求 judge 模型：`gpt-5.2`
+- 实际返回 judge 模型：`gpt-5.2`
+- judge API 形式：OpenAI 兼容 chat completions
+
+参与对比的 run：
+
+- base：`20260409_healthbench_base_gpt52_full_theme15x7`
+- sft 5w 最优 checkpoint：`20260409_healthbench_huatuo5w_ckpt75_gpt52_full_theme15x7`
+- sft 5w 较晚 checkpoint：`20260409_healthbench_huatuo5w_ckpt925_gpt52_full_theme15x7`
+
+## 结论先看
+
+| 模型 | overall clipped mean | 备注 |
+| --- | ---: | --- |
+| `Qwen3-8B base` | `0.2206` | 当前正式 stratified baseline |
+| `Qwen3-8B + huatuo_5w LoRA (ckpt-75)` | `0.2889` | 当前最优正式 SFT baseline |
+| `Qwen3-8B + huatuo_5w LoRA (ckpt-925)` | `0.2587` | 同一 run 中更晚的 checkpoint |
+
+结论摘要：
+
+- `huatuo_5w` 在 `105` 条按主题平衡采样的正式小规模评测上已经稳定超过 base
+- `checkpoint-75` 明确优于 `checkpoint-925`，说明最佳 checkpoint 出现在更早阶段
+- `checkpoint-925` 虽然仍高于 base，但已经在 `accuracy`、`completeness`、`emergency_referrals` 上出现回退
+- 这使“早停 + 最佳 checkpoint 选择”从经验建议变成了有 benchmark 支撑的标准流程
+
+## Axis 对比
+
+| axis | base | 5w ckpt-75 | 5w ckpt-925 |
+| --- | ---: | ---: | ---: |
+| `axis:accuracy` | `0.1711` | `0.2368` | `0.1974` |
+| `axis:communication_quality` | `0.2000` | `0.2889` | `0.2444` |
+| `axis:completeness` | `0.0000` | `0.2500` | `0.0000` |
+| `axis:context_awareness` | `0.2407` | `0.3704` | `0.3333` |
+| `axis:instruction_following` | `0.5000` | `0.3667` | `0.5333` |
+
+解读：
+
+- `checkpoint-75` 在 `accuracy`、`completeness`、`context_awareness` 上最强，整体最均衡
+- `checkpoint-925` 的 `instruction_following` 高于 `checkpoint-75`，但没能转化为更高总分
+- 对医疗问答更关键的 `accuracy` 和 `context_awareness`，仍然是 `checkpoint-75` 更优
+
+## Theme 对比
+
+| theme | base | 5w ckpt-75 | 5w ckpt-925 |
+| --- | ---: | ---: | ---: |
+| `theme:communication` | `0.0333` | `0.0667` | `0.0667` |
+| `theme:complex_responses` | `0.2333` | `0.2000` | `0.2333` |
+| `theme:context_seeking` | `0.0333` | `0.0333` | `0.1667` |
+| `theme:emergency_referrals` | `0.2667` | `0.4333` | `0.2000` |
+| `theme:global_health` | `0.2667` | `0.5333` | `0.3333` |
+| `theme:health_data_tasks` | `0.4667` | `0.3333` | `0.4333` |
+| `theme:hedging` | `0.2444` | `0.4222` | `0.3778` |
+
+解读：
+
+- `checkpoint-75` 在 `emergency_referrals`、`global_health`、`hedging` 上的优势最明显
+- `checkpoint-925` 在 `context_seeking` 上更高，但代价是 `emergency_referrals` 明显回退
+- `health_data_tasks` 是 base 本身不弱的主题，因此正式结论不能只靠这个切片来讲
+
+## 面试里最值得讲的故事
+
+更强的表述不是：
+
+- “我把模型训了更久，分数更高了。”
+
+而是：
+
+- “我在 `HealthBench consensus` 上做了按主题分层抽样，每个主题 `15` 条，共 `105` 条。结果 `huatuo_5w` 的最优 checkpoint-75 能稳定超过 base，但更晚的 checkpoint-925 反而回退。这说明 SFT 不应该只看训练时长，而要把最佳 checkpoint 选择和切片诊断纳入标准流程。”
+
+这种说法会明显更接近真实工业实验。
+
+## 早期 smoke 结果矩阵（仅供参考）
 
 对比配置：
 
@@ -115,6 +194,10 @@
 
 ## 结果来源
 
+- [formal base summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_theme15x7/summary.json)
+- [formal 5w ckpt-75 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt75_gpt52_full_theme15x7/summary.json)
+- [formal 5w ckpt-925 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt925_gpt52_full_theme15x7/summary.json)
+- [formal base vs 5w compare README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_compare_base_vs_huatuo5w_gpt52_theme15x7/README.zh-CN.md)
 - [base summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)
 - [1k LoRA summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo1k_gpt52_full_10/summary.json)
 - [5w ckpt-75 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt75_gpt52_full_10/summary.json)

@@ -44,6 +44,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-examples", type=int, default=20)
     parser.add_argument("--shuffle", action="store_true", default=False)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--sampling-mode",
+        default="sequential",
+        choices=["sequential", "stratified_theme"],
+    )
+    parser.add_argument(
+        "--per-theme-examples",
+        type=int,
+        default=-1,
+        help="When sampling_mode=stratified_theme, sample this many examples per theme.",
+    )
     parser.add_argument("--generator-device", default="cuda:0")
     parser.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16", "float32"])
     parser.add_argument("--enable-thinking", action="store_true", default=False)
@@ -112,7 +123,14 @@ def main() -> None:
     args.model_alias = args.model_alias or infer_model_alias(args.model_name_or_path, args.adapter_path)
 
     run_dir = Path(args.output_root) / args.run_name
-    logger = setup_logger(run_dir / "logs" / "eval.log", "my_medical_gpt.eval")
+    central_log_path = (
+        PROJECT_ROOT / "evaluation" / "logs" / f"{timestamp()}_{args.run_name}.log"
+    )
+    logger = setup_logger(
+        run_dir / "logs" / "eval.log",
+        "my_medical_gpt.eval",
+        extra_log_paths=[central_log_path],
+    )
     save_json(vars(args), run_dir / "artifacts" / "run_args.json")
 
     if args.mode in {"full", "judge_only"} and args.judge_mode == "openai":
@@ -130,8 +148,28 @@ def main() -> None:
         max_examples=args.max_examples,
         seed=args.seed,
         shuffle=args.shuffle,
+        sampling_mode=args.sampling_mode,
+        per_theme_examples=args.per_theme_examples,
     )
-    logger.info("Loaded %d %s examples from %s", len(examples), args.subset_name, local_dataset_path)
+    logger.info(
+        "Loaded %d %s examples from %s with sampling_mode=%s per_theme_examples=%s shuffle=%s seed=%s",
+        len(examples),
+        args.subset_name,
+        local_dataset_path,
+        args.sampling_mode,
+        args.per_theme_examples,
+        args.shuffle,
+        args.seed,
+    )
+
+    theme_counts: dict[str, int] = {}
+    for example in examples:
+        for tag in example.example_tags:
+            if tag.startswith("theme:"):
+                theme_counts[tag] = theme_counts.get(tag, 0) + 1
+
+    if theme_counts:
+        logger.info("Selected theme distribution: %s", json.dumps(theme_counts, ensure_ascii=False, sort_keys=True))
 
     save_json(
         {
@@ -139,6 +177,9 @@ def main() -> None:
             "subset_name": args.subset_name,
             "num_examples": len(examples),
             "dataset_path": str(local_dataset_path),
+            "sampling_mode": args.sampling_mode,
+            "per_theme_examples": args.per_theme_examples,
+            "theme_distribution": theme_counts,
             "manifest": [example.to_manifest_row() for example in examples],
         },
         run_dir / "artifacts" / "dataset_manifest.json",

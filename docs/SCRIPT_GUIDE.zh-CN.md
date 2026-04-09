@@ -366,6 +366,17 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
   --run-name 20260409_healthbench_huatuo1k_full
 ```
 
+按主题分层抽样的正式对比：
+
+```bash
+export OPENAI_API_KEY=your_key_here
+export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json \
+  --run-name 20260409_healthbench_base_gpt52_full_theme15x7
+```
+
 复用已有 responses 做 `judge_only`：
 
 ```bash
@@ -391,6 +402,8 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 | `--model-name-or-path` | 基座模型路径 | `/home/qjh/llm_learning/base_model/qwen3_8B` |
 | `--adapter-path` | 可选 LoRA 路径 | `.../final_model` |
 | `--max-examples` | 样本上限，适合做 smoke test | `1` `10` `50` |
+| `--sampling-mode` | 采样方式 | `sequential` `stratified_theme` |
+| `--per-theme-examples` | 分层抽样时每个主题取多少条 | `15` |
 | `--generator-device` | 本地生成设备 | `cuda:0` |
 | `--enable-thinking` | 是否启用 Qwen3 thinking mode | 一般关闭 |
 | `--responses-path` | 复用已有 response 文件 | 可选 |
@@ -407,6 +420,17 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 - `outputs/eval/<run_name>/judgments.jsonl`
 - `outputs/eval/<run_name>/summary.json`
 - `outputs/eval/<run_name>/summary.md`
+- `evaluation/logs/<timestamp>_<run_name>.log`
+
+### 正式评测配置
+
+当前仓库已经内置：
+
+- [evaluation/configs/healthbench_smoke_base.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_base.json)
+- [evaluation/configs/healthbench_smoke_huatuo_1k_lora.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_huatuo_1k_lora.json)
+- [evaluation/configs/healthbench_theme15_base.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json)
+- [evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json)
+- [evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json)
 
 ### 配套 launcher
 

@@ -1,0 +1,167 @@
+{
+  "overall": {
+    "raw_mean": 0.22063492063492054,
+    "clipped_mean": 0.22063492063492054,
+    "n": 105
+  },
+  "by_axis": {
+    "axis:accuracy": {
+      "raw_mean": 0.17105263157894737,
+      "clipped_mean": 0.17105263157894737,
+      "n": 76
+    },
+    "axis:communication_quality": {
+      "raw_mean": 0.2,
+      "clipped_mean": 0.2,
+      "n": 45
+    },
+    "axis:completeness": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 12
+    },
+    "axis:context_awareness": {
+      "raw_mean": 0.24074074074074073,
+      "clipped_mean": 0.24074074074074073,
+      "n": 54
+    },
+    "axis:instruction_following": {
+      "raw_mean": 0.5,
+      "clipped_mean": 0.5,
+      "n": 15
+    }
+  },
+  "by_theme": {
+    "theme:communication": {
+      "raw_mean": 0.03333333333333333,
+      "clipped_mean": 0.03333333333333333,
+      "n": 15
+    },
+    "theme:complex_responses": {
+      "raw_mean": 0.23333333333333334,
+      "clipped_mean": 0.23333333333333334,
+      "n": 15
+    },
+    "theme:context_seeking": {
+      "raw_mean": 0.03333333333333333,
+      "clipped_mean": 0.03333333333333333,
+      "n": 15
+    },
+    "theme:emergency_referrals": {
+      "raw_mean": 0.26666666666666666,
+      "clipped_mean": 0.26666666666666666,
+      "n": 15
+    },
+    "theme:global_health": {
+      "raw_mean": 0.26666666666666666,
+      "clipped_mean": 0.26666666666666666,
+      "n": 15
+    },
+    "theme:health_data_tasks": {
+      "raw_mean": 0.4666666666666667,
+      "clipped_mean": 0.4666666666666667,
+      "n": 15
+    },
+    "theme:hedging": {
+      "raw_mean": 0.24444444444444446,
+      "clipped_mean": 0.24444444444444446,
+      "n": 15
+    }
+  },
+  "by_physician_category": {
+    "physician_agreed_category:any-reducible-uncertainty": {
+      "raw_mean": 0.1111111111111111,
+      "clipped_mean": 0.1111111111111111,
+      "n": 6
+    },
+    "physician_agreed_category:conditionally-emergent": {
+      "raw_mean": 0.1,
+      "clipped_mean": 0.1,
+      "n": 5
+    },
+    "physician_agreed_category:context-does-not-matter": {
+      "raw_mean": 0.5833333333333334,
+      "clipped_mean": 0.5833333333333334,
+      "n": 6
+    },
+    "physician_agreed_category:context-matters-but-unclear": {
+      "raw_mean": 0.08333333333333333,
+      "clipped_mean": 0.08333333333333333,
+      "n": 6
+    },
+    "physician_agreed_category:context-matters-is-clear": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 3
+    },
+    "physician_agreed_category:detailed": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 6
+    },
+    "physician_agreed_category:emergent": {
+      "raw_mean": 0.35714285714285715,
+      "clipped_mean": 0.35714285714285715,
+      "n": 7
+    },
+    "physician_agreed_category:enough-context": {
+      "raw_mean": 0.0625,
+      "clipped_mean": 0.0625,
+      "n": 8
+    },
+    "physician_agreed_category:enough-info-to-complete-task": {
+      "raw_mean": 0.35714285714285715,
+      "clipped_mean": 0.35714285714285715,
+      "n": 7
+    },
+    "physician_agreed_category:health-professional": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 6
+    },
+    "physician_agreed_category:no-uncertainty": {
+      "raw_mean": 0.41666666666666663,
+      "clipped_mean": 0.41666666666666663,
+      "n": 4
+    },
+    "physician_agreed_category:non-emergent": {
+      "raw_mean": 0.3333333333333333,
+      "clipped_mean": 0.3333333333333333,
+      "n": 3
+    },
+    "physician_agreed_category:not-enough-context": {
+      "raw_mean": 0.0,
+      "clipped_mean": 0.0,
+      "n": 7
+    },
+    "physician_agreed_category:not-enough-info-to-complete-task": {
+      "raw_mean": 0.5625,
+      "clipped_mean": 0.5625,
+      "n": 8
+    },
+    "physician_agreed_category:not-health-professional": {
+      "raw_mean": 0.05555555555555555,
+      "clipped_mean": 0.05555555555555555,
+      "n": 9
+    },
+    "physician_agreed_category:only-irreducible-uncertainty": {
+      "raw_mean": 0.26666666666666666,
+      "clipped_mean": 0.26666666666666666,
+      "n": 5
+    },
+    "physician_agreed_category:simple": {
+      "raw_mean": 0.3888888888888889,
+      "clipped_mean": 0.3888888888888889,
+      "n": 9
+    }
+  },
+  "num_judged_examples": 105,
+  "benchmark": "healthbench",
+  "subset_name": "consensus",
+  "judge_model": "gpt-5.2",
+  "model_alias": "qwen3_8b_base_theme15",
+  "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+  "adapter_path": null,
+  "responses_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260409_healthbench_base_gpt52_full_theme15x7/responses.jsonl",
+  "judgments_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260409_healthbench_base_gpt52_full_theme15x7/judgments.jsonl"
+}

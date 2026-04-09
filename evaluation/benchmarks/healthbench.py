@@ -59,12 +59,65 @@ def _cache_path(cache_root: Path, subset_name: str) -> Path:
     return cache_root / "evals" / "healthbench" / filename
 
 
+def _get_single_theme_tag(example: "HealthBenchExample") -> str:
+    theme_tags = [tag for tag in example.example_tags if tag.startswith("theme:")]
+    if len(theme_tags) != 1:
+        raise ValueError(
+            f"Expected exactly one theme tag for prompt_id={example.prompt_id}, got {theme_tags}"
+        )
+    return theme_tags[0]
+
+
+def _select_examples(
+    examples: list["HealthBenchExample"],
+    sampling_mode: str,
+    max_examples: int,
+    per_theme_examples: int,
+    seed: int,
+    shuffle: bool,
+) -> list["HealthBenchExample"]:
+    if sampling_mode == "sequential":
+        selected = list(examples)
+        if shuffle:
+            rng = random.Random(seed)
+            rng.shuffle(selected)
+        if max_examples is not None and max_examples >= 0:
+            selected = selected[:max_examples]
+        return selected
+
+    if sampling_mode != "stratified_theme":
+        raise ValueError(f"Unsupported sampling mode: {sampling_mode}")
+
+    if per_theme_examples <= 0:
+        raise ValueError("per_theme_examples must be > 0 when sampling_mode=stratified_theme")
+
+    grouped: dict[str, list[HealthBenchExample]] = defaultdict(list)
+    for example in examples:
+        grouped[_get_single_theme_tag(example)].append(example)
+
+    rng = random.Random(seed)
+    selected: list[HealthBenchExample] = []
+    for theme_tag in sorted(grouped):
+        bucket = list(grouped[theme_tag])
+        rng.shuffle(bucket)
+        if len(bucket) < per_theme_examples:
+            raise ValueError(
+                f"Theme {theme_tag} has only {len(bucket)} examples, fewer than requested "
+                f"{per_theme_examples}"
+            )
+        selected.extend(bucket[:per_theme_examples])
+
+    return selected
+
+
 def load_healthbench_examples(
     subset_name: str,
     cache_root: Path,
     max_examples: int = -1,
     seed: int = 42,
     shuffle: bool = False,
+    sampling_mode: str = "sequential",
+    per_theme_examples: int = -1,
 ) -> tuple[list[HealthBenchExample], Path]:
     if subset_name not in DATASET_URLS:
         raise ValueError(f"Unsupported HealthBench subset: {subset_name}")
@@ -86,12 +139,15 @@ def load_healthbench_examples(
                 )
             )
 
-    if shuffle:
-        rng = random.Random(seed)
-        rng.shuffle(examples)
-    if max_examples is not None and max_examples >= 0:
-        examples = examples[:max_examples]
-    return examples, local_path
+    selected_examples = _select_examples(
+        examples=examples,
+        sampling_mode=sampling_mode,
+        max_examples=max_examples,
+        per_theme_examples=per_theme_examples,
+        seed=seed,
+        shuffle=shuffle,
+    )
+    return selected_examples, local_path
 
 
 def render_conversation_for_judge(

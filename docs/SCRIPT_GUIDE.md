@@ -365,6 +365,17 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
   --run-name 20260409_healthbench_huatuo1k_full
 ```
 
+Formal stratified comparison by theme:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json \
+  --run-name 20260409_healthbench_base_gpt52_full_theme15x7
+```
+
 Judge-only retry on existing responses:
 
 ```bash
@@ -390,6 +401,8 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 | `--model-name-or-path` | Base model path | `/home/qjh/llm_learning/base_model/qwen3_8B` |
 | `--adapter-path` | Optional LoRA path | `.../final_model` |
 | `--max-examples` | Sample cap for smoke tests | `1`, `10`, `50` |
+| `--sampling-mode` | Sampling strategy | `sequential`, `stratified_theme` |
+| `--per-theme-examples` | Examples per theme under stratified sampling | `15` |
 | `--generator-device` | Generation device | `cuda:0` |
 | `--enable-thinking` | Enable Qwen3 thinking mode | usually keep off |
 | `--responses-path` | Reuse an existing response file | optional |
@@ -406,6 +419,17 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 - `outputs/eval/<run_name>/judgments.jsonl`
 - `outputs/eval/<run_name>/summary.json`
 - `outputs/eval/<run_name>/summary.md`
+- `evaluation/logs/<timestamp>_<run_name>.log`
+
+### Built-in evaluation configs
+
+The repo now includes:
+
+- [`evaluation/configs/healthbench_smoke_base.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_base.json)
+- [`evaluation/configs/healthbench_smoke_huatuo_1k_lora.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_huatuo_1k_lora.json)
+- [`evaluation/configs/healthbench_theme15_base.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_base.json)
+- [`evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt75.json)
+- [`evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json`](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_huatuo_5w_ckpt925.json)
 
 ### Launcher scripts
 

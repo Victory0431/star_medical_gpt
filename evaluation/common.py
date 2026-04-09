@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Sequence
 
 
 def timestamp() -> str:
@@ -35,7 +35,7 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def setup_logger(log_path: Path, name: str) -> logging.Logger:
+def setup_logger(log_path: Path, name: str, extra_log_paths: Sequence[Path] | None = None) -> logging.Logger:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
@@ -47,11 +47,16 @@ def setup_logger(log_path: Path, name: str) -> logging.Logger:
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
 
-    file_handler = logging.FileHandler(log_path, encoding="utf-8")
-    file_handler.setFormatter(formatter)
-
     logger.addHandler(stream_handler)
-    logger.addHandler(file_handler)
+    file_paths = [log_path]
+    if extra_log_paths:
+        file_paths.extend(extra_log_paths)
+
+    for path in file_paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(path, encoding="utf-8")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     return logger
 
 
@@ -64,4 +69,3 @@ def chunked(items: Iterable[Any], size: int) -> Iterable[list[Any]]:
             batch = []
     if batch:
         yield batch
-
