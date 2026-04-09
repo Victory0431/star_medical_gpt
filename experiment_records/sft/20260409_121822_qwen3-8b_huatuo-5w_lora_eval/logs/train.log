@@ -1,0 +1,32 @@
+2026-04-09 12:18:29,559 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval
+2026-04-09 12:18:29,559 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_5w.processed.jsonl']
+2026-04-09 12:18:29,559 | INFO | Validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl']
+2026-04-09 12:18:29,635 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval
+2026-04-09 12:18:29,635 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_5w.processed.jsonl']
+2026-04-09 12:18:29,635 | INFO | Validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl']
+2026-04-09 12:18:30,989 | INFO | Validation source: external_validation
+2026-04-09 12:18:30,990 | INFO | train sample keys: ['conversations']
+2026-04-09 12:18:30,990 | INFO | train sample preview: [{"from": "human", "value": "我最近尿尿不适身体也不对劲,我怀疑自己是不是得了前列腺炎了.怎么判断自己就是得了前列腺炎呢"}, {"from": "gpt", "value": "前列腺炎的症状可能包括以下几种：\n\n1. 尿频、尿急、尿痛：这是最常见的症状，尤其是在早晨起床时尿频最为明显。\n2. 尿流变细、尿流中断、尿后滴漏：这是由于前列腺肿大压迫尿道所致。\n3. 下腹部、会阴部、腰部、肛门周围或大腿根部疼痛：这是由于前列腺炎引起的疼痛，可能会放射到这些部位。\n4. 性功能障碍：如勃起困难、早泄、性欲减退等。\n5. 射精痛或血精：这是由于前列腺炎引起的炎症刺激射精管所致。\n\n如果你有以上的一种或多种症状，可能需要考虑是否患有前列腺炎。然而，这些症状也可能是其他疾病的表现，如尿路感染、膀胱炎、肾结石等。因此，如果你有这些症状，建议你尽快去医院就诊，由专业的医生进行检查和诊断。\n\n医生可能会进行以下检查：\n\n1. 尿液检查：检查是否有白细胞或细菌，这可能是前列腺炎的标志。\n2. 前列腺液检查：通过直肠指检挤压前列腺，取出前列腺液进行检查。\n3. 血液检查：检查前列腺特异性抗原（PSA）水平，如果水平升高，可能是前列腺炎或前列腺癌的标志。\n4. 超声检查：通过超声波检查前列腺的大小和形状，以及是否有结石或肿瘤。\n\n请记住，只有医生才能确诊你是否患有前列腺炎，因此，如果你有任何疑虑，应尽快就医。"}]
+2026-04-09 12:18:30,991 | INFO | validation sample keys: ['conversations']
+2026-04-09 12:18:30,991 | INFO | validation sample preview: [{"from": "human", "value": "小孩五岁，脐周淋巴结肿大，小孩五岁，脐周淋巴结肿大，输液后不痛也不烧了，就是淋巴大了，原来9.3mm*3.4mm现在10mm*5mm又吃了半月克拉霉素和猴头菌提取物颗粒查了一下，变成10mm*6mm更大了，怎么办呀？请医生帮助，谢谢"}, {"from": "gpt", "value": "你好，考虑肠系膜淋巴结炎，本病常与上呼吸道感染有联系。临床表现为发热、腹痛、呕吐，或发生腹泻或便秘。腹痛有时象绞痛在右下腹部，也可在其他部位，本病多属病毒感染，一般自然痊愈，及时的对症治疗即可"}]
+2026-04-09 12:18:30,991 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:18:30,994 | INFO | Validation source: external_validation
+2026-04-09 12:18:30,995 | INFO | train sample keys: ['conversations']
+2026-04-09 12:18:30,995 | INFO | train sample preview: [{"from": "human", "value": "我最近尿尿不适身体也不对劲,我怀疑自己是不是得了前列腺炎了.怎么判断自己就是得了前列腺炎呢"}, {"from": "gpt", "value": "前列腺炎的症状可能包括以下几种：\n\n1. 尿频、尿急、尿痛：这是最常见的症状，尤其是在早晨起床时尿频最为明显。\n2. 尿流变细、尿流中断、尿后滴漏：这是由于前列腺肿大压迫尿道所致。\n3. 下腹部、会阴部、腰部、肛门周围或大腿根部疼痛：这是由于前列腺炎引起的疼痛，可能会放射到这些部位。\n4. 性功能障碍：如勃起困难、早泄、性欲减退等。\n5. 射精痛或血精：这是由于前列腺炎引起的炎症刺激射精管所致。\n\n如果你有以上的一种或多种症状，可能需要考虑是否患有前列腺炎。然而，这些症状也可能是其他疾病的表现，如尿路感染、膀胱炎、肾结石等。因此，如果你有这些症状，建议你尽快去医院就诊，由专业的医生进行检查和诊断。\n\n医生可能会进行以下检查：\n\n1. 尿液检查：检查是否有白细胞或细菌，这可能是前列腺炎的标志。\n2. 前列腺液检查：通过直肠指检挤压前列腺，取出前列腺液进行检查。\n3. 血液检查：检查前列腺特异性抗原（PSA）水平，如果水平升高，可能是前列腺炎或前列腺癌的标志。\n4. 超声检查：通过超声波检查前列腺的大小和形状，以及是否有结石或肿瘤。\n\n请记住，只有医生才能确诊你是否患有前列腺炎，因此，如果你有任何疑虑，应尽快就医。"}]
+2026-04-09 12:18:30,995 | INFO | validation sample keys: ['conversations']
+2026-04-09 12:18:30,995 | INFO | validation sample preview: [{"from": "human", "value": "小孩五岁，脐周淋巴结肿大，小孩五岁，脐周淋巴结肿大，输液后不痛也不烧了，就是淋巴大了，原来9.3mm*3.4mm现在10mm*5mm又吃了半月克拉霉素和猴头菌提取物颗粒查了一下，变成10mm*6mm更大了，怎么办呀？请医生帮助，谢谢"}, {"from": "gpt", "value": "你好，考虑肠系膜淋巴结炎，本病常与上呼吸道感染有联系。临床表现为发热、腹痛、呕吐，或发生腹泻或便秘。腹痛有时象绞痛在右下腹部，也可在其他部位，本病多属病毒感染，一般自然痊愈，及时的对症治疗即可"}]
+2026-04-09 12:18:30,995 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:19:17,956 | INFO | Tokenized train samples: 50000
+2026-04-09 12:19:17,959 | INFO | Tokenized validation samples: 500
+2026-04-09 12:19:17,961 | INFO | First tokenized sample lengths: input_ids=369 attention_mask=369 labels=369
+2026-04-09 12:19:17,961 | INFO | First tokenized sample supervised tokens: 334/369
+2026-04-09 12:19:18,248 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-09 12:19:18,249 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:19:20,878 | INFO | Tokenized train samples: 50000
+2026-04-09 12:19:20,879 | INFO | Tokenized validation samples: 500
+2026-04-09 12:19:20,879 | INFO | First tokenized sample lengths: input_ids=369 attention_mask=369 labels=369
+2026-04-09 12:19:20,879 | INFO | First tokenized sample supervised tokens: 334/369
+2026-04-09 12:19:21,152 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-09 12:19:21,152 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:19:22,827 | INFO | Starting training
+2026-04-09 12:19:25,708 | INFO | Starting training

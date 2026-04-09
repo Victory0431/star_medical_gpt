@@ -1,0 +1,36 @@
+2026-04-09 12:05:04,233 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_1204_qwen3-8b_huatuo-1k_eval_smoke
+2026-04-09 12:05:04,234 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_1k.processed.jsonl']
+2026-04-09 12:05:04,234 | INFO | Validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl']
+2026-04-09 12:05:04,320 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_1204_qwen3-8b_huatuo-1k_eval_smoke
+2026-04-09 12:05:04,321 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_1k.processed.jsonl']
+2026-04-09 12:05:04,321 | INFO | Validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl']
+2026-04-09 12:05:05,562 | INFO | Validation source: external_validation
+2026-04-09 12:05:05,562 | INFO | train sample keys: ['conversations']
+2026-04-09 12:05:05,563 | INFO | train sample preview: [{"from": "human", "value": "治疗阳痿吃什么药呢？，性生活一直很正常的，但是这段时间感觉性欲变低了，有时勃起都感觉很困难，试过许多的方法都没效果，听朋友说我这种情况可能会是早泄，想知道治疗早泄的药物？"}, {"from": "gpt", "value": "男子早泄、早泄病症的再次发生，多由恣情纵欲，或青年误犯性交，至命门火衰，精气虚寒；或思量忧郁，伤损心脾；或因恐惧伤肾，也有因湿热下注，宗筋弛而痿的。但主要是肾阳虚衰而痿。肾阳为那身阳气之根本，有温煦形体，蒸化水液，增进围产生长发育等功能。肾阳虚衰则温煦失责，气化无权。因而再次发生畏寒肢冷，性机能减退。故见男子早泄不举或不坚，且伴发头晕目眩。"}]
+2026-04-09 12:05:05,563 | INFO | validation sample keys: ['conversations']
+2026-04-09 12:05:05,564 | INFO | validation sample preview: [{"from": "human", "value": "小孩五岁，脐周淋巴结肿大，小孩五岁，脐周淋巴结肿大，输液后不痛也不烧了，就是淋巴大了，原来9.3mm*3.4mm现在10mm*5mm又吃了半月克拉霉素和猴头菌提取物颗粒查了一下，变成10mm*6mm更大了，怎么办呀？请医生帮助，谢谢"}, {"from": "gpt", "value": "你好，考虑肠系膜淋巴结炎，本病常与上呼吸道感染有联系。临床表现为发热、腹痛、呕吐，或发生腹泻或便秘。腹痛有时象绞痛在右下腹部，也可在其他部位，本病多属病毒感染，一般自然痊愈，及时的对症治疗即可"}]
+2026-04-09 12:05:05,564 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:05:05,601 | INFO | Validation source: external_validation
+2026-04-09 12:05:05,602 | INFO | train sample keys: ['conversations']
+2026-04-09 12:05:05,602 | INFO | train sample preview: [{"from": "human", "value": "治疗阳痿吃什么药呢？，性生活一直很正常的，但是这段时间感觉性欲变低了，有时勃起都感觉很困难，试过许多的方法都没效果，听朋友说我这种情况可能会是早泄，想知道治疗早泄的药物？"}, {"from": "gpt", "value": "男子早泄、早泄病症的再次发生，多由恣情纵欲，或青年误犯性交，至命门火衰，精气虚寒；或思量忧郁，伤损心脾；或因恐惧伤肾，也有因湿热下注，宗筋弛而痿的。但主要是肾阳虚衰而痿。肾阳为那身阳气之根本，有温煦形体，蒸化水液，增进围产生长发育等功能。肾阳虚衰则温煦失责，气化无权。因而再次发生畏寒肢冷，性机能减退。故见男子早泄不举或不坚，且伴发头晕目眩。"}]
+2026-04-09 12:05:05,602 | INFO | validation sample keys: ['conversations']
+2026-04-09 12:05:05,603 | INFO | validation sample preview: [{"from": "human", "value": "小孩五岁，脐周淋巴结肿大，小孩五岁，脐周淋巴结肿大，输液后不痛也不烧了，就是淋巴大了，原来9.3mm*3.4mm现在10mm*5mm又吃了半月克拉霉素和猴头菌提取物颗粒查了一下，变成10mm*6mm更大了，怎么办呀？请医生帮助，谢谢"}, {"from": "gpt", "value": "你好，考虑肠系膜淋巴结炎，本病常与上呼吸道感染有联系。临床表现为发热、腹痛、呕吐，或发生腹泻或便秘。腹痛有时象绞痛在右下腹部，也可在其他部位，本病多属病毒感染，一般自然痊愈，及时的对症治疗即可"}]
+2026-04-09 12:05:05,603 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:06:21,213 | INFO | Tokenized train samples: 1000
+2026-04-09 12:06:21,214 | INFO | Tokenized validation samples: 500
+2026-04-09 12:06:21,215 | INFO | First tokenized sample lengths: input_ids=218 attention_mask=218 labels=218
+2026-04-09 12:06:21,215 | INFO | First tokenized sample supervised tokens: 156/218
+2026-04-09 12:06:21,575 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-09 12:06:21,575 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:06:21,884 | INFO | Tokenized train samples: 1000
+2026-04-09 12:06:21,885 | INFO | Tokenized validation samples: 500
+2026-04-09 12:06:21,885 | INFO | First tokenized sample lengths: input_ids=218 attention_mask=218 labels=218
+2026-04-09 12:06:21,886 | INFO | First tokenized sample supervised tokens: 156/218
+2026-04-09 12:06:22,195 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-09 12:06:22,195 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-09 12:06:29,161 | INFO | Starting training
+2026-04-09 12:06:29,600 | INFO | Starting training
+2026-04-09 12:07:39,392 | INFO | Running final evaluation
+2026-04-09 12:07:39,626 | INFO | Running final evaluation
+2026-04-09 12:07:47,823 | INFO | Training complete. Final model saved to /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_1204_qwen3-8b_huatuo-1k_eval_smoke/final_model
+2026-04-09 12:07:47,826 | INFO | Training complete. Final model saved to /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_1204_qwen3-8b_huatuo-1k_eval_smoke/final_model

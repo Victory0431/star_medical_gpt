@@ -1,0 +1,84 @@
+{
+  "run_name": "20260409_121822_qwen3-8b_huatuo-5w_lora_eval",
+  "source_run_dir": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval",
+  "exported_at": "2026-04-09T12:38:56",
+  "status": "partial",
+  "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+  "datasets": {
+    "train_data": [
+      "/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_5w.processed.jsonl"
+    ],
+    "valid_data": [
+      "/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl"
+    ]
+  },
+  "key_hparams": {
+    "num_train_epochs": 2.0,
+    "max_steps": -1,
+    "learning_rate": 2e-05,
+    "per_device_train_batch_size": 4,
+    "gradient_accumulation_steps": 8,
+    "model_max_length": 2048,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05
+  },
+  "dataset_stats": {
+    "train_samples": 50000,
+    "valid_samples": 500,
+    "validation_source": "external_validation"
+  },
+  "final_results": {},
+  "train_results": {},
+  "eval_results": {},
+  "latest_metrics": {
+    "latest_train": {
+      "timestamp": "2026-04-09 12:38:42",
+      "step": 250,
+      "epoch": 0.32,
+      "logs": {
+        "loss": 0.7616657257080078,
+        "grad_norm": 0.2049703150987625,
+        "learning_rate": 1.9130396938461282e-05,
+        "epoch": 0.32
+      }
+    },
+    "latest_eval": {
+      "timestamp": "2026-04-09 12:38:50",
+      "step": 250,
+      "epoch": 0.32,
+      "logs": {
+        "eval_loss": 2.724780321121216,
+        "eval_runtime": 8.2426,
+        "eval_samples_per_second": 60.66,
+        "eval_steps_per_second": 7.643,
+        "epoch": 0.32
+      }
+    },
+    "best_eval_loss": 2.5285396575927734
+  },
+  "wandb": {
+    "project": "my-medical-gpt-sft",
+    "mode": "online",
+    "run_id": "y7c3wvn4",
+    "project_url": "https://wandb.ai/jiahongqin1-ucas-hias/my-medical-gpt-sft",
+    "run_url": "https://wandb.ai/jiahongqin1-ucas-hias/my-medical-gpt-sft/runs/y7c3wvn4",
+    "system": {
+      "host": "hgy-master-node",
+      "gpu": "NVIDIA H200",
+      "gpu_count": 2,
+      "cpu_count": 96,
+      "cpu_count_logical": 192,
+      "memory_total": "2164095131648",
+      "cuda_version": "13.0",
+      "started_at": "2026-04-09T04:19:27.364415Z",
+      "python": "CPython 3.11.14"
+    }
+  },
+  "artifacts_present": {
+    "training_args": true,
+    "metrics_jsonl": true,
+    "train_log": true,
+    "console_log": true
+  }
+}

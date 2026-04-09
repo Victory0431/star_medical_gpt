@@ -12,6 +12,8 @@ A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chine
   Smoke-test launcher for `huatuo_1k + valid_zh_500`.
 - `script/run_sft_qwen3_8b_huatuo_5w.sh`
   Formal small-version launcher for `huatuo_5w + valid_zh_500`.
+- `script/export_experiment_records.py`
+  Exports lightweight, git-friendly experiment records from `outputs/` into `experiment_records/`.
 
 ## Current training design
 
@@ -25,6 +27,7 @@ A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chine
 ## Data policy
 
 Large raw and processed datasets are intentionally **not committed** to this repository.
+Large checkpoints, LoRA weights, optimizer states, tokenizer dumps, and local W&B artifacts are also intentionally **not committed**.
 
 Typical local layout:
 
@@ -55,6 +58,20 @@ Formal small version:
 ```bash
 conda activate medicalgpt
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+```
+
+Export lightweight experiment records:
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
+  --run-name 20260409_1204_qwen3-8b_huatuo-1k_eval_smoke \
+  --force
+```
+
+Or export every discovered run under `outputs/sft`:
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
 ```
 
 ## Notes

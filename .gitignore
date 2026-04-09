@@ -18,10 +18,11 @@ outputs/
 wandb/
 nohup*.out
 *.log
+!experiment_records/
+!experiment_records/**
 
 # Hugging Face / datasets cache
 cache/
 
 # Large datasets are kept locally and regenerated with scripts
 data/
-
