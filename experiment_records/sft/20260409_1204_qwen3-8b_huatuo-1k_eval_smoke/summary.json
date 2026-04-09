@@ -1,8 +1,12 @@
 {
   "run_name": "20260409_1204_qwen3-8b_huatuo-1k_eval_smoke",
   "source_run_dir": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_1204_qwen3-8b_huatuo-1k_eval_smoke",
-  "exported_at": "2026-04-09T12:38:56",
+  "exported_at": "2026-04-09T12:45:48",
   "status": "completed",
+  "run_classification": "completed",
+  "classification_reasons": [
+    "has_all_results"
+  ],
   "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
   "datasets": {
     "train_data": [

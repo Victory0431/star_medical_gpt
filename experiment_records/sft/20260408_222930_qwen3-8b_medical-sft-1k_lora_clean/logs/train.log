@@ -1,0 +1,34 @@
+2026-04-08 22:29:47,845 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean
+2026-04-08 22:29:47,845 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/medical_sft_1K_format.processed.jsonl']
+2026-04-08 22:29:47,845 | INFO | Validation files (0): []
+2026-04-08 22:29:47,899 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean
+2026-04-08 22:29:47,900 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/medical_sft_1K_format.processed.jsonl']
+2026-04-08 22:29:47,900 | INFO | Validation files (0): []
+2026-04-08 22:29:48,781 | INFO | train sample keys: ['conversations']
+2026-04-08 22:29:48,781 | INFO | train sample preview: [{"from": "human", "value": "妈妈子宫脱垂怎么办"}, {"from": "gpt", "value": "子宫脱垂也称为子宫脱出，是妇科疾病中常见的一种病症，主要是由于子宫由于各种原因的影响由正常的位置沿着阴道下滑引起，严重的患者的子宫甚至会脱出阴道口以外，出现阴道前壁和后壁膨出，容易影响着阴道和尿道，出现阴道发炎和尿道感染，要进行及时的治疗处理。子宫脱垂的原因：1.长时间处于站立、下蹲体位，容易引起子宫脱垂。2.生活条件差，产后过早从事体力劳动，容易引起子宫脱垂。3.分娩时造成子宫支持组织及肛提肌较重的损伤。损伤子宫骶骨韧带和主韧带，撕裂肛提机和会阴体肌群。随后逐渐发展，引起子宫脱垂。4.有肥胖症、哮喘、慢性气管炎和支气管扩张引起的慢性咳嗽、腹泻、便秘等，增加腹压的情况下，容易发生子宫脱垂。5.青年未婚女性发生子宫脱垂是因为先天性盆底组织、筋膜发育不良。6.绝经期和绝经后的老年妇女发生子宫脱垂是因为卵巢失去内分泌作用，骨盆内筋膜及肌肉萎缩变薄与松弛和伴有其他情况而造成。7.糖尿病性神经病变以及骶前肿瘤可引发子宫脱垂。8.盆腔肿瘤，骶神经病变，骶尾麻醉意外都可以引起子宫脱垂。9.局部病变，如腹水，大子宫和卵巢肿瘤可以引起子宫脱垂。子宫的脱垂在临床上分为三度，有轻度子宫脱垂、中度子宫脱垂及重度子宫脱垂。轻度的子宫脱垂是指宫口的最低点在坐骨棘水平以下；如果是中度的脱垂，宫颈口可以在阴道口附近就能看得到；如果是重度子宫脱垂，子宫会全部脱出阴道口之外。对于轻度和中度的子宫脱垂，临床上可以采用子宫托治疗，每天早晨醒来的时候将子宫托上入阴道当中，可以正常的工作和生活，晚上睡觉的时候将子宫托取出并且清洗干净，然后第二天再上入阴道当中。对于重度的子宫脱垂，应该手术治疗。"}]
+2026-04-08 22:29:48,782 | INFO | validation sample keys: ['conversations']
+2026-04-08 22:29:48,783 | INFO | validation sample preview: [{"from": "human", "value": "肾结石的推荐药有哪些？"}, {"from": "gpt", "value": "尿路通胶囊；肾炎四味胶囊；肾石通颗粒；排石颗粒；净石灵胶囊；荡石片；氢氯噻嗪片；别嘌醇片；盐酸屈他维林片"}]
+2026-04-08 22:29:48,783 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-08 22:29:48,856 | INFO | train sample keys: ['conversations']
+2026-04-08 22:29:48,856 | INFO | train sample preview: [{"from": "human", "value": "妈妈子宫脱垂怎么办"}, {"from": "gpt", "value": "子宫脱垂也称为子宫脱出，是妇科疾病中常见的一种病症，主要是由于子宫由于各种原因的影响由正常的位置沿着阴道下滑引起，严重的患者的子宫甚至会脱出阴道口以外，出现阴道前壁和后壁膨出，容易影响着阴道和尿道，出现阴道发炎和尿道感染，要进行及时的治疗处理。子宫脱垂的原因：1.长时间处于站立、下蹲体位，容易引起子宫脱垂。2.生活条件差，产后过早从事体力劳动，容易引起子宫脱垂。3.分娩时造成子宫支持组织及肛提肌较重的损伤。损伤子宫骶骨韧带和主韧带，撕裂肛提机和会阴体肌群。随后逐渐发展，引起子宫脱垂。4.有肥胖症、哮喘、慢性气管炎和支气管扩张引起的慢性咳嗽、腹泻、便秘等，增加腹压的情况下，容易发生子宫脱垂。5.青年未婚女性发生子宫脱垂是因为先天性盆底组织、筋膜发育不良。6.绝经期和绝经后的老年妇女发生子宫脱垂是因为卵巢失去内分泌作用，骨盆内筋膜及肌肉萎缩变薄与松弛和伴有其他情况而造成。7.糖尿病性神经病变以及骶前肿瘤可引发子宫脱垂。8.盆腔肿瘤，骶神经病变，骶尾麻醉意外都可以引起子宫脱垂。9.局部病变，如腹水，大子宫和卵巢肿瘤可以引起子宫脱垂。子宫的脱垂在临床上分为三度，有轻度子宫脱垂、中度子宫脱垂及重度子宫脱垂。轻度的子宫脱垂是指宫口的最低点在坐骨棘水平以下；如果是中度的脱垂，宫颈口可以在阴道口附近就能看得到；如果是重度子宫脱垂，子宫会全部脱出阴道口之外。对于轻度和中度的子宫脱垂，临床上可以采用子宫托治疗，每天早晨醒来的时候将子宫托上入阴道当中，可以正常的工作和生活，晚上睡觉的时候将子宫托取出并且清洗干净，然后第二天再上入阴道当中。对于重度的子宫脱垂，应该手术治疗。"}]
+2026-04-08 22:29:48,857 | INFO | validation sample keys: ['conversations']
+2026-04-08 22:29:48,857 | INFO | validation sample preview: [{"from": "human", "value": "肾结石的推荐药有哪些？"}, {"from": "gpt", "value": "尿路通胶囊；肾炎四味胶囊；肾石通颗粒；排石颗粒；净石灵胶囊；荡石片；氢氯噻嗪片；别嘌醇片；盐酸屈他维林片"}]
+2026-04-08 22:29:48,858 | INFO | Loading tokenizer from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-08 22:29:54,306 | INFO | Tokenized train samples: 950
+2026-04-08 22:29:54,306 | INFO | Tokenized validation samples: 50
+2026-04-08 22:29:54,307 | INFO | First tokenized sample lengths: input_ids=487 attention_mask=487 labels=487
+2026-04-08 22:29:54,307 | INFO | First tokenized sample supervised tokens: 474/487
+2026-04-08 22:29:54,646 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-08 22:29:54,646 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-08 22:30:02,019 | INFO | Starting training
+2026-04-08 22:31:04,025 | INFO | Tokenized train samples: 950
+2026-04-08 22:31:04,026 | INFO | Tokenized validation samples: 50
+2026-04-08 22:31:04,027 | INFO | First tokenized sample lengths: input_ids=487 attention_mask=487 labels=487
+2026-04-08 22:31:04,027 | INFO | First tokenized sample supervised tokens: 474/487
+2026-04-08 22:31:04,359 | WARNING | flash_attn is not installed, fallback to standard attention
+2026-04-08 22:31:04,359 | INFO | Loading model from /home/qjh/llm_learning/base_model/qwen3_8B
+2026-04-08 22:31:11,710 | INFO | Starting training
+2026-04-08 22:33:59,011 | INFO | Running final evaluation
+2026-04-08 22:33:59,392 | INFO | Running final evaluation
+2026-04-08 22:34:01,364 | INFO | Training complete. Final model saved to /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model
+2026-04-08 22:34:01,367 | INFO | Training complete. Final model saved to /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model

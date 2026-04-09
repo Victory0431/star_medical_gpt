@@ -38,7 +38,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Export all discovered runs under outputs-root.",
+        help="Export all eligible runs under outputs-root.",
+    )
+    parser.add_argument(
+        "--include-dryrun",
+        action="store_true",
+        help="Include run names that contain 'dryrun'. By default they are skipped.",
+    )
+    parser.add_argument(
+        "--include-failed",
+        action="store_true",
+        help="Include runs classified as obvious failures. By default they are skipped.",
     )
     parser.add_argument(
         "--force",
@@ -129,6 +139,81 @@ def extract_latest_metrics(metrics_rows: list[dict[str, Any]]) -> dict[str, Any]
     if best_eval_loss is not None:
         result["best_eval_loss"] = best_eval_loss
     return result
+
+
+def count_metrics_rows(run_dir: Path) -> int:
+    metrics_path = run_dir / "logs" / "metrics.jsonl"
+    return len(unique_metric_rows(read_metrics(metrics_path)))
+
+
+def detect_failure_signatures(run_dir: Path) -> list[str]:
+    candidates = [
+        run_dir / "logs" / "console.log",
+        run_dir / "logs" / "train.log",
+        run_dir / "launcher.log",
+    ]
+    patterns = {
+        "traceback": re.compile(r"Traceback \(most recent call last\):"),
+        "child_failed": re.compile(r"ChildFailedError"),
+        "import_error": re.compile(r"ImportError:"),
+        "type_error": re.compile(r"TypeError:"),
+        "runtime_error": re.compile(r"RuntimeError:"),
+        "value_error": re.compile(r"ValueError:"),
+        "torchrun_failed": re.compile(r"FAILED"),
+    }
+
+    hits: list[str] = []
+    for path in candidates:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for name, pattern in patterns.items():
+            if pattern.search(text):
+                hits.append(name)
+    return sorted(set(hits))
+
+
+def classify_run(run_dir: Path) -> tuple[str, list[str]]:
+    run_name = run_dir.name
+    reasons: list[str] = []
+
+    if "dryrun" in run_name.lower():
+        reasons.append("name_contains_dryrun")
+
+    has_artifacts = (run_dir / "artifacts").exists()
+    has_all_results = (run_dir / "checkpoints" / "all_results.json").exists()
+    has_train_results = (run_dir / "checkpoints" / "train_results.json").exists()
+    has_eval_results = (run_dir / "checkpoints" / "eval_results.json").exists()
+    metrics_count = count_metrics_rows(run_dir)
+    failure_hits = detect_failure_signatures(run_dir)
+
+    has_progress = has_all_results or has_train_results or has_eval_results or metrics_count > 0
+
+    if not has_artifacts:
+        reasons.append("missing_artifacts_dir")
+
+    if not has_progress:
+        reasons.append("no_metrics_or_results")
+
+    if failure_hits and not has_all_results and not has_train_results and not has_eval_results:
+        reasons.extend(f"failure_signature:{hit}" for hit in failure_hits)
+
+    if any(reason == "name_contains_dryrun" for reason in reasons):
+        return "dryrun", reasons
+
+    if "no_metrics_or_results" in reasons or any(
+        reason.startswith("failure_signature:") for reason in reasons
+    ):
+        return "failed", reasons
+
+    if has_all_results:
+        return "completed", ["has_all_results"]
+
+    if has_progress:
+        progress_reason = "has_metrics" if metrics_count > 0 else "has_partial_results"
+        return "partial", [progress_reason]
+
+    return "failed", reasons or ["unclassified_failure"]
 
 
 def find_wandb_run(run_dir: Path) -> tuple[str | None, dict[str, Any] | None, dict[str, Any] | None]:
@@ -255,11 +340,15 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
     wandb_run_id, wandb_metadata, wandb_summary = find_wandb_run(run_dir)
     wandb_urls = extract_wandb_urls(run_dir)
 
+    classification, classification_reasons = classify_run(run_dir)
+
     summary = {
         "run_name": run_name,
         "source_run_dir": str(run_dir),
         "exported_at": datetime.now().isoformat(timespec="seconds"),
         "status": "completed" if all_results else "partial",
+        "run_classification": classification,
+        "classification_reasons": classification_reasons,
         "model_name_or_path": run_args.get("model_name_or_path"),
         "datasets": {
             "train_data": run_args.get("train_data", []),
@@ -320,14 +409,36 @@ def main() -> None:
     else:
         parser.error("Specify --run-name ... or --all.")
 
-    exported: list[str] = []
+    selected_run_dirs: list[Path] = []
+    skipped_runs: list[dict[str, Any]] = []
     for run_dir in run_dirs:
+        classification, reasons = classify_run(run_dir)
+        if classification == "dryrun" and not args.include_dryrun:
+            skipped_runs.append(
+                {"run_name": run_dir.name, "classification": classification, "reasons": reasons}
+            )
+            continue
+        if classification == "failed" and not args.include_failed:
+            skipped_runs.append(
+                {"run_name": run_dir.name, "classification": classification, "reasons": reasons}
+            )
+            continue
+        selected_run_dirs.append(run_dir)
+
+    exported: list[str] = []
+    for run_dir in selected_run_dirs:
         if not run_dir.exists():
             raise FileNotFoundError(f"Run directory not found: {run_dir}")
         export_dir = export_run(run_dir, records_root, max_log_bytes, args.force)
         exported.append(str(export_dir))
 
-    print(json.dumps({"exported_runs": exported}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {"exported_runs": exported, "skipped_runs": skipped_runs},
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

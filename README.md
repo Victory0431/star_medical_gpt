@@ -74,6 +74,8 @@ Or export every discovered run under `outputs/sft`:
 python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
 ```
 
+By default, `--all` skips `dryrun` directories and obvious failed runs. If you really want everything, add `--include-dryrun --include-failed`.
+
 ## Notes
 
 - The current environment falls back to standard attention when `flash_attn` is not installed.

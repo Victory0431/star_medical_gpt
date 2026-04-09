@@ -1,8 +1,12 @@
 {
   "run_name": "20260409_121822_qwen3-8b_huatuo-5w_lora_eval",
   "source_run_dir": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval",
-  "exported_at": "2026-04-09T12:38:56",
+  "exported_at": "2026-04-09T12:45:48",
   "status": "partial",
+  "run_classification": "partial",
+  "classification_reasons": [
+    "has_metrics"
+  ],
   "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
   "datasets": {
     "train_data": [
@@ -33,26 +37,26 @@
   "eval_results": {},
   "latest_metrics": {
     "latest_train": {
-      "timestamp": "2026-04-09 12:38:42",
-      "step": 250,
-      "epoch": 0.32,
+      "timestamp": "2026-04-09 12:45:41",
+      "step": 340,
+      "epoch": 0.4352,
       "logs": {
-        "loss": 0.7616657257080078,
-        "grad_norm": 0.2049703150987625,
-        "learning_rate": 1.9130396938461282e-05,
-        "epoch": 0.32
+        "loss": 0.7360615730285645,
+        "grad_norm": 0.23308761417865753,
+        "learning_rate": 1.821715744446234e-05,
+        "epoch": 0.4352
       }
     },
     "latest_eval": {
-      "timestamp": "2026-04-09 12:38:50",
-      "step": 250,
-      "epoch": 0.32,
+      "timestamp": "2026-04-09 12:44:36",
+      "step": 325,
+      "epoch": 0.416,
       "logs": {
-        "eval_loss": 2.724780321121216,
-        "eval_runtime": 8.2426,
-        "eval_samples_per_second": 60.66,
-        "eval_steps_per_second": 7.643,
-        "epoch": 0.32
+        "eval_loss": 2.7497987747192383,
+        "eval_runtime": 8.2333,
+        "eval_samples_per_second": 60.729,
+        "eval_steps_per_second": 7.652,
+        "epoch": 0.416
       }
     },
     "best_eval_loss": 2.5285396575927734

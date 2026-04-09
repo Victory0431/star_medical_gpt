@@ -1889,3 +1889,30 @@ Loading weights: 100%|██████████| 399/399 [00:00<00:00, 2574
 [2026-04-09 12:38:50] {'eval_loss': '2.725', 'eval_runtime': '8.243', 'eval_samples_per_second': '60.66', 'eval_steps_per_second': '7.643', 'epoch': '0.32'}
 [2026-04-09 12:38:50] /home/qjh/miniconda3/envs/medicalgpt/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
 [2026-04-09 12:38:50]   return func(*args, **kwargs)
+[2026-04-09 12:39:12] {'loss': '0.7523', 'grad_norm': '0.1891', 'learning_rate': '1.909e-05', 'epoch': '0.3264'}
+[2026-04-09 12:39:34] {'loss': '0.7572', 'grad_norm': '0.2055', 'learning_rate': '1.904e-05', 'epoch': '0.3328'}
+[2026-04-09 12:39:55] {'loss': '0.7619', 'grad_norm': '0.2018', 'learning_rate': '1.9e-05', 'epoch': '0.3392'}
+[2026-04-09 12:40:16] {'loss': '0.756', 'grad_norm': '0.2034', 'learning_rate': '1.895e-05', 'epoch': '0.3456'}
+[2026-04-09 12:40:37] {'loss': '0.7575', 'grad_norm': '0.2042', 'learning_rate': '1.891e-05', 'epoch': '0.352'}
+[2026-04-09 12:40:45] {'eval_loss': '2.726', 'eval_runtime': '8.305', 'eval_samples_per_second': '60.2', 'eval_steps_per_second': '7.586', 'epoch': '0.352'}
+[2026-04-09 12:40:45] /home/qjh/miniconda3/envs/medicalgpt/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+[2026-04-09 12:40:45]   return func(*args, **kwargs)
+[2026-04-09 12:41:07] {'loss': '0.7566', 'grad_norm': '0.2094', 'learning_rate': '1.886e-05', 'epoch': '0.3584'}
+[2026-04-09 12:41:28] {'loss': '0.7549', 'grad_norm': '0.2148', 'learning_rate': '1.881e-05', 'epoch': '0.3648'}
+[2026-04-09 12:41:49] {'loss': '0.7466', 'grad_norm': '0.2096', 'learning_rate': '1.876e-05', 'epoch': '0.3712'}
+[2026-04-09 12:42:10] {'loss': '0.7543', 'grad_norm': '0.2217', 'learning_rate': '1.871e-05', 'epoch': '0.3776'}
+[2026-04-09 12:42:33] {'loss': '0.7548', 'grad_norm': '0.2131', 'learning_rate': '1.866e-05', 'epoch': '0.384'}
+[2026-04-09 12:42:41] {'eval_loss': '2.741', 'eval_runtime': '8.113', 'eval_samples_per_second': '61.63', 'eval_steps_per_second': '7.765', 'epoch': '0.384'}
+[2026-04-09 12:42:41] /home/qjh/miniconda3/envs/medicalgpt/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+[2026-04-09 12:42:41]   return func(*args, **kwargs)
+[2026-04-09 12:43:04] {'loss': '0.7511', 'grad_norm': '0.2117', 'learning_rate': '1.861e-05', 'epoch': '0.3904'}
+[2026-04-09 12:43:26] {'loss': '0.7353', 'grad_norm': '0.2278', 'learning_rate': '1.855e-05', 'epoch': '0.3968'}
+[2026-04-09 12:43:47] {'loss': '0.7501', 'grad_norm': '0.2309', 'learning_rate': '1.85e-05', 'epoch': '0.4032'}
+[2026-04-09 12:44:07] {'loss': '0.7469', 'grad_norm': '0.2251', 'learning_rate': '1.845e-05', 'epoch': '0.4096'}
+[2026-04-09 12:44:28] {'loss': '0.7344', 'grad_norm': '0.2304', 'learning_rate': '1.839e-05', 'epoch': '0.416'}
+[2026-04-09 12:44:36] {'eval_loss': '2.75', 'eval_runtime': '8.233', 'eval_samples_per_second': '60.73', 'eval_steps_per_second': '7.652', 'epoch': '0.416'}
+[2026-04-09 12:44:37] /home/qjh/miniconda3/envs/medicalgpt/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+[2026-04-09 12:44:37]   return func(*args, **kwargs)
+[2026-04-09 12:44:57] {'loss': '0.7341', 'grad_norm': '0.2349', 'learning_rate': '1.833e-05', 'epoch': '0.4224'}
+[2026-04-09 12:45:20] {'loss': '0.7366', 'grad_norm': '0.2377', 'learning_rate': '1.828e-05', 'epoch': '0.4288'}
+[2026-04-09 12:45:41] {'loss': '0.7361', 'grad_norm': '0.2331', 'learning_rate': '1.822e-05', 'epoch': '0.4352'}
