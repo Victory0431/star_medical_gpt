@@ -1,5 +1,8 @@
 # Star Medical GPT
 
+Chinese-first documentation is now available at [README.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/README.zh-CN.md).
+For Chinese usage guides, prefer the `*.zh-CN.md` files across this repository.
+
 A resume-oriented medical LLM fine-tuning project built around `Qwen3-8B`, Chinese medical SFT data, LoRA training, evaluation during training, W&B experiment tracking, and lightweight reproducibility records.
 
 ## Project focus
@@ -39,6 +42,23 @@ experiment_records/
 ```
 
 ## Documentation
+
+- [中文总览](/home/qjh/llm_learning/my_medical_gpt/README.zh-CN.md)
+  Chinese-first entry for the repository.
+- [脚本使用指南（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.zh-CN.md)
+  Chinese guide for core scripts, commands, parameters, and outputs.
+- [项目工作流（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/WORKFLOW.zh-CN.md)
+  Chinese workflow from data prep to training, evaluation, and archiving.
+- [评测设计（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.zh-CN.md)
+  Chinese explanation of the benchmark design and HealthBench positioning.
+- [评测结果解读（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_RESULTS.zh-CN.md)
+  Chinese interpretation of the current base vs `huatuo_1k` smoke comparison.
+- [评测接入指南（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_INTEGRATION.zh-CN.md)
+  Chinese instructions for plugging future checkpoints into the same eval harness.
+- [评测模块说明（中文）](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.zh-CN.md)
+  Chinese overview of eval modes, outputs, and recovery behavior.
+- [实验记录说明（中文）](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.zh-CN.md)
+  Chinese explanation of exported experiment snapshots.
 
 - [Script Guide](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.md)
   Detailed usage for every core script, including commands, parameters, examples, and output files.
