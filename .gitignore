@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Editors
+.idea/
+.vscode/
+.DS_Store
+
+# Local env and secrets
+.env
+.env.*
+orders.txt
+
+# Training artifacts
+outputs/
+wandb/
+nohup*.out
+*.log
+
+# Hugging Face / datasets cache
+cache/
+
+# Large datasets are kept locally and regenerated with scripts
+data/
+
