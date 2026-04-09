@@ -162,19 +162,19 @@ def aggregate_healthbench_results(
         }
 
     by_axis = {
-        key: summary(value_list)
+        key: summarize(value_list)
         for key, value_list in sorted(axis_values.items())
-        if summary(value_list) is not None
+        if summarize(value_list) is not None
     }
     by_theme = {
-        key: summary(value_list)
+        key: summarize(value_list)
         for key, value_list in sorted(theme_values.items())
-        if summary(value_list) is not None
+        if summarize(value_list) is not None
     }
     by_physician_category = {
-        key: summary(value_list)
+        key: summarize(value_list)
         for key, value_list in sorted(physician_values.items())
-        if summary(value_list) is not None
+        if summarize(value_list) is not None
     }
 
     return {
@@ -227,4 +227,3 @@ def serialize_example(example: HealthBenchExample) -> dict[str, Any]:
         "example_tags": example.example_tags,
         "canary": example.canary,
     }
-

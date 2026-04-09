@@ -4,6 +4,7 @@ import json
 import os
 import re
 import time
+from urllib.parse import urlparse
 import urllib.error
 import urllib.request
 from typing import Any
@@ -40,22 +41,44 @@ def _extract_json_object(text: str) -> dict[str, Any]:
         return {}
 
 
+def _normalize_chat_completions_url(base_url: str) -> str:
+    normalized = base_url.rstrip("/")
+    parsed = urlparse(normalized)
+    if not parsed.scheme or not parsed.netloc:
+        raise ValueError(f"Invalid judge base_url: {base_url}")
+    if normalized.endswith("/chat/completions"):
+        return normalized
+    if normalized.endswith("/v1"):
+        return f"{normalized}/chat/completions"
+    return f"{normalized}/chat/completions"
+
+
 class OpenAIHealthBenchJudge:
     def __init__(
         self,
         model_name: str,
         api_key: str | None = None,
-        base_url: str = "https://api.openai.com/v1/chat/completions",
+        base_url: str | None = None,
         timeout_seconds: int = 120,
         max_retries: int = 5,
     ) -> None:
         self.model_name = model_name
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        self.api_key = (
+            api_key
+            or os.environ.get("OPENAI_API_KEY")
+            or os.environ.get("JUDGE_API_KEY")
+        )
         if not self.api_key:
             raise EnvironmentError(
                 "OPENAI_API_KEY is required for official HealthBench scoring."
             )
-        self.base_url = base_url
+        raw_base_url = (
+            base_url
+            or os.environ.get("OPENAI_BASE_URL")
+            or os.environ.get("JUDGE_BASE_URL")
+            or "https://api.openai.com/v1"
+        )
+        self.base_url = _normalize_chat_completions_url(raw_base_url)
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
 
@@ -66,6 +89,7 @@ class OpenAIHealthBenchJudge:
         payload = {
             "model": self.model_name,
             "temperature": 0,
+            "response_format": {"type": "json_object"},
             "messages": [{"role": "user", "content": prompt}],
         }
 
@@ -91,12 +115,25 @@ class OpenAIHealthBenchJudge:
                     "criteria_met": bool(parsed["criteria_met"]),
                     "explanation": str(parsed.get("explanation", "")),
                     "judge_model": self.model_name,
+                    "judge_api_base_url": self.base_url,
+                    "judge_actual_model": response_payload.get("model"),
                     "raw_response": content,
                 }
-            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError) as exc:
+            except urllib.error.HTTPError as exc:
+                error_body = ""
+                try:
+                    error_body = exc.read().decode("utf-8")
+                except Exception:
+                    error_body = ""
+                if attempt >= self.max_retries:
+                    raise RuntimeError(
+                        f"OpenAI judge request failed after {self.max_retries} attempts: "
+                        f"HTTP {exc.code} {exc.reason}. body={error_body}"
+                    ) from exc
+                time.sleep(min(2 ** attempt, 20))
+            except (urllib.error.URLError, TimeoutError, ValueError) as exc:
                 if attempt >= self.max_retries:
                     raise RuntimeError(
                         f"OpenAI judge request failed after {self.max_retries} attempts: {exc}"
                     ) from exc
                 time.sleep(min(2 ** attempt, 20))
-

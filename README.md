@@ -96,6 +96,7 @@ Run official HealthBench judging after exporting the API key:
 
 ```bash
 export OPENAI_API_KEY=your_key_here
+export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 MODE=full JUDGE_MODE=openai \
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
 ```
@@ -121,3 +122,4 @@ are exported into `experiment_records/` and suitable for GitHub.
 - Validation can come from an external validation set or from a train split holdout, depending on launcher arguments.
 - `export_experiment_records.py --all` skips `dryrun` directories and obvious failed runs by default.
 - This repo is organized to support later extension toward larger medical SFT experiments, evaluation benchmarks, and alignment stages.
+- The evaluation judge supports OpenAI-compatible APIs through `OPENAI_API_KEY` and `OPENAI_BASE_URL`, and defaults to `gpt-5.2` for judge runs.

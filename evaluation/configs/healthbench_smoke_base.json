@@ -3,7 +3,7 @@
   "subset_name": "consensus",
   "mode": "full",
   "judge_mode": "openai",
-  "judge_model": "gpt-4.1-mini",
+  "judge_model": "gpt-5.2",
   "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
   "adapter_path": null,
   "model_alias": "qwen3_8b_base",

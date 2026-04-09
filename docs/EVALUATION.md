@@ -143,6 +143,116 @@ The practical run modes are:
 
 The last two modes are especially useful for industrial workflows, because API judging is often retried separately from local inference.
 
+## Score construction
+
+This repo computes scores in four layers.
+
+### 1. Rubric layer
+
+Each HealthBench example contains several rubric items.
+
+For each rubric item, the judge must return structured JSON:
+
+- `criteria_met`
+- `explanation`
+
+If the rubric item is positive, meeting it should contribute positive points.
+If the rubric item is undesirable and has negative points, meeting it should count against the response.
+
+### 2. Example layer
+
+For one prompt, the example score is:
+
+- achieved rubric points divided by total positive rubric points
+
+This means:
+
+- a strong answer can approach `1.0`
+- harmful or undesirable behavior can reduce the raw score
+
+### 3. Slice layer
+
+After example scoring, the repo aggregates by:
+
+- `axis:*`
+- `theme:*`
+- `physician_agreed_category:*`
+
+This is what makes the benchmark useful for training-stage diagnosis rather than only leaderboard-style reporting.
+
+### 4. Summary layer
+
+The final summary stores both:
+
+- `raw_mean`
+- `clipped_mean`
+
+`clipped_mean` is mainly for easier comparison and dashboard reading.
+
+## Judge configuration in this repo
+
+The judge implementation supports both standard OpenAI and OpenAI-compatible APIs.
+
+Current defaults:
+
+- judge backend: chat completions compatible API
+- default judge model: `gpt-5.2`
+- JSON-only judge output with `temperature=0`
+
+Supported environment variables:
+
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`
+- `JUDGE_API_KEY`
+- `JUDGE_BASE_URL`
+
+For proxy or gateway providers, the code also records:
+
+- requested model: `judge_model`
+- actual returned model: `judge_actual_model`
+- actual API URL: `judge_api_base_url`
+
+This is useful for catching provider-side model routing mismatches.
+
+## Current baseline result
+
+Current committed base-model smoke baseline:
+
+- run name: `20260409_healthbench_base_gpt52_full_10`
+- benchmark: `HealthBench consensus`
+- sample count: `10`
+- evaluated model: `Qwen3-8B base`
+- judge model requested: `gpt-5.2`
+- actual returned judge model: `gpt-5.2`
+
+Main result:
+
+- overall clipped mean: `0.4167`
+- overall raw mean: `0.4167`
+
+Axis slice:
+
+- `axis:accuracy = 0.5000`
+- `axis:communication_quality = 0.6667`
+- `axis:context_awareness = 0.2500`
+- `axis:instruction_following = 0.5000`
+
+Initial reading:
+
+- the base model is not terrible at surface communication
+- the weak point in this smoke run is `context_awareness`
+- this matches the project expectation that later `DPO` or `GRPO` should improve context-seeking, hedging, and user-facing medical interaction quality
+
+Important caveat:
+
+- this is a smoke baseline on `10` examples, not a full benchmark report
+- it is suitable for pipeline verification and early comparison, but not for a final headline claim
+
+The corresponding lightweight record is stored under:
+
+- [`experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json`](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)
+- [`experiment_records/eval/20260409_healthbench_base_gpt52_full_10/README.md`](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/README.md)
+
 ## Important limitation
 
 Official HealthBench scoring requires `OPENAI_API_KEY`.

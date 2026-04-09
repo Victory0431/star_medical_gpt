@@ -29,6 +29,25 @@ This makes it a better fit for later `DPO` and `GRPO` stages, where improvements
 - `generate_only`: only generate model responses and save them for later reuse
 - `judge_only`: score an existing `responses.jsonl` file without regenerating answers
 
+## Judge provider configuration
+
+The judge layer supports standard OpenAI API and OpenAI-compatible gateways.
+
+Supported environment variables:
+
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`
+- `JUDGE_API_KEY`
+- `JUDGE_BASE_URL`
+
+Behavior:
+
+- the code normalizes `OPENAI_BASE_URL=https://.../v1` into `.../v1/chat/completions`
+- the requested judge model defaults to `gpt-5.2`
+- the actual returned provider model is saved in each judgment row as `judge_actual_model`
+
+This makes it easier to catch model-routing mismatches when using proxy providers.
+
 ## Recovery behavior
 
 - if `responses.jsonl` already contains a prompt, generation skips that prompt
@@ -61,6 +80,29 @@ outputs/eval/<run_name>/
   summary.json
   summary.md
 ```
+
+## Scoring mechanics
+
+HealthBench scoring in this repo follows a simple layered structure:
+
+1. For each prompt, the local model generates one open-ended response.
+2. For each rubric item, the judge returns strict JSON with:
+   - `criteria_met`
+   - `explanation`
+3. Each example score is computed as:
+   - sum of met rubric points divided by total positive rubric points
+4. Aggregation then reports:
+   - `overall`
+   - `by_axis`
+   - `by_theme`
+   - `by_physician_category`
+
+Two mean variants are recorded:
+
+- `raw_mean`: direct arithmetic mean
+- `clipped_mean`: clipped into `[0, 1]` after aggregation for easier dashboard reading
+
+Negative rubric points are kept in raw example scoring, so undesirable behavior can reduce the raw score.
 
 ## Important note
 

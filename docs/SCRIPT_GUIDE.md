@@ -333,7 +333,7 @@ Path:
   --subset-name consensus \
   --mode full \
   --judge-mode openai \
-  --judge-model gpt-4.1-mini \
+  --judge-model gpt-5.2 \
   --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model \
   --run-name 20260409_healthbench_huatuo1k \
@@ -358,6 +358,7 @@ LoRA model full evaluation:
 
 ```bash
 export OPENAI_API_KEY=your_key_here
+export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 /home/qjh/miniconda3/envs/medicalgpt/bin/python \
   /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
   --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_huatuo_1k_lora.json \
@@ -368,6 +369,7 @@ Judge-only retry on existing responses:
 
 ```bash
 export OPENAI_API_KEY=your_key_here
+export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 /home/qjh/miniconda3/envs/medicalgpt/bin/python \
   /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
   --config /home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_smoke_base.json \
@@ -384,7 +386,7 @@ export OPENAI_API_KEY=your_key_here
 | `--subset-name` | HealthBench subset | `consensus`, `hard`, `full` |
 | `--mode` | Run mode | `full`, `generate_only`, `judge_only` |
 | `--judge-mode` | Judge backend | `openai`, `none` |
-| `--judge-model` | Judge model name | `gpt-4.1-mini` |
+| `--judge-model` | Judge model name | `gpt-5.2` |
 | `--model-name-or-path` | Base model path | `/home/qjh/llm_learning/base_model/qwen3_8B` |
 | `--adapter-path` | Optional LoRA path | `.../final_model` |
 | `--max-examples` | Sample cap for smoke tests | `1`, `10`, `50` |
@@ -414,7 +416,7 @@ Launcher default behavior:
 
 - default mode is `generate_only`
 - default judge mode is `none`
-- to run official scoring, export `OPENAI_API_KEY` and override `MODE=full JUDGE_MODE=openai`
+- to run official scoring, export `OPENAI_API_KEY`, optionally export `OPENAI_BASE_URL`, and override `MODE=full JUDGE_MODE=openai`
 
 ## 4. `run_sft_qwen3_8b_medical_1k.sh`
 

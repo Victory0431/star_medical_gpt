@@ -34,7 +34,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--subset-name", default="full", choices=["full", "consensus", "hard"])
     parser.add_argument("--mode", default="full", choices=["full", "generate_only", "judge_only"])
     parser.add_argument("--judge-mode", default="openai", choices=["openai", "none"])
-    parser.add_argument("--judge-model", default="gpt-4.1-mini")
+    parser.add_argument("--judge-model", default="gpt-5.2")
     parser.add_argument("--model-name-or-path", default=None)
     parser.add_argument("--adapter-path", default=None)
     parser.add_argument("--model-alias", default=None)

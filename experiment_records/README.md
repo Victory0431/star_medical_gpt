@@ -9,6 +9,7 @@ Tracked content:
 - dataset statistics
 - metrics history
 - final train/eval results
+- benchmark summaries
 - truncated or full text logs
 - sanitized W&B/system metadata
 
