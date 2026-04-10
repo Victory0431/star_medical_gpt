@@ -26,9 +26,13 @@ script/
   run_eval_healthbench_qwen3_8b_base.sh
   run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
   sft_data_prepare.py
+  dpo_data_prepare.py
   train_sft.py
+  train_dpo.py
   run_sft_qwen3_8b_medical_1k.sh
   run_sft_qwen3_8b_huatuo_5w.sh
+  run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+  merge_lora.py
   export_experiment_records.py
 data/
   sft/
@@ -53,6 +57,8 @@ experiment_records/
   说明后续新的 `SFT / DPO / GRPO` checkpoint 如何复用同一套评测框架。
 - [评测模块说明](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.zh-CN.md)
   介绍评测模式、输出目录、恢复行为和模块分层。
+- [DPO 工作流说明](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_WORKFLOW.zh-CN.md)
+  说明 merge 后的 `SFT checkpoint` 如何接到 `DPO`，以及为什么同时看 pairwise 和 `valid_zh` 两类训练期评估。
 - [实验记录说明](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.zh-CN.md)
   说明哪些内容会被导出到可提交 Git 的实验快照中。
 
@@ -83,6 +89,34 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 
 ```bash
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+```
+
+把最佳 `SFT checkpoint` merge 成后续对齐的稳定起点：
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+  --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
+  --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
+  --run-name 20260410_qwen3-8b_huatuo-5w_ckpt75_merged \
+  --log-root /home/qjh/llm_learning/my_medical_gpt/outputs/logs/merge \
+  --device cuda \
+  --dtype bfloat16
+```
+
+准备 `DPO` pairwise 数据：
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+  --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
+  --split train \
+  --output-name medical_pairwise_train
+```
+
+启动 `DPO`：
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 导出轻量实验记录：
@@ -134,3 +168,4 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_
 - `export_experiment_records.py --all` 默认会跳过 `dryrun` 和明显失败的 run。
 - 当前仓库已经按“后续可扩展到更大规模医疗 `SFT`、评测与对齐实验”的方式组织。
 - 评测 judge 支持 OpenAI 兼容接口，默认 judge 模型为 `gpt-5.2`。
+- `DPO` 训练默认同时记录两类训练期指标：pairwise `reward accuracy` 用于挑选最佳 checkpoint，`valid_zh` 的辅助 `LM loss` 用于监控异构分布下的稳定性。

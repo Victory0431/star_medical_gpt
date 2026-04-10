@@ -26,11 +26,14 @@ evaluation/
 script/
   run_eval_healthbench_qwen3_8b_base.sh
   run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
-script/
   sft_data_prepare.py
+  dpo_data_prepare.py
   train_sft.py
+  train_dpo.py
   run_sft_qwen3_8b_medical_1k.sh
   run_sft_qwen3_8b_huatuo_5w.sh
+  run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+  merge_lora.py
   export_experiment_records.py
 data/
   sft/
@@ -72,6 +75,8 @@ experiment_records/
   Shows how to plug future `SFT`, `DPO`, `GRPO`, merged models, or LoRA adapters into the same evaluation harness.
 - [Evaluation README](/home/qjh/llm_learning/my_medical_gpt/evaluation/README.md)
   Covers evaluation modes, output files, recovery behavior, and benchmark-facing code layout.
+- [DPO Workflow](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_WORKFLOW.md)
+  Explains how the merged `SFT checkpoint` feeds into `DPO`, and why pairwise metrics and heterogeneous `valid_zh` monitoring are tracked together.
 - [Experiment Records README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/README.md)
   Explains what gets exported into git-tracked experiment snapshots.
 
@@ -102,6 +107,34 @@ Run the 5w formal version:
 
 ```bash
 bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+```
+
+Merge the best `SFT checkpoint` into a stable alignment starting point:
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+  --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
+  --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
+  --run-name 20260410_qwen3-8b_huatuo-5w_ckpt75_merged \
+  --log-root /home/qjh/llm_learning/my_medical_gpt/outputs/logs/merge \
+  --device cuda \
+  --dtype bfloat16
+```
+
+Prepare pairwise `DPO` data:
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+  --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
+  --split train \
+  --output-name medical_pairwise_train
+```
+
+Launch `DPO`:
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 Export lightweight experiment records:
@@ -147,3 +180,4 @@ are exported into `experiment_records/` and suitable for GitHub.
 - `export_experiment_records.py --all` skips `dryrun` directories and obvious failed runs by default.
 - This repo is organized to support later extension toward larger medical SFT experiments, evaluation benchmarks, and alignment stages.
 - The evaluation judge supports OpenAI-compatible APIs through `OPENAI_API_KEY` and `OPENAI_BASE_URL`, and defaults to `gpt-5.2` for judge runs.
+- `DPO` training now tracks both pairwise preference metrics for checkpoint selection and auxiliary heterogeneous `valid_zh` LM loss for stability monitoring.

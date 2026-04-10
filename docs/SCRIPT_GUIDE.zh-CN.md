@@ -619,3 +619,182 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 3. 再跑 `run_sft_qwen3_8b_huatuo_5w.sh` 做首个正式训练版本。
 4. 跑完以后执行 `export_experiment_records.py --all --force`。
 5. 当 run 值得保留时，把代码和导出的实验记录一起提交。
+
+## 7. `merge_lora.py`
+
+路径：
+
+- [script/merge_lora.py](/home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py)
+
+### 作用
+
+- 把 `SFT LoRA checkpoint` 合并回基座
+- 生成后续 `DPO / ORPO / RM / GRPO` 可直接复用的稳定模型目录
+- 单独记录 merge 的开始时间、结束时间和总耗时
+
+### 标准命令
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+  --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
+  --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
+  --run-name 20260410_qwen3-8b_huatuo-5w_ckpt75_merged \
+  --log-root /home/qjh/llm_learning/my_medical_gpt/outputs/logs/merge \
+  --device cuda \
+  --dtype bfloat16
+```
+
+### 输出
+
+- `outputs/merged_models/sft/<run_name>/model/`
+- `outputs/merged_models/sft/<run_name>/logs/merge.log`
+- `outputs/merged_models/sft/<run_name>/artifacts/merge_summary.json`
+- `outputs/logs/merge/<timestamp>_<run_name>.log`
+
+## 8. `dpo_data_prepare.py`
+
+路径：
+
+- [script/dpo_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+
+### 作用
+
+- 把原始 pairwise 偏好数据转成 `TRL DPOTrainer` 直接可用格式
+- 统一成 `prompt/chosen/rejected` 的多轮对话结构
+- 方便后续复用到 `DPO / ORPO / RM`
+
+### 标准命令
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+  --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
+  --split train \
+  --output-name medical_pairwise_train
+```
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+  --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_valid.jsonl \
+  --split valid \
+  --output-name medical_pairwise_valid
+```
+
+### 输出
+
+- `data/alignment/processed/dpo/train/*.processed.jsonl`
+- `data/alignment/processed/dpo/valid/*.processed.jsonl`
+- `data/alignment/processed/dpo/test/*.processed.jsonl`
+- `data/alignment/processed/dpo/reports/*.report.json`
+
+## 9. `train_dpo.py`
+
+路径：
+
+- [script/train_dpo.py](/home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py)
+
+### 作用
+
+- 基于 merge 后的 `SFT model` 继续训练新的 `DPO LoRA`
+- 主评估使用 pairwise `valid`
+- 辅助评估可额外接入 `valid_zh` 这类异构 `SFT` 风格验证集
+- 默认记录 `W&B`、本地 `metrics.jsonl`、以及中央 `DPO` 时间戳日志
+
+### 推荐命令
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1 \
+/home/qjh/miniconda3/envs/medicalgpt/bin/torchrun \
+  --nproc_per_node 2 \
+  --master_port 29531 \
+  /home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py \
+  --model-name-or-path /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model \
+  --train-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/train/medical_pairwise_train.processed.jsonl \
+  --valid-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/valid/medical_pairwise_valid.processed.jsonl \
+  --aux-valid-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/dpo \
+  --run-name 20260410_qwen3-8b_ckpt75_medical_pairwise_dpo \
+  --wandb-project my-medical-gpt-dpo \
+  --wandb-mode online \
+  --max-prompt-length 1536 \
+  --max-completion-length 512 \
+  --max-length 2048 \
+  --model-max-length 2048 \
+  --num-proc 16 \
+  --per-device-train-batch-size 2 \
+  --per-device-eval-batch-size 2 \
+  --aux-eval-batch-size 4 \
+  --gradient-accumulation-steps 8 \
+  --num-train-epochs 3 \
+  --learning-rate 5e-6 \
+  --weight-decay 0.01 \
+  --warmup-ratio 0.05 \
+  --beta 0.1 \
+  --logging-steps 5 \
+  --eval-strategy steps \
+  --eval-steps 10 \
+  --save-strategy steps \
+  --save-steps 10 \
+  --save-total-limit 20 \
+  --lora-r 16 \
+  --lora-alpha 32 \
+  --lora-dropout 0.05 \
+  --target-modules all-linear \
+  --metric-for-best-model eval_rewards/accuracies \
+  --greater-is-better \
+  --bf16 \
+  --gradient-checkpointing
+```
+
+### 关键参数
+
+| 参数 | 含义 | 建议 |
+| --- | --- | --- |
+| `--model-name-or-path` | merge 后的 `SFT model` 路径 | 建议不要直接传 base |
+| `--train-data` | DPO 训练 pairwise 数据 | `medical_pairwise_train.processed.jsonl` |
+| `--valid-data` | DPO 主评估集 | `medical_pairwise_valid.processed.jsonl` |
+| `--aux-valid-data` | 异构辅助评估集 | `valid_zh_500.processed.jsonl` |
+| `--metric-for-best-model` | 最佳 checkpoint 选择指标 | `eval_rewards/accuracies` |
+| `--beta` | DPO 偏好强度 | `0.1` 起步 |
+| `--eval-steps` | 评估频率 | 小数据建议更勤一些 |
+| `--save-steps` | checkpoint 频率 | 通常和 `eval-steps` 对齐 |
+
+### 输出
+
+- `outputs/dpo/<run_name>/checkpoints/`
+- `outputs/dpo/<run_name>/final_model/`
+- `outputs/dpo/<run_name>/logs/train.log`
+- `outputs/dpo/<run_name>/logs/metrics.jsonl`
+- `outputs/dpo/<run_name>/logs/aux_eval.jsonl`
+- `outputs/dpo/<run_name>/artifacts/best_checkpoint.json`
+- `outputs/dpo/<run_name>/artifacts/training_summary.json`
+- `outputs/logs/dpo/<timestamp>_<run_name>.log`
+
+## 10. `run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh`
+
+路径：
+
+- [script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh)
+
+### 作用
+
+- 固化当前推荐的 `DPO v1` 启动参数
+- 默认使用 merge 后的 `checkpoint-75`
+- 默认主评估接 `medical_pairwise_valid`
+- 默认辅助评估接 `valid_zh_500`
+
+### 启动命令
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+```
+
+### 常用覆写方式
+
+```bash
+RUN_NAME=my_dpo_v1 \
+EVAL_INTERVAL=5 \
+SAVE_INTERVAL=5 \
+WANDB_MODE=offline \
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+```

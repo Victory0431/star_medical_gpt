@@ -618,3 +618,45 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 3. Run `run_sft_qwen3_8b_huatuo_5w.sh` for the first formal training version.
 4. Export reproducibility records with `export_experiment_records.py --all --force`.
 5. Commit code and exported experiment records together when the run is worth preserving.
+
+## 7. `merge_lora.py`
+
+Path:
+
+- [`script/merge_lora.py`](/home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py)
+
+Purpose:
+
+- merge an `SFT LoRA checkpoint` back into the base model
+- produce a stable model directory for later `DPO / ORPO / RM / GRPO`
+- record start time, end time, and total merge duration
+
+## 8. `dpo_data_prepare.py`
+
+Path:
+
+- [`script/dpo_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+
+Purpose:
+
+- convert raw pairwise preference data into `TRL DPOTrainer` friendly format
+- normalize everything into conversational `prompt/chosen/rejected`
+
+## 9. `train_dpo.py`
+
+Path:
+
+- [`script/train_dpo.py`](/home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py)
+
+Purpose:
+
+- train a fresh `DPO LoRA` on top of the merged `SFT model`
+- use pairwise validation as the main checkpoint-selection signal
+- optionally use heterogeneous `valid_zh` LM loss as an auxiliary stability monitor
+- write W&B metrics, per-run logs, and central timestamped `DPO` logs
+
+Recommended launcher:
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+```
