@@ -16,6 +16,9 @@ script/
     filter_sft_rules.py
     analyze_sft_distribution.py
     light_quality_score.py
+    build_curation_subset.py
+    run_sft_qwen3_8b_hq_50k.sh
+    run_sft_qwen3_8b_hq_54k.sh
   alignment/
     merge_lora.py
     dpo_data_prepare.py

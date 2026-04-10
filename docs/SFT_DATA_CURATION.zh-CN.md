@@ -213,6 +213,32 @@
 
 这条线最适合尽快进入 SFT 对比实验。
 
+当前已经实际导出的可训练子集：
+
+- [hq_50k_source_stratified.jsonl](/home/qjh/llm_learning/my_medical_gpt/data/sft/curation/subsets/hq_50k_source_stratified.jsonl)
+  - 规模：`50,000`
+  - 策略：从 `high_confidence_keep` 中按来源占比抽取
+  - 来源构成：
+    - `huatuo_v1_226k`：`32,809`
+    - `huatuo_5w`：`17,191`
+- [hq_54k_high_bucket_all.jsonl](/home/qjh/llm_learning/my_medical_gpt/data/sft/curation/subsets/hq_54k_high_bucket_all.jsonl)
+  - 规模：`54,080`
+  - 策略：直接使用 `high_confidence_keep` 全量
+  - 来源构成：
+    - `huatuo_v1_226k`：`35,487`
+    - `huatuo_5w`：`18,593`
+
+推荐 SFT 对比实验口径：
+
+1. `huatuo_5w`
+   - 当前正式 baseline
+2. `hq_50k_source_stratified`
+   - 更公平地检验“数据筛选是否优于原始 5w”
+   - 样本数和 `5w` 基本一致，更适合做主结论
+3. `hq_54k_high_bucket_all`
+   - 检验“把当前高分桶全拿来训练，实际最佳效果能到哪里”
+   - 这组更偏实用最佳实践，不适合作为最严格公平对照
+
 ### 方案 B：引入更强 judge 做第二轮精筛
 
 不是对 `27w` 全量打分，而是：
@@ -272,6 +298,42 @@
   --high-threshold 0.72 \
   --low-threshold 0.45 \
   --sample-per-bucket 20
+```
+
+### 导出可训练子集
+
+```bash
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/build_curation_subset.py \
+  --input-file /home/qjh/llm_learning/my_medical_gpt/data/sft/curation/quality/medical_sft_huatuo_27w_rule_filtered.scored_all.jsonl \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/data/sft/curation/subsets \
+  --output-name hq_50k_source_stratified \
+  --target-size 50000 \
+  --strategy source_stratified_high
+```
+
+```bash
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/build_curation_subset.py \
+  --input-file /home/qjh/llm_learning/my_medical_gpt/data/sft/curation/quality/medical_sft_huatuo_27w_rule_filtered.scored_all.jsonl \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/data/sft/curation/subsets \
+  --output-name hq_54k_high_bucket_all \
+  --target-size 54080 \
+  --strategy high_bucket_only
+```
+
+### 启动新的 SFT 对比实验
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
+```
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_hq_50k.sh
+```
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_hq_54k.sh
 ```
 
 ## 7. 当前工程判断
