@@ -1,5 +1,9 @@
 # DPO Workflow
 
+For a source-level explanation of DPO metrics such as `chosen`, `rejected`, `margins`, `accuracies`, and `loss`, see:
+
+- [DPO_METRICS.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_METRICS.md)
+
 Chinese primary version: [DPO_WORKFLOW.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_WORKFLOW.zh-CN.md).
 
 This document explains the current `DPO` pipeline in this repo:

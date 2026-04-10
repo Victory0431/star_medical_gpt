@@ -4,6 +4,8 @@
 
 这份文档专门说明当前仓库里的 `DPO` 训练链路，包括为什么先 merge `SFT checkpoint-75`，pairwise 数据如何组织，训练期看哪些指标，以及为什么额外引入 `valid_zh` 作为异构分布辅助评估。
 
+如果你想看 `chosen / rejected / margin / accuracy / loss` 的底层公式和源码级解释，可以直接看 [DPO_METRICS.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_METRICS.zh-CN.md)。
+
 ## 1. 当前链路
 
 推荐链路：
