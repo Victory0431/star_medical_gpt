@@ -13,6 +13,9 @@ script/
     train_sft.py
     run_sft_qwen3_8b_medical_1k.sh
     run_sft_qwen3_8b_huatuo_5w.sh
+    filter_sft_rules.py
+    analyze_sft_distribution.py
+    light_quality_score.py
   alignment/
     merge_lora.py
     dpo_data_prepare.py
@@ -29,7 +32,7 @@ script/
 ## 分层原则
 
 - `script/sft`
-  放 `SFT` 数据处理、训练主程序、日常训练 launcher。
+  放 `SFT` 数据处理、训练主程序、日常训练 launcher，以及 `SFT` 数据精筛脚本。
 - `script/alignment`
   放 `LoRA merge`、`DPO` 数据处理、`DPO` 训练及后续 `RM / ORPO / PPO / GRPO` 的对齐相关脚本。
 - `script/eval`
@@ -50,3 +53,4 @@ script/
 - 训练入口优先走各目录下的 `run_*.sh`。
 - 需要改超参、调试异常、做新实验时，再直接调用对应的 `train_*.py`。
 - 文档统一参考 [docs/SCRIPT_GUIDE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.zh-CN.md)。
+- 数据精筛相关说明可参考 [docs/SFT_DATA_CURATION.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/SFT_DATA_CURATION.zh-CN.md)。
