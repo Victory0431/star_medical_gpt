@@ -1,6 +1,6 @@
 # Script Guide
 
-This document explains the purpose, commands, parameters, and outputs of the core scripts in this repository.
+This document explains the purpose, commands, parameters, and outputs of the core scripts in this repository. The `script/` directory is now grouped into `sft / alignment / eval / ops / grpo` subfolders so the project can scale without becoming a flat script dump.
 
 Evaluation scripts are included at the end so training and benchmark usage live in one place.
 
@@ -8,7 +8,7 @@ Evaluation scripts are included at the end so training and benchmark usage live 
 
 Path:
 
-- [`script/sft_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py)
+- [`script/sft/sft_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py)
 
 ### What it does
 
@@ -44,7 +44,7 @@ data/sft/processed/
 ### Basic command
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/raw.jsonl \
   --split train \
   --input-format auto
@@ -55,7 +55,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 Prepare the 1k smoke-test dataset:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /home/qjh/llm_learning/medicalgpt/MedicalGPT-main/data/finetune/finetune/medical_sft_1K_format.jsonl \
   --split train \
   --input-format sharegpt \
@@ -65,7 +65,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 Prepare a 5w ShareGPT dataset:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /home/qjh/llm_learning/medicalgpt/MedicalGPT-main/data/finetune/finetune/HuatuoGPT2_sft_instruct_GPT4_sharegpt.jsonl \
   --split train \
   --input-format sharegpt \
@@ -76,7 +76,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 Convert instruction format into conversations:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/train_zh_0.json \
   --split train \
   --input-format instruction \
@@ -87,7 +87,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 Prepare validation data:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/valid.json \
   --split valid \
   --input-format instruction \
@@ -124,7 +124,7 @@ For one processed dataset:
 
 Path:
 
-- [`script/train_sft.py`](/home/qjh/llm_learning/my_medical_gpt/script/train_sft.py)
+- [`script/sft/train_sft.py`](/home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py)
 
 ### What it does
 
@@ -141,7 +141,7 @@ Single-process direct launch:
 
 ```bash
 /home/qjh/miniconda3/envs/medicalgpt/bin/python \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_sft.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py \
   --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_1k.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl \
@@ -171,7 +171,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 /home/qjh/miniconda3/envs/medicalgpt/bin/torchrun \
   --nproc_per_node 2 \
   --master_port 29521 \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_sft.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py \
   --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_5w.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl \
@@ -433,8 +433,8 @@ The repo now includes:
 
 ### Launcher scripts
 
-- [`script/run_eval_healthbench_qwen3_8b_base.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh)
-- [`script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh)
+- [`script/eval/run_eval_healthbench_qwen3_8b_base.sh`](/home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh)
+- [`script/eval/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh`](/home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh)
 
 Launcher default behavior:
 
@@ -446,7 +446,7 @@ Launcher default behavior:
 
 Path:
 
-- [`script/run_sft_qwen3_8b_medical_1k.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh)
+- [`script/sft/run_sft_qwen3_8b_medical_1k.sh`](/home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh)
 
 ### What it does
 
@@ -465,13 +465,13 @@ Path:
 ### Standard command
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 ### `nohup` command
 
 ```bash
-nohup bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh \
+nohup bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh \
   > /home/qjh/llm_learning/my_medical_gpt/outputs/nohup_1k.out 2>&1 &
 ```
 
@@ -482,7 +482,7 @@ RUN_NAME=demo_1k_lr1e5 \
 LEARNING_RATE=1e-5 \
 NUM_TRAIN_EPOCHS=1 \
 CUDA_VISIBLE_DEVICES=0,1 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 ### Common launcher variables
@@ -508,7 +508,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 
 Path:
 
-- [`script/run_sft_qwen3_8b_huatuo_5w.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh)
+- [`script/sft/run_sft_qwen3_8b_huatuo_5w.sh`](/home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh)
 
 ### What it does
 
@@ -519,13 +519,13 @@ Path:
 ### Standard command
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 ### `nohup` command
 
 ```bash
-nohup bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh \
+nohup bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh \
   > /home/qjh/llm_learning/my_medical_gpt/outputs/nohup_5w.out 2>&1 &
 ```
 
@@ -536,14 +536,14 @@ RUN_NAME=huatuo_5w_epoch1_eval20 \
 NUM_TRAIN_EPOCHS=1 \
 EVAL_INTERVAL=20 \
 SAVE_INTERVAL=20 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 ## 6. `export_experiment_records.py`
 
 Path:
 
-- [`script/export_experiment_records.py`](/home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py)
+- [`script/ops/export_experiment_records.py`](/home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py)
 
 ### What it does
 
@@ -557,7 +557,7 @@ Path:
 Export one run:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py \
   --run-name 20260409_1204_qwen3-8b_huatuo-1k_eval_smoke \
   --force
 ```
@@ -565,13 +565,13 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 Export all eligible runs:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 Export absolutely everything:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py \
   --all \
   --include-dryrun \
   --include-failed \
@@ -623,7 +623,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 
 Path:
 
-- [`script/merge_lora.py`](/home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py)
+- [`script/alignment/merge_lora.py`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py)
 
 Purpose:
 
@@ -635,7 +635,7 @@ Purpose:
 
 Path:
 
-- [`script/dpo_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+- [`script/alignment/dpo_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py)
 
 Purpose:
 
@@ -646,7 +646,7 @@ Purpose:
 
 Path:
 
-- [`script/train_dpo.py`](/home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py)
+- [`script/alignment/train_dpo.py`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/train_dpo.py)
 
 Purpose:
 
@@ -658,5 +658,5 @@ Purpose:
 Recommended launcher:
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```

@@ -26,5 +26,5 @@
 导出命令：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```

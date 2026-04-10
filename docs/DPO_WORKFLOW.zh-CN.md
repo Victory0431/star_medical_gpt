@@ -61,7 +61,7 @@
 
 处理脚本：
 
-- [script/dpo_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+- [script/alignment/dpo_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py)
 
 ## 3. 训练期看什么指标
 
@@ -115,14 +115,14 @@
 ### 先准备 DPO 数据
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
   --split train \
   --output-name medical_pairwise_train
 ```
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_valid.jsonl \
   --split valid \
   --output-name medical_pairwise_valid
@@ -131,7 +131,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
 ### 正式双卡启动
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 ### 直接双卡命令
@@ -141,7 +141,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 /home/qjh/miniconda3/envs/medicalgpt/bin/torchrun \
   --nproc_per_node 2 \
   --master_port 29531 \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/alignment/train_dpo.py \
   --model-name-or-path /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/train/medical_pairwise_train.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/valid/medical_pairwise_valid.processed.jsonl \

@@ -44,15 +44,15 @@ Processed DPO format:
 
 Preparation script:
 
-- [`script/dpo_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+- [`script/alignment/dpo_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py)
 
 Training script:
 
-- [`script/train_dpo.py`](/home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py)
+- [`script/alignment/train_dpo.py`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/train_dpo.py)
 
 Launcher:
 
-- [`script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh`](/home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh)
+- [`script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh`](/home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh)
 
 ## Training-time evaluation
 
@@ -77,7 +77,7 @@ This does not replace pairwise preference evaluation. It is only there to monito
 ## Standard launch
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 ## Outputs

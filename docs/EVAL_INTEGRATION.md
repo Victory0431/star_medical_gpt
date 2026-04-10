@@ -17,7 +17,7 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 
 MODEL_PATH=/path/to/base_or_merged_model \
 MODE=full JUDGE_MODE=openai JUDGE_MODEL=gpt-5.2 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 ### 2. Base model + LoRA adapter
@@ -32,7 +32,7 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 MODEL_PATH=/path/to/base_model \
 ADAPTER_PATH=/path/to/adapter_or_final_model \
 MODE=full JUDGE_MODE=openai JUDGE_MODEL=gpt-5.2 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
 ```
 
 ### 3. Reuse existing generations and only rerun judge

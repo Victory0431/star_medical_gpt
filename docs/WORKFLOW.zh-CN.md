@@ -17,7 +17,7 @@ data/
     processed/
 ```
 
-使用 [sft_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py) 把原始文件转成统一的 `conversations` JSONL。
+使用 [sft_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py) 把原始文件转成统一的 `conversations` JSONL。
 
 ## 2. 构建处理后的 train / valid / test 集
 
@@ -42,7 +42,7 @@ data/
 
 ```bash
 conda activate medicalgpt
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 这一步主要验证：
@@ -60,7 +60,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 
 ```bash
 conda activate medicalgpt
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 这一版通常就是你可以拿去讲面试的第一个“像样版本”。
@@ -80,7 +80,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
 当某个 run 值得保留时，执行：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 这会把轻量可复现信息导出到：

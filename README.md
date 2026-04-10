@@ -24,17 +24,22 @@ evaluation/
   judges/
   configs/
 script/
-  run_eval_healthbench_qwen3_8b_base.sh
-  run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
-  sft_data_prepare.py
-  dpo_data_prepare.py
-  train_sft.py
-  train_dpo.py
-  run_sft_qwen3_8b_medical_1k.sh
-  run_sft_qwen3_8b_huatuo_5w.sh
-  run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
-  merge_lora.py
-  export_experiment_records.py
+  sft/
+    sft_data_prepare.py
+    train_sft.py
+    run_sft_qwen3_8b_medical_1k.sh
+    run_sft_qwen3_8b_huatuo_5w.sh
+  alignment/
+    merge_lora.py
+    dpo_data_prepare.py
+    train_dpo.py
+    run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+  eval/
+    run_eval_healthbench_qwen3_8b_base.sh
+    run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
+  ops/
+    export_experiment_records.py
+  grpo/
 data/
   sft/
     raw/
@@ -50,6 +55,8 @@ experiment_records/
   Chinese-first entry for the repository.
 - [脚本使用指南（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.zh-CN.md)
   Chinese guide for core scripts, commands, parameters, and outputs.
+- [脚本目录说明（中文）](/home/qjh/llm_learning/my_medical_gpt/script/README.zh-CN.md)
+  Chinese overview of how `script/sft`, `script/alignment`, `script/eval`, `script/ops`, and `script/grpo` are organized.
 - [项目工作流（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/WORKFLOW.zh-CN.md)
   Chinese workflow from data prep to training, evaluation, and archiving.
 - [评测设计（中文）](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.zh-CN.md)
@@ -91,7 +98,7 @@ conda activate medicalgpt
 Prepare a dataset:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/raw.jsonl \
   --split train \
   --input-format auto
@@ -100,19 +107,19 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 Run the 1k smoke test:
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 Run the 5w formal version:
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 Merge the best `SFT checkpoint` into a stable alignment starting point:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py \
   --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
   --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
@@ -125,7 +132,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
 Prepare pairwise `DPO` data:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
   --split train \
   --output-name medical_pairwise_train
@@ -134,19 +141,19 @@ python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
 Launch `DPO`:
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 Export lightweight experiment records:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 Run a HealthBench base-model smoke evaluation without official judging:
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 Run official HealthBench judging after exporting the API key:
@@ -155,7 +162,7 @@ Run official HealthBench judging after exporting the API key:
 export OPENAI_API_KEY=your_key_here
 export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 MODE=full JUDGE_MODE=openai \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 ## Data policy

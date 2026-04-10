@@ -2,13 +2,13 @@
 
 英文原版见 [SCRIPT_GUIDE.md](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.md)。
 
-这份文档说明仓库内核心脚本的用途、命令、参数和输出。训练脚本与 benchmark 评测脚本统一放在一份文档里，方便日常使用。
+这份文档说明仓库内核心脚本的用途、命令、参数和输出。当前 `script/` 目录已经按职责拆成 `sft / alignment / eval / ops / grpo` 子目录，训练脚本与 benchmark 评测脚本仍统一放在这份文档里，方便日常使用。
 
 ## 1. `sft_data_prepare.py`
 
 路径：
 
-- [script/sft_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py)
+- [script/sft/sft_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py)
 
 ### 作用
 
@@ -45,7 +45,7 @@ data/sft/processed/
 ### 基础命令
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/raw.jsonl \
   --split train \
   --input-format auto
@@ -56,7 +56,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 处理 `1k` smoke 数据：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /home/qjh/llm_learning/medicalgpt/MedicalGPT-main/data/finetune/finetune/medical_sft_1K_format.jsonl \
   --split train \
   --input-format sharegpt \
@@ -66,7 +66,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 处理 `5w` ShareGPT 数据：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /home/qjh/llm_learning/medicalgpt/MedicalGPT-main/data/finetune/finetune/HuatuoGPT2_sft_instruct_GPT4_sharegpt.jsonl \
   --split train \
   --input-format sharegpt \
@@ -77,7 +77,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 把 instruction 格式转成 conversations：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/train_zh_0.json \
   --split train \
   --input-format instruction \
@@ -88,7 +88,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 处理验证集：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/valid.json \
   --split valid \
   --input-format instruction \
@@ -125,7 +125,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 
 路径：
 
-- [script/train_sft.py](/home/qjh/llm_learning/my_medical_gpt/script/train_sft.py)
+- [script/sft/train_sft.py](/home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py)
 
 ### 作用
 
@@ -142,7 +142,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 
 ```bash
 /home/qjh/miniconda3/envs/medicalgpt/bin/python \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_sft.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py \
   --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_1k.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl \
@@ -172,7 +172,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 /home/qjh/miniconda3/envs/medicalgpt/bin/torchrun \
   --nproc_per_node 2 \
   --master_port 29521 \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_sft.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/sft/train_sft.py \
   --model-name-or-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/train/huatuo_5w.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl \
@@ -434,8 +434,8 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 
 ### 配套 launcher
 
-- [run_eval_healthbench_qwen3_8b_base.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh)
-- [run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh)
+- [run_eval_healthbench_qwen3_8b_base.sh](/home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh)
+- [run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh](/home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh)
 
 launcher 默认行为：
 
@@ -447,7 +447,7 @@ launcher 默认行为：
 
 路径：
 
-- [script/run_sft_qwen3_8b_medical_1k.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh)
+- [script/sft/run_sft_qwen3_8b_medical_1k.sh](/home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh)
 
 ### 作用
 
@@ -466,13 +466,13 @@ launcher 默认行为：
 ### 标准命令
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 ### `nohup` 版本
 
 ```bash
-nohup bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh \
+nohup bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh \
   > /home/qjh/llm_learning/my_medical_gpt/outputs/nohup_1k.out 2>&1 &
 ```
 
@@ -483,7 +483,7 @@ RUN_NAME=demo_1k_lr1e5 \
 LEARNING_RATE=1e-5 \
 NUM_TRAIN_EPOCHS=1 \
 CUDA_VISIBLE_DEVICES=0,1 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 ### 常见环境变量
@@ -509,7 +509,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 
 路径：
 
-- [script/run_sft_qwen3_8b_huatuo_5w.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh)
+- [script/sft/run_sft_qwen3_8b_huatuo_5w.sh](/home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh)
 
 ### 作用
 
@@ -520,13 +520,13 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
 ### 标准命令
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 ### `nohup` 版本
 
 ```bash
-nohup bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh \
+nohup bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh \
   > /home/qjh/llm_learning/my_medical_gpt/outputs/nohup_5w.out 2>&1 &
 ```
 
@@ -537,14 +537,14 @@ RUN_NAME=huatuo_5w_epoch1_eval20 \
 NUM_TRAIN_EPOCHS=1 \
 EVAL_INTERVAL=20 \
 SAVE_INTERVAL=20 \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 ## 6. `export_experiment_records.py`
 
 路径：
 
-- [script/export_experiment_records.py](/home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py)
+- [script/ops/export_experiment_records.py](/home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py)
 
 ### 作用
 
@@ -558,7 +558,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
 导出单个 run：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py \
   --run-name 20260409_1204_qwen3-8b_huatuo-1k_eval_smoke \
   --force
 ```
@@ -566,13 +566,13 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 导出全部合格 run：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 强制导出所有内容：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py \
   --all \
   --include-dryrun \
   --include-failed \
@@ -624,7 +624,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 
 路径：
 
-- [script/merge_lora.py](/home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py)
+- [script/alignment/merge_lora.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py)
 
 ### 作用
 
@@ -635,7 +635,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py
 ### 标准命令
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py \
   --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
   --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
@@ -656,7 +656,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
 
 路径：
 
-- [script/dpo_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py)
+- [script/alignment/dpo_data_prepare.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py)
 
 ### 作用
 
@@ -667,14 +667,14 @@ python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
 ### 标准命令
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
   --split train \
   --output-name medical_pairwise_train
 ```
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_valid.jsonl \
   --split valid \
   --output-name medical_pairwise_valid
@@ -691,7 +691,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
 
 路径：
 
-- [script/train_dpo.py](/home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py)
+- [script/alignment/train_dpo.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/train_dpo.py)
 
 ### 作用
 
@@ -707,7 +707,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 /home/qjh/miniconda3/envs/medicalgpt/bin/torchrun \
   --nproc_per_node 2 \
   --master_port 29531 \
-  /home/qjh/llm_learning/my_medical_gpt/script/train_dpo.py \
+  /home/qjh/llm_learning/my_medical_gpt/script/alignment/train_dpo.py \
   --model-name-or-path /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model \
   --train-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/train/medical_pairwise_train.processed.jsonl \
   --valid-data /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo/valid/medical_pairwise_valid.processed.jsonl \
@@ -774,7 +774,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 
 路径：
 
-- [script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh](/home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh)
+- [script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh](/home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh)
 
 ### 作用
 
@@ -786,7 +786,7 @@ CUDA_VISIBLE_DEVICES=0,1 \
 ### 启动命令
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 ### 常用覆写方式
@@ -796,5 +796,5 @@ RUN_NAME=my_dpo_v1 \
 EVAL_INTERVAL=5 \
 SAVE_INTERVAL=5 \
 WANDB_MODE=offline \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```

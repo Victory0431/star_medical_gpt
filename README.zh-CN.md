@@ -23,17 +23,22 @@ evaluation/
   judges/
   configs/
 script/
-  run_eval_healthbench_qwen3_8b_base.sh
-  run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
-  sft_data_prepare.py
-  dpo_data_prepare.py
-  train_sft.py
-  train_dpo.py
-  run_sft_qwen3_8b_medical_1k.sh
-  run_sft_qwen3_8b_huatuo_5w.sh
-  run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
-  merge_lora.py
-  export_experiment_records.py
+  sft/
+    sft_data_prepare.py
+    train_sft.py
+    run_sft_qwen3_8b_medical_1k.sh
+    run_sft_qwen3_8b_huatuo_5w.sh
+  alignment/
+    merge_lora.py
+    dpo_data_prepare.py
+    train_dpo.py
+    run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+  eval/
+    run_eval_healthbench_qwen3_8b_base.sh
+    run_eval_healthbench_qwen3_8b_huatuo_1k_lora.sh
+  ops/
+    export_experiment_records.py
+  grpo/
 data/
   sft/
     raw/
@@ -47,6 +52,8 @@ experiment_records/
 
 - [脚本使用指南](/home/qjh/llm_learning/my_medical_gpt/docs/SCRIPT_GUIDE.zh-CN.md)
   介绍核心脚本的用途、命令、参数、输出与常见用法。
+- [脚本目录说明](/home/qjh/llm_learning/my_medical_gpt/script/README.zh-CN.md)
+  说明 `script/sft`、`script/alignment`、`script/eval`、`script/ops`、`script/grpo` 的职责边界。
 - [项目工作流](/home/qjh/llm_learning/my_medical_gpt/docs/WORKFLOW.zh-CN.md)
   从原始数据、数据处理、Smoke Test、正式训练到实验归档的推荐流程。
 - [评测设计](/home/qjh/llm_learning/my_medical_gpt/docs/EVALUATION.zh-CN.md)
@@ -73,7 +80,7 @@ conda activate medicalgpt
 准备数据集：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py \
   --input-files /path/to/raw.jsonl \
   --split train \
   --input-format auto
@@ -82,19 +89,19 @@ python /home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py \
 运行 `1k` 的 smoke test：
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 运行 `5w` 的首个正式小版本：
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 把最佳 `SFT checkpoint` merge 成后续对齐的稳定起点：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py \
   --base-model-path /home/qjh/llm_learning/base_model/qwen3_8B \
   --adapter-path /home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75 \
   --output-root /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft \
@@ -107,7 +114,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/merge_lora.py \
 准备 `DPO` pairwise 数据：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
   --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
   --split train \
   --output-name medical_pairwise_train
@@ -116,19 +123,19 @@ python /home/qjh/llm_learning/my_medical_gpt/script/dpo_data_prepare.py \
 启动 `DPO`：
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
 ```
 
 导出轻量实验记录：
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 先跑一版不带官方打分的 HealthBench 基座评测：
 
 ```bash
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 如果已经配置好 judge API，可以跑官方 rubric 打分：
@@ -137,7 +144,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_
 export OPENAI_API_KEY=your_key_here
 export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 MODE=full JUDGE_MODE=openai \
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_eval_healthbench_qwen3_8b_base.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/eval/run_eval_healthbench_qwen3_8b_base.sh
 ```
 
 ## 数据与提交策略

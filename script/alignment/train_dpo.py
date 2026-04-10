@@ -9,6 +9,7 @@ import json
 import logging
 import math
 import os
+import sys
 from contextlib import nullcontext
 from datetime import datetime
 from glob import glob
@@ -22,7 +23,12 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainerCallback, TrainerControl, TrainerState, set_seed
 from trl import DPOConfig, DPOTrainer
 
-from train_sft import IGNORE_INDEX, SupervisedDataCollator, tokenize_example
+CURRENT_DIR = Path(__file__).resolve().parent
+SCRIPT_ROOT = CURRENT_DIR.parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from sft.train_sft import IGNORE_INDEX, SupervisedDataCollator, tokenize_example
 
 
 def get_local_rank() -> int:

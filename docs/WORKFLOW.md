@@ -15,7 +15,7 @@ data/
     processed/
 ```
 
-Use [`sft_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/sft_data_prepare.py) to convert raw files into unified `conversations` JSONL.
+Use [`sft_data_prepare.py`](/home/qjh/llm_learning/my_medical_gpt/script/sft/sft_data_prepare.py) to convert raw files into unified `conversations` JSONL.
 
 ## 2. Build processed train and validation sets
 
@@ -40,7 +40,7 @@ Before formal training, always run a cheap smoke test:
 
 ```bash
 conda activate medicalgpt
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_medical_1k.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_medical_1k.sh
 ```
 
 This verifies:
@@ -58,7 +58,7 @@ After the smoke test is stable:
 
 ```bash
 conda activate medicalgpt
-bash /home/qjh/llm_learning/my_medical_gpt/script/run_sft_qwen3_8b_huatuo_5w.sh
+bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w.sh
 ```
 
 This is the version you can usually treat as the first interview-grade training run.
@@ -79,7 +79,7 @@ Later you can compare it with same-distribution holdout splits for a stronger ex
 After a run becomes worth keeping:
 
 ```bash
-python /home/qjh/llm_learning/my_medical_gpt/script/export_experiment_records.py --all --force
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
 ```
 
 This exports only lightweight reproducibility artifacts into:

@@ -2,13 +2,12 @@
 
 set -euo pipefail
 
-export MODEL_PATH="${MODEL_PATH:-/home/qjh/llm_learning/base_model/qwen3_8B}"
-export ADAPTER_PATH="${ADAPTER_PATH:-/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model}"
-export RUN_NAME="${RUN_NAME:-$(date +%Y%m%d_%H%M%S)_healthbench_consensus_qwen3_8b_huatuo_1k_lora}"
-
-PROJECT_ROOT="/home/qjh/llm_learning/my_medical_gpt"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PYTHON_BIN="/home/qjh/miniconda3/envs/medicalgpt/bin/python"
+MODEL_PATH="${MODEL_PATH:-/home/qjh/llm_learning/base_model/qwen3_8B}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-${PROJECT_ROOT}/outputs/eval}"
+RUN_NAME="${RUN_NAME:-$(date +%Y%m%d_%H%M%S)_healthbench_consensus_qwen3_8b_base}"
 BENCHMARK="${BENCHMARK:-healthbench}"
 SUBSET_NAME="${SUBSET_NAME:-consensus}"
 MODE="${MODE:-generate_only}"
@@ -35,7 +34,6 @@ mkdir -p "${CONSOLE_DIR}"
   echo "judge_mode=${JUDGE_MODE}"
   echo "judge_model=${JUDGE_MODEL}"
   echo "model_path=${MODEL_PATH}"
-  echo "adapter_path=${ADAPTER_PATH}"
   echo "max_examples=${MAX_EXAMPLES}"
   echo "generator_device=${GENERATOR_DEVICE}"
   echo "enable_thinking=${ENABLE_THINKING}"
@@ -48,15 +46,14 @@ if [[ "${ENABLE_THINKING}" == "1" ]]; then
 fi
 
 "${PYTHON_BIN}" \
-  /home/qjh/llm_learning/my_medical_gpt/evaluation/run_eval.py \
+  "${PROJECT_ROOT}/evaluation/run_eval.py" \
   --benchmark "${BENCHMARK}" \
   --subset-name "${SUBSET_NAME}" \
   --mode "${MODE}" \
   --judge-mode "${JUDGE_MODE}" \
   --judge-model "${JUDGE_MODEL}" \
   --model-name-or-path "${MODEL_PATH}" \
-  --adapter-path "${ADAPTER_PATH}" \
-  --model-alias "qwen3_8b_huatuo_1k_lora" \
+  --model-alias "qwen3_8b_base" \
   --output-root "${OUTPUT_ROOT}" \
   --run-name "${RUN_NAME}" \
   --cache-dir "${PROJECT_ROOT}/cache" \
