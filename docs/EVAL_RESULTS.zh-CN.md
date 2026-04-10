@@ -19,69 +19,87 @@
 参与对比的 run：
 
 - base：`20260409_healthbench_base_gpt52_full_theme15x7`
+- sft 1k：`20260410_healthbench_huatuo1k_gpt52_full_theme15x7`
 - sft 5w 最优 checkpoint：`20260409_healthbench_huatuo5w_ckpt75_gpt52_full_theme15x7`
 - sft 5w 较晚 checkpoint：`20260409_healthbench_huatuo5w_ckpt925_gpt52_full_theme15x7`
+- dpo v1：`20260410_healthbench_dpo_medpair_ckpt100_gpt52_full_theme15x7`
 
 ## 结论先看
 
 | 模型 | overall clipped mean | 备注 |
 | --- | ---: | --- |
 | `Qwen3-8B base` | `0.2206` | 当前正式 stratified baseline |
+| `Qwen3-8B + huatuo_1k LoRA` | `0.2508` | 当前正式小规模 SFT baseline |
 | `Qwen3-8B + huatuo_5w LoRA (ckpt-75)` | `0.2889` | 当前最优正式 SFT baseline |
 | `Qwen3-8B + huatuo_5w LoRA (ckpt-925)` | `0.2587` | 同一 run 中更晚的 checkpoint |
+| `Qwen3-8B + DPO medical_pairwise (ckpt-100)` | `0.2111` | 当前 DPO v1 正式结果 |
 
 结论摘要：
 
-- `huatuo_5w` 在 `105` 条按主题平衡采样的正式小规模评测上已经稳定超过 base
-- `checkpoint-75` 明确优于 `checkpoint-925`，说明最佳 checkpoint 出现在更早阶段
-- `checkpoint-925` 虽然仍高于 base，但已经在 `accuracy`、`completeness`、`emergency_referrals` 上出现回退
-- 这使“早停 + 最佳 checkpoint 选择”从经验建议变成了有 benchmark 支撑的标准流程
+- `huatuo_5w checkpoint-75` 仍然是当前最强正式 baseline，说明主线 SFT 方案依然成立
+- `huatuo_1k` 在正式 `105` 条分层评测上高于 base，说明它虽然不适合作为最终主模型，但已经是有效的“小数据跑通版”
+- `DPO v1` 低于 base，也明显低于最佳 SFT，说明“对齐阶段已跑通”不等于“当前偏好数据和目标设计已经正确”
+- `checkpoint-75` 明确优于 `checkpoint-925`，这让“早停 + 最佳 checkpoint 选择”成为 benchmark 支撑下的标准流程
 
 ## Axis 对比
 
-| axis | base | 5w ckpt-75 | 5w ckpt-925 |
-| --- | ---: | ---: | ---: |
-| `axis:accuracy` | `0.1711` | `0.2368` | `0.1974` |
-| `axis:communication_quality` | `0.2000` | `0.2889` | `0.2444` |
-| `axis:completeness` | `0.0000` | `0.2500` | `0.0000` |
-| `axis:context_awareness` | `0.2407` | `0.3704` | `0.3333` |
-| `axis:instruction_following` | `0.5000` | `0.3667` | `0.5333` |
+| axis | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 | DPO ckpt-100 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `axis:accuracy` | `0.1711` | `0.2039` | `0.2368` | `0.1974` | `0.1447` |
+| `axis:communication_quality` | `0.2000` | `0.2444` | `0.2889` | `0.2444` | `0.1778` |
+| `axis:completeness` | `0.0000` | `0.0833` | `0.2500` | `0.0000` | `0.0833` |
+| `axis:context_awareness` | `0.2407` | `0.2778` | `0.3704` | `0.3333` | `0.2778` |
+| `axis:instruction_following` | `0.5000` | `0.4667` | `0.3667` | `0.5333` | `0.4667` |
 
 解读：
 
 - `checkpoint-75` 在 `accuracy`、`completeness`、`context_awareness` 上最强，整体最均衡
-- `checkpoint-925` 的 `instruction_following` 高于 `checkpoint-75`，但没能转化为更高总分
-- 对医疗问答更关键的 `accuracy` 和 `context_awareness`，仍然是 `checkpoint-75` 更优
+- `huatuo_1k` 已经在 `accuracy`、`communication_quality`、`context_awareness` 上超过 base，说明小规模 SFT 不是完全无效，而是上限较低
+- `DPO v1` 的 `context_awareness` 和 `instruction_following` 没有崩，但 `accuracy`、`communication_quality` 明显回退，这更像“偏好优化目标与正式 benchmark 目标不一致”
+- `checkpoint-925` 的 `instruction_following` 虽高，但没能转化为更高总分，进一步说明不能只盯住单一切片
 
 ## Theme 对比
 
-| theme | base | 5w ckpt-75 | 5w ckpt-925 |
-| --- | ---: | ---: | ---: |
-| `theme:communication` | `0.0333` | `0.0667` | `0.0667` |
-| `theme:complex_responses` | `0.2333` | `0.2000` | `0.2333` |
-| `theme:context_seeking` | `0.0333` | `0.0333` | `0.1667` |
-| `theme:emergency_referrals` | `0.2667` | `0.4333` | `0.2000` |
-| `theme:global_health` | `0.2667` | `0.5333` | `0.3333` |
-| `theme:health_data_tasks` | `0.4667` | `0.3333` | `0.4333` |
-| `theme:hedging` | `0.2444` | `0.4222` | `0.3778` |
+| theme | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 | DPO ckpt-100 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `theme:communication` | `0.0333` | `0.1333` | `0.0667` | `0.0667` | `0.0333` |
+| `theme:complex_responses` | `0.2333` | `0.2333` | `0.2000` | `0.2333` | `0.2333` |
+| `theme:context_seeking` | `0.0333` | `0.0333` | `0.0333` | `0.1667` | `0.0333` |
+| `theme:emergency_referrals` | `0.2667` | `0.3000` | `0.4333` | `0.2000` | `0.2000` |
+| `theme:global_health` | `0.2667` | `0.2667` | `0.5333` | `0.3333` | `0.2667` |
+| `theme:health_data_tasks` | `0.4667` | `0.4333` | `0.3333` | `0.4333` | `0.4000` |
+| `theme:hedging` | `0.2444` | `0.3556` | `0.4222` | `0.3778` | `0.3111` |
 
 解读：
 
 - `checkpoint-75` 在 `emergency_referrals`、`global_health`、`hedging` 上的优势最明显
-- `checkpoint-925` 在 `context_seeking` 上更高，但代价是 `emergency_referrals` 明显回退
+- `huatuo_1k` 在 `communication`、`emergency_referrals`、`hedging` 上已经优于 base，这解释了它为什么正式总分高于 base
+- `DPO v1` 只在 `hedging` 上略高于 base，其他关键主题基本没有带来正式收益，尤其 `emergency_referrals` 仍然偏弱
 - `health_data_tasks` 是 base 本身不弱的主题，因此正式结论不能只靠这个切片来讲
 
 ## 面试里最值得讲的故事
 
 更强的表述不是：
 
-- “我把模型训了更久，分数更高了。”
+- “我把模型做了 SFT、DPO，然后分数自然会越来越高。”
 
 而是：
 
-- “我在 `HealthBench consensus` 上做了按主题分层抽样，每个主题 `15` 条，共 `105` 条。结果 `huatuo_5w` 的最优 checkpoint-75 能稳定超过 base，但更晚的 checkpoint-925 反而回退。这说明 SFT 不应该只看训练时长，而要把最佳 checkpoint 选择和切片诊断纳入标准流程。”
+- “我在 `HealthBench consensus` 上做了按主题分层抽样，每个主题 `15` 条，共 `105` 条，形成了 base -> 1k SFT -> 5w SFT -> DPO 的同口径闭环。结果 `huatuo_5w checkpoint-75` 最强，`checkpoint-925` 回退，说明 SFT 需要最佳 checkpoint 选择；同时 `DPO v1` 低于最佳 SFT 甚至略低于 base，说明偏好优化不能只靠旧 pairwise 数据硬上，而要让 reward 目标和医疗 benchmark 切片真正对齐。” 
 
 这种说法会明显更接近真实工业实验。
+
+## 当前对齐阶段结论
+
+基于这组正式结果，当前更合理的工程判断是：
+
+- 当前主模型仍应保持为 `huatuo_5w checkpoint-75`
+- `huatuo_1k` 继续保留为轻量 SFT baseline，很适合做 smoke test 和流程验证
+- `DPO v1` 说明训练链路、评测链路、外部 judge 都已经打通，但现有 `medical_pairwise` 数据还不足以支撑正式收益
+- 下一步更值得做的不是“盲目继续 DPO”，而是：
+  - 扩充更贴近 `HealthBench` 的医疗偏好数据
+  - 把 `communication`、`hedging`、`emergency_referrals` 这类切片纳入 reward 设计
+  - 继续保留同一套 `theme 15 x 7` 正式评测，作为所有对齐算法的统一验收口径
 
 ## 早期 smoke 结果矩阵（仅供参考）
 
@@ -195,9 +213,12 @@
 ## 结果来源
 
 - [formal base summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_theme15x7/summary.json)
+- [formal 1k summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260410_healthbench_huatuo1k_gpt52_full_theme15x7/summary.json)
 - [formal 5w ckpt-75 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt75_gpt52_full_theme15x7/summary.json)
 - [formal 5w ckpt-925 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt925_gpt52_full_theme15x7/summary.json)
+- [formal dpo ckpt-100 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260410_healthbench_dpo_medpair_ckpt100_gpt52_full_theme15x7/summary.json)
 - [formal base vs 5w compare README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_compare_base_vs_huatuo5w_gpt52_theme15x7/README.zh-CN.md)
+- [formal base vs 1k vs 5w vs dpo compare README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260410_healthbench_compare_base_vs_1k_vs_5w_vs_dpo_gpt52_theme15x7/README.zh-CN.md)
 - [base summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)
 - [1k LoRA summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo1k_gpt52_full_10/summary.json)
 - [5w ckpt-75 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt75_gpt52_full_10/summary.json)
