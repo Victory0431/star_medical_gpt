@@ -441,7 +441,7 @@ class BestMetricCallback(TrainerCallback):
             "global_step": state.global_step,
             "epoch": state.epoch,
             "candidate_checkpoint": candidate_checkpoint,
-            "best_model_checkpoint": state.best_model_checkpoint or candidate_checkpoint,
+            "best_model_checkpoint": candidate_checkpoint,
         }
         save_json(payload, self.output_path)
         self.logger.info(
@@ -449,7 +449,7 @@ class BestMetricCallback(TrainerCallback):
             self.metric_name,
             value,
             state.global_step,
-            state.best_model_checkpoint or candidate_checkpoint,
+            candidate_checkpoint,
         )
 
 
@@ -460,6 +460,7 @@ class AuxiliarySupervisedEvalCallback(TrainerCallback):
         tokenizer,
         batch_size: int,
         metrics_path: Path,
+        best_metrics_path: Path,
         logger: logging.Logger,
         enabled: bool,
     ) -> None:
@@ -468,9 +469,12 @@ class AuxiliarySupervisedEvalCallback(TrainerCallback):
         self.batch_size = batch_size
         self.metrics_path = metrics_path
         self.metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        self.best_metrics_path = best_metrics_path
+        self.best_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         self.logger = logger
         self.enabled = enabled and dataset is not None and len(dataset) > 0
         self.best_loss: Optional[float] = None
+        self.best_step: Optional[int] = None
 
     def on_evaluate(
         self,
@@ -537,6 +541,18 @@ class AuxiliarySupervisedEvalCallback(TrainerCallback):
         )
         if self.best_loss is None or aux_loss < self.best_loss:
             self.best_loss = aux_loss
+            self.best_step = state.global_step
+            save_json(
+                {
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "global_step": state.global_step,
+                    "epoch": state.epoch,
+                    "aux_eval/valid_zh_loss": aux_loss,
+                    "aux_eval/samples": total_samples,
+                    "aux_eval/supervised_tokens": total_tokens,
+                },
+                self.best_metrics_path,
+            )
             self.logger.info("Auxiliary heterogeneous eval best updated: valid_zh_loss=%.6f at step=%s", aux_loss, state.global_step)
 
         if args.report_to and "wandb" in args.report_to:
@@ -634,6 +650,7 @@ def main() -> None:
         tokenizer=tokenizer,
         batch_size=args.aux_eval_batch_size,
         metrics_path=log_dir / "aux_eval.jsonl",
+        best_metrics_path=run_dir / "artifacts" / "best_auxiliary_eval.json",
         logger=logger,
         enabled=True,
     )
@@ -683,6 +700,8 @@ def main() -> None:
             "best_metric": trainer.state.best_metric,
             "metric_for_best_model": args.metric_for_best_model,
             "global_step": trainer.state.global_step,
+            "best_auxiliary_valid_zh_loss": aux_callback.best_loss,
+            "best_auxiliary_step": aux_callback.best_step,
         },
         run_dir / "artifacts" / "training_summary.json",
     )
