@@ -239,6 +239,26 @@
    - 检验“把当前高分桶全拿来训练，实际最佳效果能到哪里”
    - 这组更偏实用最佳实践，不适合作为最严格公平对照
 
+### 第一轮正式结果已落地
+
+`hq_50k_source_stratified` 已经完成一轮正式 `SFT + HealthBench` 验证：
+
+- 训练 run：
+  - [20260410_234458_qwen3-8b_hq-50k_lora_eval](/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260410_234458_qwen3-8b_hq-50k_lora_eval)
+- 对应正式评测结果：
+  - `HQ-50k best = 0.2905`
+  - `huatuo_5w checkpoint-75 = 0.2889`
+
+当前能下的最稳妥结论是：
+
+- `HQ-50k` 已经显示出小幅正式优势
+- 说明轻量数据筛选路线是有效的
+- 但领先幅度不大，因此更适合说“略优于原始 5w”，而不是“显著优于原始 5w”
+
+专项分析见：
+
+- [HQ50K_HEALTHBENCH_COMPARE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/HQ50K_HEALTHBENCH_COMPARE.zh-CN.md)
+
 ### 方案 B：引入更强 judge 做第二轮精筛
 
 不是对 `27w` 全量打分，而是：

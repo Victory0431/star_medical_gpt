@@ -136,6 +136,48 @@
   - `DPO v2 checkpoint-330` 作为当前最有潜力的偏好对齐版本继续推进
   - 后续优先补 `communication_quality` 和 `instruction_following`
 
+## HQ-50k 更新（2026-04-11）
+
+`HQ-50k` 的正式结果也已经补进统一矩阵，专项分析见：
+
+- [HQ50K_HEALTHBENCH_COMPARE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/HQ50K_HEALTHBENCH_COMPARE.zh-CN.md)
+
+这次想回答的是：
+
+- 数据筛选出来的 `HQ-50k`
+- 相比原始 `huatuo_5w`
+- 是否真的能在外部 benchmark 上更好
+
+最新结果：
+
+| 模型 | overall clipped mean |
+| --- | ---: |
+| `huatuo_5w checkpoint-75` | `0.2889` |
+| `HQ-50k best` | `0.2905` |
+| `HQ-50k late-1564` | `0.2714` |
+
+更新后的工程判断：
+
+- `HQ-50k best` 目前是当前最强的 `SFT` 正式结果
+- 它对 `huatuo_5w checkpoint-75` 的提升很小，只有 `+0.0016`
+- 所以更合理的说法是“当前证据支持 `HQ-50k` 略优于原始 5w”，而不是“已经显著领先”
+- `HQ-50k late-1564` 明显低于 `HQ-50k best`，说明即使数据质量更高，`early stopping` 仍然是必须的
+- `HQ-50k` 的主要收益在：
+  - `accuracy`
+  - `communication_quality`
+  - `instruction_following`
+  - `health_data_tasks`
+- `huatuo_5w` 仍然更强的地方在：
+  - `emergency_referrals`
+  - `context_awareness`
+  - 一部分 `communication`
+
+这说明当前最合理的 SFT 主线已经可以更新为：
+
+- 第一候选：`HQ-50k best`
+- 强基线保留：`huatuo_5w checkpoint-75`
+- 后续再用更定向的数据或对齐方法补 `emergency_referrals / context_awareness`
+
 ## 早期 smoke 结果矩阵（仅供参考）
 
 对比配置：
