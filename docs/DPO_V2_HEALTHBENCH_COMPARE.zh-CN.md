@@ -2,6 +2,10 @@
 
 这份文档记录 `DPO v2` 两个有明确实验意义的 checkpoint 在 `HealthBench consensus` 上的正式对比结果，并把它们放回当前主线结果矩阵里统一分析。
 
+关于 `checkpoint-330` 与 `huatuo_5w checkpoint-75` 的第二轮稳定性复测，见：
+
+- [HEALTHBENCH_STABILITY_ANALYSIS.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/HEALTHBENCH_STABILITY_ANALYSIS.zh-CN.md)
+
 对应轻量评测快照见：
 
 - [experiment_records/eval/20260411_healthbench_dpo_v2_ckpt30_gpt52_consensus_theme15x7/summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260411_healthbench_dpo_v2_ckpt30_gpt52_consensus_theme15x7/summary.json)

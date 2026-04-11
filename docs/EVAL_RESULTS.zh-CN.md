@@ -106,6 +106,7 @@
 `DPO v2` 的两组正式结果已经补进统一矩阵，详细分析见：
 
 - [DPO_V2_HEALTHBENCH_COMPARE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_V2_HEALTHBENCH_COMPARE.zh-CN.md)
+- [HEALTHBENCH_STABILITY_ANALYSIS.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/HEALTHBENCH_STABILITY_ANALYSIS.zh-CN.md)
 
 这次不是随便挑 checkpoint，而是按预先定义的实验意义选了两个点：
 
@@ -130,7 +131,7 @@
 - `DPO v2` 已经明显优于 `DPO v1`，说明重构后的 pairwise 数据是有效的
 - 外部 `HealthBench` 更认可 `checkpoint-330`，而不是训练内 best 的 `checkpoint-30`
 - `checkpoint-330` 在 `context_awareness`、`emergency_referrals`、`hedging` 上更强
-- 但它仍未超过当前最强的 `SFT 5w checkpoint-75`
+- 单次最好分仍是 `SFT 5w checkpoint-75`，但第二轮独立抽样复测显示这个领先并不稳定
 - 所以下一阶段最合理的主线是：
   - 主模型继续保持 `SFT 5w checkpoint-75`
   - `DPO v2 checkpoint-330` 作为当前最有潜力的偏好对齐版本继续推进

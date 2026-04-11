@@ -107,18 +107,22 @@ def load_judgments(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def main() -> None:
+    bootstrap = argparse.ArgumentParser(add_help=False)
+    bootstrap.add_argument("--config", default=None, help="Optional JSON config file")
+    bootstrap_args, remaining_argv = bootstrap.parse_known_args()
+
     parser = build_arg_parser()
-    args = parser.parse_args()
-    if args.config:
-        config_path = Path(args.config)
+    if bootstrap_args.config:
+        config_path = Path(bootstrap_args.config)
         config_payload = json.loads(config_path.read_text(encoding="utf-8"))
+        parser_defaults = {}
+        valid_dests = {action.dest for action in parser._actions}
         for key, value in config_payload.items():
-            if not hasattr(args, key):
-                continue
-            current_value = getattr(args, key)
-            default_value = parser.get_default(key)
-            if current_value == default_value or current_value is None:
-                setattr(args, key, value)
+            if key in valid_dests:
+                parser_defaults[key] = value
+        if parser_defaults:
+            parser.set_defaults(**parser_defaults)
+    args = parser.parse_args(remaining_argv)
     args.run_name = args.run_name or default_run_name(args)
     args.model_alias = args.model_alias or infer_model_alias(args.model_name_or_path, args.adapter_path)
 
