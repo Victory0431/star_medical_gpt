@@ -146,6 +146,10 @@ def count_metrics_rows(run_dir: Path) -> int:
     return len(unique_metric_rows(read_metrics(metrics_path)))
 
 
+def is_eval_run(run_dir: Path) -> bool:
+    return (run_dir / "summary.json").exists() and (run_dir / "judgments.jsonl").exists()
+
+
 def detect_failure_signatures(run_dir: Path) -> list[str]:
     candidates = [
         run_dir / "logs" / "console.log",
@@ -180,14 +184,21 @@ def classify_run(run_dir: Path) -> tuple[str, list[str]]:
     if "dryrun" in run_name.lower():
         reasons.append("name_contains_dryrun")
 
-    has_artifacts = (run_dir / "artifacts").exists()
+    has_eval_summary = is_eval_run(run_dir)
+    has_artifacts = (run_dir / "artifacts").exists() or has_eval_summary
     has_all_results = (run_dir / "checkpoints" / "all_results.json").exists()
     has_train_results = (run_dir / "checkpoints" / "train_results.json").exists()
     has_eval_results = (run_dir / "checkpoints" / "eval_results.json").exists()
     metrics_count = count_metrics_rows(run_dir)
     failure_hits = detect_failure_signatures(run_dir)
 
-    has_progress = has_all_results or has_train_results or has_eval_results or metrics_count > 0
+    has_progress = (
+        has_all_results
+        or has_train_results
+        or has_eval_results
+        or metrics_count > 0
+        or has_eval_summary
+    )
 
     if not has_artifacts:
         reasons.append("missing_artifacts_dir")
@@ -195,7 +206,7 @@ def classify_run(run_dir: Path) -> tuple[str, list[str]]:
     if not has_progress:
         reasons.append("no_metrics_or_results")
 
-    if failure_hits and not has_all_results and not has_train_results and not has_eval_results:
+    if failure_hits and not has_all_results and not has_train_results and not has_eval_results and not has_eval_summary:
         reasons.extend(f"failure_signature:{hit}" for hit in failure_hits)
 
     if any(reason == "name_contains_dryrun" for reason in reasons):
@@ -206,7 +217,7 @@ def classify_run(run_dir: Path) -> tuple[str, list[str]]:
     ):
         return "failed", reasons
 
-    if has_all_results:
+    if has_all_results or has_eval_summary:
         return "completed", ["has_all_results"]
 
     if has_progress:
@@ -296,6 +307,61 @@ def copy_small_or_truncated(src: Path, dst: Path, max_bytes: int) -> None:
     dst.write_text("\n".join(content) + "\n", encoding="utf-8")
 
 
+def build_eval_readme(summary: dict[str, Any], run_name: str, zh: bool) -> str:
+    overall = summary.get("overall", {})
+    by_axis = summary.get("by_axis", {})
+    by_theme = summary.get("by_theme", {})
+    subset_name = summary.get("subset_name", "unknown")
+    judge_model = summary.get("judge_model", "unknown")
+    model_alias = summary.get("model_alias", "unknown")
+
+    def pick(metric_map: dict[str, Any], key: str) -> str:
+        value = metric_map.get(key, {}).get("raw_mean")
+        if value is None:
+            return "n/a"
+        return f"{value:.4f}"
+
+    communication = pick(by_theme, "theme:communication")
+    emergency = pick(by_theme, "theme:emergency_referrals")
+    hedging = pick(by_theme, "theme:hedging")
+    context = pick(by_axis, "axis:context_awareness")
+    overall_text = f"{overall.get('raw_mean', 0.0):.4f}" if overall else "n/a"
+    n_text = overall.get("n", "n/a")
+
+    if zh:
+        return (
+            f"# HealthBench 评测快照：`{run_name}`\n\n"
+            f"这份记录保存了 `{model_alias}` 在 `HealthBench {subset_name}` 上的一次评测结果。\n\n"
+            f"运行信息：\n\n"
+            f"- run name：`{run_name}`\n"
+            f"- benchmark：`HealthBench {subset_name}`\n"
+            f"- judge model：`{judge_model}`\n"
+            f"- 样本数：`{n_text}`\n\n"
+            f"主要结果：\n\n"
+            f"- overall clipped mean：`{overall_text}`\n"
+            f"- `axis:context_awareness`：`{context}`\n"
+            f"- `theme:communication`：`{communication}`\n"
+            f"- `theme:emergency_referrals`：`{emergency}`\n"
+            f"- `theme:hedging`：`{hedging}`\n"
+        )
+
+    return (
+        f"# HealthBench Eval Snapshot: `{run_name}`\n\n"
+        f"This record stores one evaluation result for `{model_alias}` on `HealthBench {subset_name}`.\n\n"
+        f"Run info:\n\n"
+        f"- run name: `{run_name}`\n"
+        f"- benchmark: `HealthBench {subset_name}`\n"
+        f"- judge model: `{judge_model}`\n"
+        f"- sample count: `{n_text}`\n\n"
+        f"Key metrics:\n\n"
+        f"- overall clipped mean: `{overall_text}`\n"
+        f"- `axis:context_awareness`: `{context}`\n"
+        f"- `theme:communication`: `{communication}`\n"
+        f"- `theme:emergency_referrals`: `{emergency}`\n"
+        f"- `theme:hedging`: `{hedging}`\n"
+    )
+
+
 def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: bool) -> Path:
     run_name = run_dir.name
     export_dir = records_root / run_name
@@ -304,6 +370,36 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
             raise FileExistsError(f"Export already exists: {export_dir}")
         shutil.rmtree(export_dir)
     export_dir.mkdir(parents=True, exist_ok=True)
+
+    if is_eval_run(run_dir):
+        files_to_copy = [
+            "artifacts/run_args.json",
+            "artifacts/dataset_manifest.json",
+            "logs/eval.log",
+            "summary.json",
+            "summary.md",
+        ]
+        for relative_path in files_to_copy:
+            src = run_dir / relative_path
+            if not src.exists():
+                continue
+            dst = export_dir / relative_path
+            if src.suffix == ".log":
+                copy_small_or_truncated(src, dst, max_log_bytes)
+            else:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
+
+        summary = read_json(run_dir / "summary.json") or {}
+        (export_dir / "README.md").write_text(
+            build_eval_readme(summary, run_name, zh=False) + "\n",
+            encoding="utf-8",
+        )
+        (export_dir / "README.zh-CN.md").write_text(
+            build_eval_readme(summary, run_name, zh=True) + "\n",
+            encoding="utf-8",
+        )
+        return export_dir
 
     files_to_copy = [
         "artifacts/run_args.json",

@@ -101,6 +101,41 @@
   - 把 `communication`、`hedging`、`emergency_referrals` 这类切片纳入 reward 设计
   - 继续保留同一套 `theme 15 x 7` 正式评测，作为所有对齐算法的统一验收口径
 
+## DPO V2 更新（2026-04-11）
+
+`DPO v2` 的两组正式结果已经补进统一矩阵，详细分析见：
+
+- [DPO_V2_HEALTHBENCH_COMPARE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_V2_HEALTHBENCH_COMPARE.zh-CN.md)
+
+这次不是随便挑 checkpoint，而是按预先定义的实验意义选了两个点：
+
+- `checkpoint-30`
+  - 训练内 best checkpoint
+  - 也是 `valid_zh_500` 辅助验证最优点
+- `checkpoint-330`
+  - 更接近 `min eval_loss`
+  - 代表更强的 pairwise 偏好优化结果
+
+最新总体分数：
+
+| 模型 | overall clipped mean |
+| --- | ---: |
+| `DPO v1 checkpoint-100` | `0.2111` |
+| `DPO v2 checkpoint-30` | `0.2492` |
+| `DPO v2 checkpoint-330` | `0.2619` |
+| `SFT 5w checkpoint-75` | `0.2889` |
+
+更新后的工程判断：
+
+- `DPO v2` 已经明显优于 `DPO v1`，说明重构后的 pairwise 数据是有效的
+- 外部 `HealthBench` 更认可 `checkpoint-330`，而不是训练内 best 的 `checkpoint-30`
+- `checkpoint-330` 在 `context_awareness`、`emergency_referrals`、`hedging` 上更强
+- 但它仍未超过当前最强的 `SFT 5w checkpoint-75`
+- 所以下一阶段最合理的主线是：
+  - 主模型继续保持 `SFT 5w checkpoint-75`
+  - `DPO v2 checkpoint-330` 作为当前最有潜力的偏好对齐版本继续推进
+  - 后续优先补 `communication_quality` 和 `instruction_following`
+
 ## 早期 smoke 结果矩阵（仅供参考）
 
 对比配置：
@@ -217,6 +252,8 @@
 - [formal 5w ckpt-75 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt75_gpt52_full_theme15x7/summary.json)
 - [formal 5w ckpt-925 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_huatuo5w_ckpt925_gpt52_full_theme15x7/summary.json)
 - [formal dpo ckpt-100 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260410_healthbench_dpo_medpair_ckpt100_gpt52_full_theme15x7/summary.json)
+- [formal dpo v2 ckpt-30 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260411_healthbench_dpo_v2_ckpt30_gpt52_consensus_theme15x7/summary.json)
+- [formal dpo v2 ckpt-330 summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260411_healthbench_dpo_v2_ckpt330_gpt52_consensus_theme15x7/summary.json)
 - [formal base vs 5w compare README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_compare_base_vs_huatuo5w_gpt52_theme15x7/README.zh-CN.md)
 - [formal base vs 1k vs 5w vs dpo compare README](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260410_healthbench_compare_base_vs_1k_vs_5w_vs_dpo_gpt52_theme15x7/README.zh-CN.md)
 - [base summary.json](/home/qjh/llm_learning/my_medical_gpt/experiment_records/eval/20260409_healthbench_base_gpt52_full_10/summary.json)

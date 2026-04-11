@@ -1,0 +1,859 @@
+{
+  "benchmark": "healthbench",
+  "subset_name": "consensus",
+  "num_examples": 105,
+  "dataset_path": "/home/qjh/llm_learning/my_medical_gpt/cache/evals/healthbench/healthbench_consensus.jsonl",
+  "sampling_mode": "stratified_theme",
+  "per_theme_examples": 15,
+  "theme_distribution": {
+    "theme:communication": 15,
+    "theme:complex_responses": 15,
+    "theme:context_seeking": 15,
+    "theme:emergency_referrals": 15,
+    "theme:global_health": 15,
+    "theme:health_data_tasks": 15,
+    "theme:hedging": 15
+  },
+  "manifest": [
+    {
+      "prompt_id": "dabdd35d-45aa-4f04-a213-d6cd0a46890f",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "20f3f66b-7d22-4002-b679-909fbba42b60",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "5a06ebfa-b7bf-4f11-8658-d26f6f491edd",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "83420b8b-5887-414e-a907-388ae1984800",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "71d8c4e8-5be3-4aac-9e07-d2ab18c453e9",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "502aca57-fcfd-45d8-ade6-539cf0a9409a",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b305cc46-8cbf-4362-9b8c-bc45cc11e4c6",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "4ce4f302-bee8-4d1a-b36d-9eeb3fc1f2c6",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "c9024880-46e9-49e0-b59e-aa083604c69c",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "0eb6fd6d-eaaa-46db-ab16-02e610f238a9",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "e1fe1cb1-5e14-43d1-a254-b8b9f7991cc2",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "842a1f22-0c53-47e3-83f8-7643c59b22f4",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "57ff54f3-927e-4f3a-bef6-e8cca580e10a",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "5587fe73-49a4-47a7-894d-54001e13a51a",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b35b05b5-0cdc-4047-8b2b-7b8c3b21d1a5",
+      "example_tags": [
+        "theme:communication",
+        "physician_agreed_category:not-health-professional"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "ec7674f5-ab25-4ed6-8c2b-8dfc38ce034e",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "57f45e92-df59-41df-957d-a4206c671e76",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "8b4d0f20-1883-4cb6-8044-1368c51f0151",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "7d38274a-5a6d-4dad-9e42-377ca7d7484b",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "e89e00c9-29e9-420c-813d-e06ddc39d585",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "4ca7f415-7409-4574-8dc4-4ad4f417a2a1",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2abf35ff-b475-4d9b-ad7d-8ccec23d8876",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b82e1f7e-a9f8-441d-9fe7-66faa7e0e6e6",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "107d8f98-60cb-4f4b-aa13-4ffe1ec0a8a1",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "7768ed07-0412-4b01-bff7-fac44907274c",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "efc3b769-d158-4690-b2a5-ca531db5e0c5",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "0445c710-0629-4b80-99ce-98682bea4d97",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "8d25fca3-5e33-4689-a45f-53e227d99c77",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:detailed"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2995fbf8-350a-4a55-9594-d162274e3344",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b6eb69cb-b911-4c81-a7a1-357d21d27109",
+      "example_tags": [
+        "theme:complex_responses",
+        "physician_agreed_category:simple"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "e93a3b17-51d0-45e6-8b53-d8181472fbb3",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "6d69a1e3-b581-473f-8fd9-c8cad457ee25",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "d2c55bfd-049d-4d76-a243-47d6002fb054",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "a14c7ed6-6927-42bc-9384-7f74c866f93d",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2c23d363-1647-48a9-9b56-c1184dab0ecf",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "a6e2aa43-c643-47c1-a0b9-6a558a9fcfaf",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b2807161-d986-4a11-b69d-f3e50099d44e",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "cf2663e2-5b17-4eda-90f2-afd5d6110c82",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "cf3cf7c0-213e-484f-86bc-7a8f4fd1de7c",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2dce5731-8e45-4c21-804f-8546e539d4bd",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "9874a850-0ae8-4b25-bb76-8a778cd6e617",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "bcd82873-80f1-4535-9776-208e1aeb70f3",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b7bf5ff8-4046-4e41-abef-84b52cc9e65e",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "71ea9b93-2670-4a1a-b95d-1b4d4c68b29b",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "a61bd166-aa1a-429d-9d66-88cf8b0cfb7a",
+      "example_tags": [
+        "theme:context_seeking",
+        "physician_agreed_category:not-enough-context"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "ca93d7cb-9dca-4690-90ae-886ac19703d0",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "0ce8ff10-262e-41d8-b290-19e76d337f1a",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:non-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "1898b0df-6400-46ff-b22f-a328c2ba2c14",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "4eaee2b6-c260-4ca5-9491-425971ea778c",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:conditionally-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "8e447490-23cd-4d64-9e3a-b8ad46c76573",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "d45dedce-d0c8-4e03-962e-5b1184d9ac47",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:non-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b24e9dc2-7b4d-442b-b3c7-5191b034150a",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "1b8c1d0e-4a52-4e3d-8199-db323d5f3167",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:conditionally-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b60473c9-efea-4bfb-890b-c6164f3ba2bc",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:conditionally-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b97b1bae-b09f-4073-8e16-540bba766c60",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:conditionally-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "1ca222ed-cc79-4e78-9ca3-3547e7b37e3a",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:conditionally-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "be70739f-234a-4a0f-9b14-d15b8800577b",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:non-emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "6c3db661-d3f6-4211-8c6b-9edf84819890",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "5f45aff9-bed0-425f-aa8b-345524f13986",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "bbadc660-ba32-40ab-bd22-19e1df5e0221",
+      "example_tags": [
+        "theme:emergency_referrals",
+        "physician_agreed_category:emergent"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "3ab28d74-126b-48d9-bd1e-620ee2b6fea0",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "8bfa5572-7797-4aad-9cde-a393cb1dbe45",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "ea26e002-c0a6-4001-b6d2-5f441c37f93d",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "16bd6476-82bc-4241-97a5-e4d1feac23a3",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-is-clear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "dcc782c6-f563-4d06-814b-e32561831a50",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-is-clear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "790a2e6c-c15b-455c-b61d-366eecb31739",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "da0a501a-fedd-4dcc-8e2b-e1d236f22b05",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2dc87115-812d-4484-b89a-aecdfbe2d141",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "591ba557-39cb-46a0-82e9-a58510c997a6",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "6f02bdcb-abff-4969-ad62-31e3114dc495",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "78400c61-14c5-411b-b153-2a26dab7542d",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "620b9bf1-f0f3-4d68-aa74-1560fb406a68",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-is-clear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "1c5e921e-4fbe-4b61-87e6-8ec3e7e8683b",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "1eb9f8e6-70f8-4af1-945d-c31bccc571be",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-does-not-matter"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "05d35b97-c665-4157-955c-fd284bf5b34c",
+      "example_tags": [
+        "theme:global_health",
+        "physician_agreed_category:context-matters-but-unclear"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "7eac31ac-7940-4dcd-bd10-571dd08c5be2",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "47512f8e-096b-43b6-bdf6-e1d6b9983820",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "05a362ba-7c18-47d3-a7c3-d9fb6eab186d",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "f4503c3e-f01e-45d3-bc44-121de6c263b3",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "3296ac56-a12b-46cc-ad96-b111a8ed135d",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "d580d954-c129-4767-835a-0e412ef660ac",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "53331de1-7427-495f-bc11-9ae991078812",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "8ea39d90-34ec-4f3e-b09e-8f6262166028",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "26d8298b-361d-4108-90cc-646c093f354b",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "4bee3663-119f-4f2b-a06b-3811bd2917b8",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "90030f57-9b7c-454e-bb06-e0b96644b53d",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "b1af2a70-e876-4c3a-9d49-22c4d2aa07c2",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "ae728191-13f4-4451-9284-39ce02f8aaff",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "e35290ce-739e-46bb-bb10-ade6a55a2d95",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "2fb20bcf-b0b0-4b17-895d-0f1c1d55d1bf",
+      "example_tags": [
+        "theme:health_data_tasks",
+        "physician_agreed_category:not-enough-info-to-complete-task"
+      ],
+      "num_rubrics": 2
+    },
+    {
+      "prompt_id": "3caf919a-6656-49d6-8c52-1c14995c5048",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:no-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "d69bf5a4-0318-4f99-9cb8-e3c40651c18e",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "a86dde57-bf50-428b-80a7-24f910031011",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:only-irreducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "ac268783-8453-4be9-a20f-6201498cefcf",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "085e02ba-7cbe-44a1-9713-57f4d9010e32",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:no-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "716ccf9c-e96e-4078-be49-fa208e113983",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:no-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "822659f8-9d80-4a54-b5f0-554c76ff6622",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "1e8fb3d8-b03b-4fbc-939a-6f7a6766e300",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "8e5c38ba-da60-47b2-9693-8989a4a81b6e",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:no-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "bf17fd36-f486-4de6-84af-75195d7c1ce9",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:only-irreducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "5282e68f-543c-4576-90b1-e43d9f5ed70b",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:only-irreducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "7a57c0bc-9b5c-493d-ba5d-4b4819f28cbf",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "a6d9110b-e351-4f09-98e3-75c2ec069b46",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:only-irreducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "73f12b02-e055-4272-b6f8-4d52b2636716",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:any-reducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    },
+    {
+      "prompt_id": "36624c21-75f4-4672-855d-b7b0c516048f",
+      "example_tags": [
+        "theme:hedging",
+        "physician_agreed_category:only-irreducible-uncertainty"
+      ],
+      "num_rubrics": 3
+    }
+  ]
+}

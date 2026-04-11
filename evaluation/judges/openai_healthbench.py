@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import re
@@ -131,7 +132,13 @@ class OpenAIHealthBenchJudge:
                         f"HTTP {exc.code} {exc.reason}. body={error_body}"
                     ) from exc
                 time.sleep(min(2 ** attempt, 20))
-            except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                ValueError,
+                http.client.RemoteDisconnected,
+                ConnectionResetError,
+            ) as exc:
                 if attempt >= self.max_retries:
                     raise RuntimeError(
                         f"OpenAI judge request failed after {self.max_retries} attempts: {exc}"
