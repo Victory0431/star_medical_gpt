@@ -661,6 +661,7 @@ python /home/qjh/llm_learning/my_medical_gpt/script/alignment/merge_lora.py \
 ### 作用
 
 - 把原始 pairwise 偏好数据转成 `TRL DPOTrainer` 直接可用格式
+- 也支持把 `DPO v2` 重构后的 `raw` 数据继续转成正式训练集
 - 统一成 `prompt/chosen/rejected` 的多轮对话结构
 - 方便后续复用到 `DPO / ORPO / RM`
 
@@ -680,12 +681,103 @@ python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.p
   --output-name medical_pairwise_valid
 ```
 
+把 `DPO v2` 重构产物转成 processed：
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/alignment/dpo_data_prepare.py \
+  --input-files /home/qjh/llm_learning/my_medical_gpt/data/alignment/reconstructed/dpo_v2/raw/train/medical_pairwise_train_v2.jsonl \
+  --split train \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo_v2 \
+  --output-name medical_pairwise_train_v2
+```
+
 ### 输出
 
 - `data/alignment/processed/dpo/train/*.processed.jsonl`
 - `data/alignment/processed/dpo/valid/*.processed.jsonl`
 - `data/alignment/processed/dpo/test/*.processed.jsonl`
 - `data/alignment/processed/dpo/reports/*.report.json`
+- `data/alignment/processed/dpo_v2/...`
+
+## 8.1 `reconstruct_dpo_dataset.py`
+
+路径：
+
+- [script/alignment/reconstruct_dpo_dataset.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/reconstruct_dpo_dataset.py)
+
+### 作用
+
+- 调用 `OpenAI-compatible API` 重构旧的医疗 pairwise 数据
+- 让 `chosen / rejected` 更接近 `HealthBench` 关注的行为方向
+- 输出 `raw + audit + summary` 三类产物
+- 支持串行、断点续跑、失败重试
+
+### 推荐场景
+
+- 原始 `DPO` 数据标签方向不稳定
+- 想把偏好目标从“更像旧问答”改成“更像安全医疗助手”
+- 想保留完整审计记录，方便后面解释每次数据改动
+
+### 典型命令
+
+```bash
+OPENAI_BASE_URL="https://big-model.smart-agi.com/v1" \
+OPENAI_API_KEY="你的 key" \
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/script/alignment/reconstruct_dpo_dataset.py \
+  --input-file /home/qjh/llm_learning/my_medical_gpt/data/alignment/raw/dpo/medical_pairwise_train.jsonl \
+  --split train \
+  --output-name medical_pairwise_train_v2 \
+  --output-root /home/qjh/llm_learning/my_medical_gpt/data/alignment/reconstructed/dpo_v2 \
+  --model gpt-5.2 \
+  --strict-serial \
+  --min-request-interval 0.2
+```
+
+## 8.2 `dedupe_reconstructed_pairwise.py`
+
+路径：
+
+- [script/alignment/dedupe_reconstructed_pairwise.py](/home/qjh/llm_learning/my_medical_gpt/script/alignment/dedupe_reconstructed_pairwise.py)
+
+### 作用
+
+- 对重构后的 `raw` 和 `audit` 文件按 `sample_id` 同步去重
+- 输出正式去重报告
+- 保证 `train / valid / test` 后续进入训练时完全规整
+
+### 典型命令
+
+```bash
+/home/qjh/miniconda3/envs/medicalgpt/bin/python \
+  /home/qjh/llm_learning/my_medical_gpt/script/alignment/dedupe_reconstructed_pairwise.py \
+  --input-file /home/qjh/llm_learning/my_medical_gpt/data/alignment/reconstructed/dpo_v2/raw/test/medical_pairwise_test_v2.jsonl \
+  --audit-file /home/qjh/llm_learning/my_medical_gpt/data/alignment/reconstructed/dpo_v2/audits/test/medical_pairwise_test_v2.audit.jsonl \
+  --keep last \
+  --report-file /home/qjh/llm_learning/my_medical_gpt/data/alignment/reconstructed/dpo_v2/reports/medical_pairwise_test_v2.dedupe.report.json
+```
+
+## 8.3 `run_reconstruct_dpo_v2_serial.sh`
+
+路径：
+
+- [script/alignment/run_reconstruct_dpo_v2_serial.sh](/home/qjh/llm_learning/my_medical_gpt/script/alignment/run_reconstruct_dpo_v2_serial.sh)
+
+### 作用
+
+- 把 `reconstruct_dpo_dataset.py` 固化成更稳的串行入口
+- 每行日志自动带时间戳
+- 输出中央日志到 `outputs/logs/dpo_reconstruct/`
+
+### 启动命令
+
+```bash
+OPENAI_BASE_URL="https://big-model.smart-agi.com/v1" \
+OPENAI_API_KEY="你的 key" \
+SPLIT=train \
+OUTPUT_NAME=medical_pairwise_train_v2 \
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_reconstruct_dpo_v2_serial.sh
+```
 
 ## 9. `train_dpo.py`
 
@@ -797,4 +889,33 @@ EVAL_INTERVAL=5 \
 SAVE_INTERVAL=5 \
 WANDB_MODE=offline \
 bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise.sh
+```
+
+## 10.1 `run_dpo_qwen3_8b_ckpt75_medical_pairwise_v2.sh`
+
+路径：
+
+- [script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise_v2.sh](/home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise_v2.sh)
+
+### 作用
+
+- 固化当前推荐的 `DPO v2` 启动参数
+- 默认直接读取 `data/alignment/processed/dpo_v2/`
+- 默认继续使用 merge 后的 `SFT checkpoint-75`
+- 保留 `pairwise valid + valid_zh` 双评估结构
+
+### 启动命令
+
+```bash
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise_v2.sh
+```
+
+### 常用覆写方式
+
+```bash
+RUN_NAME=my_dpo_v2 \
+EVAL_INTERVAL=5 \
+SAVE_INTERVAL=5 \
+WANDB_MODE=offline \
+bash /home/qjh/llm_learning/my_medical_gpt/script/alignment/run_dpo_qwen3_8b_ckpt75_medical_pairwise_v2.sh
 ```
