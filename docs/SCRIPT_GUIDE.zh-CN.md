@@ -405,7 +405,10 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 | `--sampling-mode` | 采样方式 | `sequential` `stratified_theme` |
 | `--per-theme-examples` | 分层抽样时每个主题取多少条 | `15` |
 | `--generator-device` | 本地生成设备 | `cuda:0` |
+| `--generator-batch-size` | 本地生成 batch size | `1` `2` `4` `8` |
 | `--enable-thinking` | 是否启用 Qwen3 thinking mode | 一般关闭 |
+| `--shared-responses-root` | 共享回答缓存根目录 | 默认 `cache/eval_responses` |
+| `--disable-shared-response-cache` | 关闭共享回答缓存 | 可选 |
 | `--responses-path` | 复用已有 response 文件 | 可选 |
 | `--judgments-path` | 复用已有 judgment 文件 | 可选 |
 | `--overwrite-responses` | 强制重生 responses | 可选 |
@@ -421,6 +424,12 @@ export OPENAI_BASE_URL=https://your-openai-compatible-endpoint/v1
 - `outputs/eval/<run_name>/summary.json`
 - `outputs/eval/<run_name>/summary.md`
 - `evaluation/logs/<timestamp>_<run_name>.log`
+
+补充说明：
+
+- `summary.json` 里会单独记录 `generation.generation_seconds` 和 `judge.judge_seconds`
+- 开启共享缓存后，生成结果还会额外写入 `cache/eval_responses/.../responses.jsonl`
+- 想看提速基准、缓存命中逻辑和推荐默认 batch，可直接看 [EVAL_ACCELERATION_AND_CACHE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_ACCELERATION_AND_CACHE.zh-CN.md)
 
 ### 正式评测配置
 

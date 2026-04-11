@@ -74,6 +74,14 @@ class HFChatGenerator:
             # Qwen3 may carry a default top_k in generation_config, which is noisy for deterministic eval logs.
             self.model.generation_config.top_k = None
 
+    def _render_prompt(self, messages: list[dict[str, str]]) -> str:
+        return self.tokenizer.apply_chat_template(
+            conversation=messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            enable_thinking=self.enable_thinking,
+        )
+
     def generate(
         self,
         messages: list[dict[str, str]],
@@ -81,15 +89,27 @@ class HFChatGenerator:
         temperature: float,
         top_p: float,
     ) -> str:
-        prompt_text = self.tokenizer.apply_chat_template(
-            conversation=messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=self.enable_thinking,
-        )
-        inputs = self.tokenizer(prompt_text, return_tensors="pt")
+        return self.generate_batch(
+            messages_batch=[messages],
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            top_p=top_p,
+        )[0]
+
+    def generate_batch(
+        self,
+        messages_batch: list[list[dict[str, str]]],
+        max_new_tokens: int,
+        temperature: float,
+        top_p: float,
+    ) -> list[str]:
+        if not messages_batch:
+            return []
+
+        prompt_texts = [self._render_prompt(messages) for messages in messages_batch]
+        inputs = self.tokenizer(prompt_texts, return_tensors="pt", padding=True)
         inputs = {key: value.to(self.device) for key, value in inputs.items()}
-        prompt_length = int(inputs["input_ids"].shape[1])
+        input_width = int(inputs["input_ids"].shape[1])
         do_sample = temperature > 0
 
         with torch.no_grad():
@@ -103,5 +123,8 @@ class HFChatGenerator:
                 eos_token_id=self.tokenizer.eos_token_id,
             )
 
-        generated_tokens = outputs[0][prompt_length:]
-        return self.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+        generated_tokens = outputs[:, input_width:]
+        return [
+            self.tokenizer.decode(tokens, skip_special_tokens=True).strip()
+            for tokens in generated_tokens
+        ]

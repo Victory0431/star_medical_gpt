@@ -56,6 +56,13 @@ judge 层同时支持标准 OpenAI 接口和 OpenAI 兼容接口。
 - 如果 `judgments.jsonl` 里已经有某条样本，对应打分会自动跳过
 - 想强制重跑时，可加 `--overwrite-responses` 或 `--overwrite-judgments`
 
+另外，当前评测入口还支持两项和大规模实验很相关的能力：
+
+- `--generator-batch-size`：提升本地生成吞吐
+- 共享回答缓存：同一采样点扩样时，旧回答可直接复用
+
+这意味着你可以先跑小样本，再逐步扩大样本量，而不是每次都从零生成全部回答。
+
 ## 目录结构
 
 ```text

@@ -170,6 +170,13 @@
 - 断点续跑：已有 `responses.jsonl` 或 `judgments.jsonl` 时会自动跳过已完成样本
 - 中央日志：除了每个 run 自己的日志，还会在 `evaluation/logs/` 下额外写一份带时间戳的总日志
 - 数据清单：每次运行都会把本次采样到的 prompt 清单落到 `artifacts/dataset_manifest.json`
+- batch generation：可通过 `--generator-batch-size` 提升本地生成吞吐
+- 共享回答缓存：同一采样点扩样时可直接复用旧 `responses`
+- 计时统计：`summary.json` 会单独记录 `generation_seconds` 与 `judge_seconds`
+
+关于提速、缓存设计和复现性边界，见：
+
+- [EVAL_ACCELERATION_AND_CACHE.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/EVAL_ACCELERATION_AND_CACHE.zh-CN.md)
 
 ## 分数是怎么构成的
 
