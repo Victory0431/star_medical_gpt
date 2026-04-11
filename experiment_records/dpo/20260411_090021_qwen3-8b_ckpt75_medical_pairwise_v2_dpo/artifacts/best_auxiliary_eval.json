@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-04-11 09:02:24",
+  "global_step": 30,
+  "epoch": 0.25263157894736843,
+  "aux_eval/valid_zh_loss": 2.5100111390179354,
+  "aux_eval/samples": 500,
+  "aux_eval/supervised_tokens": 55862
+}

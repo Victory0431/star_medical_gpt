@@ -309,7 +309,11 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
         "artifacts/run_args.json",
         "artifacts/training_args.json",
         "artifacts/dataset_stats.json",
+        "artifacts/best_checkpoint.json",
+        "artifacts/best_auxiliary_eval.json",
+        "artifacts/training_summary.json",
         "logs/metrics.jsonl",
+        "logs/aux_eval.jsonl",
         "logs/train.log",
         "logs/console.log",
         "checkpoints/train_results.json",
@@ -332,11 +336,24 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
     run_args = read_json(run_dir / "artifacts" / "run_args.json") or {}
     training_args = read_json(run_dir / "artifacts" / "training_args.json") or {}
     dataset_stats = read_json(run_dir / "artifacts" / "dataset_stats.json") or {}
+    best_checkpoint = read_json(run_dir / "artifacts" / "best_checkpoint.json") or {}
+    best_auxiliary_eval = read_json(run_dir / "artifacts" / "best_auxiliary_eval.json") or {}
+    training_summary = read_json(run_dir / "artifacts" / "training_summary.json") or {}
     all_results = read_json(run_dir / "checkpoints" / "all_results.json")
     train_results = read_json(run_dir / "checkpoints" / "train_results.json")
     eval_results = read_json(run_dir / "checkpoints" / "eval_results.json")
     metrics_rows = unique_metric_rows(read_metrics(run_dir / "logs" / "metrics.jsonl"))
     latest_metrics = extract_latest_metrics(metrics_rows)
+    aux_eval_rows = read_metrics(run_dir / "logs" / "aux_eval.jsonl")
+    best_aux_eval_loss = None
+    if aux_eval_rows:
+        aux_losses = [
+            row.get("aux_eval/valid_zh_loss")
+            for row in aux_eval_rows
+            if isinstance(row.get("aux_eval/valid_zh_loss"), (int, float))
+        ]
+        if aux_losses:
+            best_aux_eval_loss = min(float(loss) for loss in aux_losses)
     wandb_run_id, wandb_metadata, wandb_summary = find_wandb_run(run_dir)
     wandb_urls = extract_wandb_urls(run_dir)
 
@@ -353,6 +370,7 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
         "datasets": {
             "train_data": run_args.get("train_data", []),
             "valid_data": run_args.get("valid_data", []),
+            "aux_valid_data": run_args.get("aux_valid_data", []),
         },
         "key_hparams": {
             "num_train_epochs": run_args.get("num_train_epochs"),
@@ -364,16 +382,27 @@ def export_run(run_dir: Path, records_root: Path, max_log_bytes: int, force: boo
             "lora_r": run_args.get("lora_r"),
             "lora_alpha": run_args.get("lora_alpha"),
             "lora_dropout": run_args.get("lora_dropout"),
+            "beta": run_args.get("beta"),
+            "loss_type": run_args.get("loss_type"),
+            "metric_for_best_model": run_args.get("metric_for_best_model"),
         },
         "dataset_stats": dataset_stats,
+        "best_checkpoint": best_checkpoint,
+        "best_auxiliary_eval": best_auxiliary_eval,
+        "training_summary": training_summary,
         "final_results": all_results or {},
         "train_results": train_results or {},
         "eval_results": eval_results or {},
         "latest_metrics": latest_metrics,
+        "auxiliary_metrics": {
+            "num_rows": len(aux_eval_rows),
+            "best_aux_eval_loss": best_aux_eval_loss,
+        },
         "wandb": sanitize_wandb(wandb_metadata, wandb_summary, wandb_run_id, run_args, wandb_urls),
         "artifacts_present": {
             "training_args": bool(training_args),
             "metrics_jsonl": (run_dir / "logs" / "metrics.jsonl").exists(),
+            "aux_eval_jsonl": (run_dir / "logs" / "aux_eval.jsonl").exists(),
             "train_log": (run_dir / "logs" / "train.log").exists(),
             "console_log": (run_dir / "logs" / "console.log").exists(),
         },

@@ -77,6 +77,8 @@
 
 如果你想看这次 `v2` 数据重构的详细统计、去重结果和正式产物，可以直接看 [DPO_V2_RECONSTRUCTION.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_V2_RECONSTRUCTION.zh-CN.md)。
 
+如果你想看 `DPO v2` 这次正式训练跑完后的指标变化、best checkpoint 选择问题和训练复盘，可以直接看 [DPO_V2_TRAINING_REPORT.zh-CN.md](/home/qjh/llm_learning/my_medical_gpt/docs/DPO_V2_TRAINING_REPORT.zh-CN.md)。
+
 ## 3. 训练期看什么指标
 
 ### 主评估：pairwise valid

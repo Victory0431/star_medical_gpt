@@ -1,0 +1,219 @@
+{
+  "run_name": "20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo",
+  "source_run_dir": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo",
+  "exported_at": "2026-04-11T09:47:18",
+  "status": "completed",
+  "run_classification": "completed",
+  "classification_reasons": [
+    "has_all_results"
+  ],
+  "model_name_or_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model",
+  "datasets": {
+    "train_data": [
+      "/home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo_v2/train/medical_pairwise_train_v2.processed.jsonl"
+    ],
+    "valid_data": [
+      "/home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo_v2/valid/medical_pairwise_valid_v2.processed.jsonl"
+    ],
+    "aux_valid_data": [
+      "/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl"
+    ]
+  },
+  "key_hparams": {
+    "num_train_epochs": 3.0,
+    "max_steps": -1,
+    "learning_rate": 5e-06,
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "model_max_length": 2048,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "beta": 0.1,
+    "loss_type": "sigmoid",
+    "metric_for_best_model": "eval_rewards/accuracies"
+  },
+  "dataset_stats": {
+    "train_samples": 3800,
+    "valid_samples": 100,
+    "aux_valid_samples": 500
+  },
+  "best_checkpoint": {
+    "timestamp": "2026-04-11 09:35:43",
+    "metric_name": "eval_rewards/accuracies",
+    "metric_value": 1.0,
+    "global_step": 357,
+    "epoch": 3.0,
+    "candidate_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30",
+    "best_model_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30"
+  },
+  "best_auxiliary_eval": {
+    "timestamp": "2026-04-11 09:02:24",
+    "global_step": 30,
+    "epoch": 0.25263157894736843,
+    "aux_eval/valid_zh_loss": 2.5100111390179354,
+    "aux_eval/samples": 500,
+    "aux_eval/supervised_tokens": 55862
+  },
+  "training_summary": {
+    "best_model_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30",
+    "best_metric": 1.0,
+    "metric_for_best_model": "eval_rewards/accuracies",
+    "global_step": 357,
+    "best_auxiliary_valid_zh_loss": 2.5100111390179354,
+    "best_auxiliary_step": 30
+  },
+  "final_results": {
+    "epoch": 3.0,
+    "eval_logits/chosen": 1.231432318687439,
+    "eval_logits/rejected": 1.6831506490707397,
+    "eval_logps/chosen": -335.446044921875,
+    "eval_logps/rejected": -123.34602355957031,
+    "eval_loss": 0.513611376285553,
+    "eval_rewards/accuracies": 1.0,
+    "eval_rewards/chosen": 0.3746822476387024,
+    "eval_rewards/margins": 0.4034081995487213,
+    "eval_rewards/rejected": -0.028725991025567055,
+    "eval_runtime": 4.6758,
+    "eval_samples_per_second": 21.387,
+    "eval_steps_per_second": 5.347,
+    "train_loss": 0.08806767535502878,
+    "train_runtime": 2166.7058,
+    "train_samples_per_second": 5.261,
+    "train_steps_per_second": 0.165
+  },
+  "train_results": {
+    "epoch": 3.0,
+    "train_loss": 0.08806767535502878,
+    "train_runtime": 2166.7058,
+    "train_samples_per_second": 5.261,
+    "train_steps_per_second": 0.165
+  },
+  "eval_results": {
+    "epoch": 3.0,
+    "eval_logits/chosen": 1.231432318687439,
+    "eval_logits/rejected": 1.6831506490707397,
+    "eval_logps/chosen": -335.446044921875,
+    "eval_logps/rejected": -123.34602355957031,
+    "eval_loss": 0.513611376285553,
+    "eval_rewards/accuracies": 1.0,
+    "eval_rewards/chosen": 0.3746822476387024,
+    "eval_rewards/margins": 0.4034081995487213,
+    "eval_rewards/rejected": -0.028725991025567055,
+    "eval_runtime": 4.6758,
+    "eval_samples_per_second": 21.387,
+    "eval_steps_per_second": 5.347
+  },
+  "latest_metrics": {
+    "latest_train": {
+      "timestamp": "2026-04-11 09:35:18",
+      "step": 355,
+      "epoch": 2.985263157894737,
+      "logs": {
+        "loss": 0.0072751685976982115,
+        "grad_norm": 0.40864595770835876,
+        "learning_rate": 9.604320062814309e-10,
+        "rewards/chosen": 3.639199733734131,
+        "rewards/rejected": -2.801318645477295,
+        "rewards/accuracies": 1.0,
+        "rewards/margins": 6.440518856048584,
+        "logps/chosen": -297.4256286621094,
+        "logps/rejected": -154.78097534179688,
+        "logits/chosen": 1.3430744409561157,
+        "logits/rejected": 1.6338672637939453,
+        "epoch": 2.985263157894737
+      }
+    },
+    "latest_eval": {
+      "timestamp": "2026-04-11 09:35:31",
+      "step": 357,
+      "epoch": 3.0,
+      "logs": {
+        "eval_loss": 0.513611376285553,
+        "eval_runtime": 4.9069,
+        "eval_samples_per_second": 20.379,
+        "eval_steps_per_second": 5.095,
+        "eval_rewards/chosen": 0.3746822476387024,
+        "eval_rewards/rejected": -0.028725991025567055,
+        "eval_rewards/accuracies": 1.0,
+        "eval_rewards/margins": 0.4034081995487213,
+        "eval_logps/chosen": -335.446044921875,
+        "eval_logps/rejected": -123.34602355957031,
+        "eval_logits/chosen": 1.231432318687439,
+        "eval_logits/rejected": 1.6831506490707397,
+        "epoch": 3.0
+      }
+    },
+    "best_eval_loss": 0.005195107311010361
+  },
+  "auxiliary_metrics": {
+    "num_rows": 36,
+    "best_aux_eval_loss": 2.5100111390179354
+  },
+  "wandb": {
+    "project": "my-medical-gpt-dpo",
+    "mode": "online",
+    "run_id": "x1l1xgfb",
+    "project_url": "https://wandb.ai/jiahongqin1-ucas-hias/my-medical-gpt-dpo",
+    "run_url": "https://wandb.ai/jiahongqin1-ucas-hias/my-medical-gpt-dpo/runs/x1l1xgfb",
+    "system": {
+      "host": "hgy-master-node",
+      "gpu": "NVIDIA H200",
+      "gpu_count": 2,
+      "cpu_count": 96,
+      "cpu_count_logical": 192,
+      "memory_total": "2164095131648",
+      "cuda_version": "13.0",
+      "started_at": "2026-04-11T00:59:21.042797Z",
+      "python": "CPython 3.11.14"
+    },
+    "summary_metrics": {
+      "train_steps_per_second": 0.165,
+      "train/rewards/chosen": 3.639199733734131,
+      "train_runtime": 2166.7058,
+      "eval/rewards/accuracies": 1,
+      "train_loss": 0.08806767535502878,
+      "train/logps/chosen": -297.4256286621094,
+      "train/logits/chosen": 1.3430744409561157,
+      "train/logits/rejected": 1.6338672637939453,
+      "train/epoch": 3,
+      "aux_eval/valid_zh_loss": 2.5100111390179354,
+      "eval/logps/rejected": -123.34602355957031,
+      "eval/logps/chosen": -335.446044921875,
+      "eval/logits/chosen": 1.231432318687439,
+      "eval/rewards/chosen": 0.3746822476387024,
+      "aux_eval/samples": 500,
+      "train_samples_per_second": 5.261,
+      "train/logps/rejected": -154.78097534179688,
+      "train/rewards/rejected": -2.801318645477295,
+      "eval/logits/rejected": 1.6831506490707397,
+      "train/learning_rate": 9.604320062814309e-10,
+      "eval/runtime": 4.6758,
+      "_wandb": {
+        "runtime": 2181
+      },
+      "_runtime": 2181.755024856,
+      "_timestamp": 1775871343.7458532,
+      "eval/loss": 0.513611376285553,
+      "eval/rewards/margins": 0.4034081995487213,
+      "train/grad_norm": 0.40864595770835876,
+      "aux_eval/supervised_tokens": 55862,
+      "train/global_step": 357,
+      "eval/samples_per_second": 21.387,
+      "total_flos": 0,
+      "train/loss": 0.0072751685976982115,
+      "train/rewards/accuracies": 1,
+      "eval/rewards/rejected": -0.028725991025567055,
+      "_step": 357,
+      "eval/steps_per_second": 5.347,
+      "train/rewards/margins": 6.440518856048584
+    }
+  },
+  "artifacts_present": {
+    "training_args": true,
+    "metrics_jsonl": true,
+    "aux_eval_jsonl": true,
+    "train_log": true,
+    "console_log": true
+  }
+}

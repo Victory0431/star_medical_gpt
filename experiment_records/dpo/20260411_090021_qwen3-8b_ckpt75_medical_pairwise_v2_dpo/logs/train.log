@@ -1,0 +1,62 @@
+2026-04-11 08:58:45,639 | INFO | Run directory: /home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo
+2026-04-11 08:58:45,639 | INFO | Train files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo_v2/train/medical_pairwise_train_v2.processed.jsonl']
+2026-04-11 08:58:45,639 | INFO | Validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/alignment/processed/dpo_v2/valid/medical_pairwise_valid_v2.processed.jsonl']
+2026-04-11 08:58:45,639 | INFO | Aux validation files (1): ['/home/qjh/llm_learning/my_medical_gpt/data/sft/processed/valid/valid_zh_500.processed.jsonl']
+2026-04-11 08:58:46,791 | INFO | train sample keys: ['prompt', 'chosen', 'rejected', 'source']
+2026-04-11 08:58:46,792 | INFO | train prompt preview: [{"role": "user", "content": "治疗阳痿吃什么药呢？，性生活一直很正常的，但是这段时间感觉性欲变低了，有时勃起都感觉很困难，试过许多的方法都没效果，听朋友说我这种情况可能会是早泄，想知道治疗早泄的药物？"}]
+2026-04-11 08:58:46,792 | INFO | train chosen preview: [{"role": "assistant", "content": "你描述更像“勃起功能障碍/性欲下降”，不一定是早泄（早泄主要是进入阴道后很快射精且难以控制）。先排查诱因：近期压力、睡眠、饮酒、吸烟、关系问题，以及新用药（如部分抗抑郁药、降压药）和慢病（糖尿病、高血压）。治疗上常用的处方药是PDE5抑制剂（如西地那非/他达拉非等），需医生评估心血管情况与用药禁忌，尤其正在用硝酸酯类（如硝酸甘油）者不能同用；如果确实是早泄，常用的是达泊西汀或局麻喷剂/乳膏等，也建议在泌尿外科/男科面诊明确诊断。若出现胸痛、严重头晕晕厥，或勃起疼痛/阴茎持续勃起超过4小时、突然明显加重等情况，应及时就医/急诊。"}]
+2026-04-11 08:58:46,792 | INFO | train rejected preview: [{"role": "assistant", "content": "这种情况一般就是早泄或肾虚导致的，可以先自己买些口服激素或消炎止痛药试试，配合补肾的中成药调理一段时间就会好；如果效果不好再去医院。"}]
+2026-04-11 08:58:46,793 | INFO | validation sample keys: ['prompt', 'chosen', 'rejected', 'source']
+2026-04-11 08:58:46,794 | INFO | validation prompt preview: [{"role": "user", "content": "脉管炎的简介是？"}]
+2026-04-11 08:58:46,794 | INFO | validation chosen preview: [{"role": "assistant", "content": "脉管炎常指“血栓闭塞性脉管炎（Buerger病）”，是一种累及中小动静脉的炎症性、血栓性疾病，可造成血管狭窄或闭塞，常见表现为肢端发凉、麻木疼痛、间歇性跛行，严重时可出现溃疡或坏疽。其发生与吸烟关系密切，多见于年轻至中年男性，但具体病因机制尚未完全明确，并非单纯细菌感染所致。若出现持续加重的肢体疼痛、皮肤发紫发黑、溃疡不愈或足趾坏死，应尽快到血管外科/周围血管科就诊评估。"}]
+2026-04-11 08:58:46,794 | INFO | validation rejected preview: [{"role": "assistant", "content": "脉管炎一般是血管发炎引起的，多数是细菌感染导致下肢血管受累，常见症状有疼痛、肿胀和走路不舒服。通常注意保暖、休息，必要时用抗生素就可以改善。"}]
+2026-04-11 08:58:46,794 | INFO | Loading tokenizer from /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model
+2026-04-11 08:59:08,550 | INFO | Auxiliary heterogeneous eval samples: 500
+2026-04-11 08:59:08,834 | INFO | Loading DPO init model from /home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model
+2026-04-11 08:59:17,597 | INFO | Starting DPO training
+2026-04-11 09:00:11,007 | INFO | Best metric updated: eval_rewards/accuracies=0.630000 at step=10 checkpoint=/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-10
+2026-04-11 09:00:23,306 | INFO | Auxiliary heterogeneous eval complete: step=10 valid_zh_loss=2.510811 samples=500 supervised_tokens=55862
+2026-04-11 09:00:23,307 | INFO | Auxiliary heterogeneous eval best updated: valid_zh_loss=2.510811 at step=10
+2026-04-11 09:01:12,703 | INFO | Best metric updated: eval_rewards/accuracies=0.970000 at step=20 checkpoint=/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-20
+2026-04-11 09:01:24,696 | INFO | Auxiliary heterogeneous eval complete: step=20 valid_zh_loss=2.510712 samples=500 supervised_tokens=55862
+2026-04-11 09:01:24,697 | INFO | Auxiliary heterogeneous eval best updated: valid_zh_loss=2.510712 at step=20
+2026-04-11 09:02:12,438 | INFO | Best metric updated: eval_rewards/accuracies=1.000000 at step=30 checkpoint=/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30
+2026-04-11 09:02:24,466 | INFO | Auxiliary heterogeneous eval complete: step=30 valid_zh_loss=2.510011 samples=500 supervised_tokens=55862
+2026-04-11 09:02:24,466 | INFO | Auxiliary heterogeneous eval best updated: valid_zh_loss=2.510011 at step=30
+2026-04-11 09:03:25,244 | INFO | Auxiliary heterogeneous eval complete: step=40 valid_zh_loss=2.511098 samples=500 supervised_tokens=55862
+2026-04-11 09:04:26,423 | INFO | Auxiliary heterogeneous eval complete: step=50 valid_zh_loss=2.513647 samples=500 supervised_tokens=55862
+2026-04-11 09:05:27,716 | INFO | Auxiliary heterogeneous eval complete: step=60 valid_zh_loss=2.521027 samples=500 supervised_tokens=55862
+2026-04-11 09:06:30,181 | INFO | Auxiliary heterogeneous eval complete: step=70 valid_zh_loss=2.531756 samples=500 supervised_tokens=55862
+2026-04-11 09:07:32,462 | INFO | Auxiliary heterogeneous eval complete: step=80 valid_zh_loss=2.542665 samples=500 supervised_tokens=55862
+2026-04-11 09:08:32,393 | INFO | Auxiliary heterogeneous eval complete: step=90 valid_zh_loss=2.548737 samples=500 supervised_tokens=55862
+2026-04-11 09:09:33,861 | INFO | Auxiliary heterogeneous eval complete: step=100 valid_zh_loss=2.552026 samples=500 supervised_tokens=55862
+2026-04-11 09:10:36,240 | INFO | Auxiliary heterogeneous eval complete: step=110 valid_zh_loss=2.553909 samples=500 supervised_tokens=55862
+2026-04-11 09:11:37,041 | INFO | Auxiliary heterogeneous eval complete: step=120 valid_zh_loss=2.554462 samples=500 supervised_tokens=55862
+2026-04-11 09:12:38,946 | INFO | Auxiliary heterogeneous eval complete: step=130 valid_zh_loss=2.555171 samples=500 supervised_tokens=55862
+2026-04-11 09:13:40,719 | INFO | Auxiliary heterogeneous eval complete: step=140 valid_zh_loss=2.555160 samples=500 supervised_tokens=55862
+2026-04-11 09:14:38,213 | INFO | Auxiliary heterogeneous eval complete: step=150 valid_zh_loss=2.556153 samples=500 supervised_tokens=55862
+2026-04-11 09:15:40,579 | INFO | Auxiliary heterogeneous eval complete: step=160 valid_zh_loss=2.556914 samples=500 supervised_tokens=55862
+2026-04-11 09:16:41,496 | INFO | Auxiliary heterogeneous eval complete: step=170 valid_zh_loss=2.557631 samples=500 supervised_tokens=55862
+2026-04-11 09:17:41,898 | INFO | Auxiliary heterogeneous eval complete: step=180 valid_zh_loss=2.558458 samples=500 supervised_tokens=55862
+2026-04-11 09:18:42,315 | INFO | Auxiliary heterogeneous eval complete: step=190 valid_zh_loss=2.558677 samples=500 supervised_tokens=55862
+2026-04-11 09:19:43,400 | INFO | Auxiliary heterogeneous eval complete: step=200 valid_zh_loss=2.559510 samples=500 supervised_tokens=55862
+2026-04-11 09:20:46,458 | INFO | Auxiliary heterogeneous eval complete: step=210 valid_zh_loss=2.560707 samples=500 supervised_tokens=55862
+2026-04-11 09:21:48,613 | INFO | Auxiliary heterogeneous eval complete: step=220 valid_zh_loss=2.560503 samples=500 supervised_tokens=55862
+2026-04-11 09:22:40,353 | INFO | Auxiliary heterogeneous eval complete: step=230 valid_zh_loss=2.560150 samples=500 supervised_tokens=55862
+2026-04-11 09:23:41,800 | INFO | Auxiliary heterogeneous eval complete: step=240 valid_zh_loss=2.560574 samples=500 supervised_tokens=55862
+2026-04-11 09:24:43,876 | INFO | Auxiliary heterogeneous eval complete: step=250 valid_zh_loss=2.561381 samples=500 supervised_tokens=55862
+2026-04-11 09:25:42,660 | INFO | Auxiliary heterogeneous eval complete: step=260 valid_zh_loss=2.561433 samples=500 supervised_tokens=55862
+2026-04-11 09:26:45,192 | INFO | Auxiliary heterogeneous eval complete: step=270 valid_zh_loss=2.562433 samples=500 supervised_tokens=55862
+2026-04-11 09:27:45,717 | INFO | Auxiliary heterogeneous eval complete: step=280 valid_zh_loss=2.562072 samples=500 supervised_tokens=55862
+2026-04-11 09:28:48,397 | INFO | Auxiliary heterogeneous eval complete: step=290 valid_zh_loss=2.562579 samples=500 supervised_tokens=55862
+2026-04-11 09:29:51,015 | INFO | Auxiliary heterogeneous eval complete: step=300 valid_zh_loss=2.562441 samples=500 supervised_tokens=55862
+2026-04-11 09:30:53,259 | INFO | Auxiliary heterogeneous eval complete: step=310 valid_zh_loss=2.562635 samples=500 supervised_tokens=55862
+2026-04-11 09:31:53,980 | INFO | Auxiliary heterogeneous eval complete: step=320 valid_zh_loss=2.562958 samples=500 supervised_tokens=55862
+2026-04-11 09:32:55,632 | INFO | Auxiliary heterogeneous eval complete: step=330 valid_zh_loss=2.562688 samples=500 supervised_tokens=55862
+2026-04-11 09:33:54,227 | INFO | Auxiliary heterogeneous eval complete: step=340 valid_zh_loss=2.562262 samples=500 supervised_tokens=55862
+2026-04-11 09:34:56,206 | INFO | Auxiliary heterogeneous eval complete: step=350 valid_zh_loss=2.562900 samples=500 supervised_tokens=55862
+2026-04-11 09:35:27,127 | INFO | Running final DPO evaluation
+2026-04-11 09:35:43,745 | INFO | Auxiliary heterogeneous eval complete: step=357 valid_zh_loss=2.510011 samples=500 supervised_tokens=55862
+2026-04-11 09:35:43,748 | INFO | DPO training complete. Final model saved to /home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/final_model
+2026-04-11 09:35:43,749 | INFO | Best checkpoint: /home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30
+2026-04-11 09:35:43,749 | INFO | Best metric (eval_rewards/accuracies): 1.0

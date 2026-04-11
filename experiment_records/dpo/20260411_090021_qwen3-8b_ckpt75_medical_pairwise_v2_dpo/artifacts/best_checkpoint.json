@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-04-11 09:35:43",
+  "metric_name": "eval_rewards/accuracies",
+  "metric_value": 1.0,
+  "global_step": 357,
+  "epoch": 3.0,
+  "candidate_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30",
+  "best_model_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30"
+}

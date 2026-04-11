@@ -549,6 +549,7 @@ bash /home/qjh/llm_learning/my_medical_gpt/script/sft/run_sft_qwen3_8b_huatuo_5w
 ### 作用
 
 - 从 `outputs/sft/` 里复制轻量可复现产物到 Git 跟踪的 `experiment_records/sft/`
+- 也支持通过覆写 `--outputs-root` 和 `--records-root` 导出 `DPO` 运行快照
 - 保持仓库轻量
 - 方便在 GitHub 上回看实验历史
 - `--all` 模式下默认跳过 `dryrun` 和明显失败的 run
@@ -567,6 +568,16 @@ python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_record
 
 ```bash
 python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py --all --force
+```
+
+导出单个 `DPO` run：
+
+```bash
+python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_records.py \
+  --outputs-root /home/qjh/llm_learning/my_medical_gpt/outputs/dpo \
+  --records-root /home/qjh/llm_learning/my_medical_gpt/experiment_records/dpo \
+  --run-name 20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo \
+  --force
 ```
 
 强制导出所有内容：
@@ -597,7 +608,11 @@ python /home/qjh/llm_learning/my_medical_gpt/script/ops/export_experiment_record
 - `artifacts/run_args.json`
 - `artifacts/training_args.json`
 - `artifacts/dataset_stats.json`
+- `artifacts/best_checkpoint.json`
+- `artifacts/best_auxiliary_eval.json`
+- `artifacts/training_summary.json`
 - `logs/metrics.jsonl`
+- `logs/aux_eval.jsonl`
 - `logs/train.log`
 - `logs/console.log`
 - `checkpoints/train_results.json`

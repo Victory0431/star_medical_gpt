@@ -1,0 +1,5 @@
+{
+  "train_samples": 3800,
+  "valid_samples": 100,
+  "aux_valid_samples": 500
+}

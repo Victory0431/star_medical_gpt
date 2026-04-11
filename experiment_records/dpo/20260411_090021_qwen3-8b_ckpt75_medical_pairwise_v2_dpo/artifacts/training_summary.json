@@ -1,0 +1,8 @@
+{
+  "best_model_checkpoint": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-30",
+  "best_metric": 1.0,
+  "metric_for_best_model": "eval_rewards/accuracies",
+  "global_step": 357,
+  "best_auxiliary_valid_zh_loss": 2.5100111390179354,
+  "best_auxiliary_step": 30
+}
