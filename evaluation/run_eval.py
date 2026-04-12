@@ -15,10 +15,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from evaluation.benchmarks.healthbench import (
+    OFFICIAL_THEME_DISPLAY_NAMES,
     aggregate_healthbench_results,
     build_summary_markdown,
     calculate_axis_scores,
     calculate_example_score,
+    get_official_theme_display_name,
     load_healthbench_examples,
     render_conversation_for_judge,
     serialize_example,
@@ -217,6 +219,14 @@ def main() -> None:
 
     if theme_counts:
         logger.info("Selected theme distribution: %s", json.dumps(theme_counts, ensure_ascii=False, sort_keys=True))
+        logger.info(
+            "Selected theme distribution (official labels): %s",
+            json.dumps(
+                {get_official_theme_display_name(key): value for key, value in theme_counts.items()},
+                ensure_ascii=False,
+                sort_keys=True,
+            ),
+        )
 
     save_json(
         {
@@ -227,6 +237,9 @@ def main() -> None:
             "sampling_mode": args.sampling_mode,
             "per_theme_examples": args.per_theme_examples,
             "theme_distribution": theme_counts,
+            "theme_distribution_official": {
+                get_official_theme_display_name(key): value for key, value in theme_counts.items()
+            },
             "manifest": [example.to_manifest_row() for example in examples],
         },
         run_dir / "artifacts" / "dataset_manifest.json",
@@ -497,6 +510,7 @@ def main() -> None:
             "judgments_path": str(judgments_path),
             "generation": generation_stats,
             "judge": judge_stats,
+            "theme_name_mapping": OFFICIAL_THEME_DISPLAY_NAMES,
         }
     )
     save_json(summary, run_dir / "summary.json")

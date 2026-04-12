@@ -25,6 +25,16 @@
 
 这也是它更适合后续 `DPO` 和 `GRPO` 的原因，因为这两类对齐方法提升的往往不是选择题正确率，而是开放式回答质量。
 
+当前 `HealthBench` 主题展示统一对齐 OpenAI 官方命名：
+
+- `theme:communication` -> `Expertise-tailored communication`
+- `theme:complex_responses` -> `Response depth`
+- `theme:context_seeking` -> `Context seeking`
+- `theme:emergency_referrals` -> `Emergency referrals`
+- `theme:global_health` -> `Global health`
+- `theme:health_data_tasks` -> `Health data tasks`
+- `theme:hedging` -> `Responding under uncertainty`
+
 ## 支持的运行模式
 
 - `full`：本地生成 + 外部 judge 打分

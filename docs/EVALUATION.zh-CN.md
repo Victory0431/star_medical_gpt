@@ -66,15 +66,15 @@
 - `axis:communication_quality`
 - `axis:instruction_following`
 
-公开样本标签里常见的 theme 包括：
+公开样本标签里常见的 theme 及其官方展示名称包括：
 
-- `theme:global_health`
-- `theme:hedging`
-- `theme:communication`
-- `theme:context_seeking`
-- `theme:emergency_referrals`
-- `theme:health_data_tasks`
-- `theme:complex_responses`
+- `theme:communication` -> `Expertise-tailored communication`
+- `theme:complex_responses` -> `Response depth`
+- `theme:context_seeking` -> `Context seeking`
+- `theme:emergency_referrals` -> `Emergency referrals`
+- `theme:global_health` -> `Global health`
+- `theme:health_data_tasks` -> `Health data tasks`
+- `theme:hedging` -> `Responding under uncertainty`
 
 ## 与训练阶段的对应关系
 
@@ -99,9 +99,9 @@
 - `axis:communication_quality`
 - `axis:instruction_following`
 - `axis:context_awareness`
-- `theme:communication`
-- `theme:hedging`
-- `theme:context_seeking`
+- `Expertise-tailored communication`（`theme:communication`）
+- `Responding under uncertainty`（`theme:hedging`）
+- `Context seeking`（`theme:context_seeking`）
 
 原因：
 
@@ -112,7 +112,7 @@
 重点看：
 
 - 与 `DPO` 类似的风格类指标
-- 再加上 `theme:emergency_referrals` 这类安全敏感主题
+- 再加上 `Emergency referrals`（`theme:emergency_referrals`）这类安全敏感主题
 
 原因：
 

@@ -60,20 +60,20 @@ Reading:
 
 | theme | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 | DPO ckpt-100 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `theme:communication` | `0.0333` | `0.1333` | `0.0667` | `0.0667` | `0.0333` |
-| `theme:complex_responses` | `0.2333` | `0.2333` | `0.2000` | `0.2333` | `0.2333` |
-| `theme:context_seeking` | `0.0333` | `0.0333` | `0.0333` | `0.1667` | `0.0333` |
-| `theme:emergency_referrals` | `0.2667` | `0.3000` | `0.4333` | `0.2000` | `0.2000` |
-| `theme:global_health` | `0.2667` | `0.2667` | `0.5333` | `0.3333` | `0.2667` |
-| `theme:health_data_tasks` | `0.4667` | `0.4333` | `0.3333` | `0.4333` | `0.4000` |
-| `theme:hedging` | `0.2444` | `0.3556` | `0.4222` | `0.3778` | `0.3111` |
+| `Expertise-tailored communication` (`theme:communication`) | `0.0333` | `0.1333` | `0.0667` | `0.0667` | `0.0333` |
+| `Response depth` (`theme:complex_responses`) | `0.2333` | `0.2333` | `0.2000` | `0.2333` | `0.2333` |
+| `Context seeking` (`theme:context_seeking`) | `0.0333` | `0.0333` | `0.0333` | `0.1667` | `0.0333` |
+| `Emergency referrals` (`theme:emergency_referrals`) | `0.2667` | `0.3000` | `0.4333` | `0.2000` | `0.2000` |
+| `Global health` (`theme:global_health`) | `0.2667` | `0.2667` | `0.5333` | `0.3333` | `0.2667` |
+| `Health data tasks` (`theme:health_data_tasks`) | `0.4667` | `0.4333` | `0.3333` | `0.4333` | `0.4000` |
+| `Responding under uncertainty` (`theme:hedging`) | `0.2444` | `0.3556` | `0.4222` | `0.3778` | `0.3111` |
 
 Reading:
 
-- `checkpoint-75` shows its biggest gains on `emergency_referrals`, `global_health`, and `hedging`
-- `huatuo_1k` already improves `communication`, `emergency_referrals`, and `hedging` over base
-- `DPO v1` only retains a mild `hedging` gain over base and does not produce a strong formal win on the more important medical interaction themes
-- `health_data_tasks` is already a relatively strong theme for the base model, so it should not dominate the project story by itself
+- `checkpoint-75` shows its biggest gains on `Emergency referrals`, `Global health`, and `Responding under uncertainty`
+- `huatuo_1k` already improves `Expertise-tailored communication`, `Emergency referrals`, and `Responding under uncertainty` over base
+- `DPO v1` only retains a mild `Responding under uncertainty` gain over base and does not produce a strong formal win on the more important medical interaction themes
+- `Health data tasks` is already a relatively strong theme for the base model, so it should not dominate the project story by itself
 
 ## Strong interview narrative
 
@@ -94,7 +94,7 @@ Based on the formal matrix, the current engineering judgment is:
 1. Keep `huatuo_5w checkpoint-75` as the main model baseline.
 2. Keep `huatuo_1k` as the lightweight SFT baseline for smoke tests and fast pipeline validation.
 3. Treat `DPO v1` as a successful infrastructure milestone, not yet as a better model.
-4. Focus the next alignment step on better medical preference data and reward targets that match slices such as `communication`, `hedging`, and `emergency_referrals`.
+4. Focus the next alignment step on better medical preference data and reward targets that match slices such as `Expertise-tailored communication`, `Responding under uncertainty`, and `Emergency referrals`.
 
 ## Earlier smoke matrix (reference only)
 
@@ -149,18 +149,18 @@ Reading:
 
 | theme | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 |
 | --- | ---: | ---: | ---: | ---: |
-| `theme:complex_responses` | `1.0000` | `0.5000` | `1.0000` | `1.0000` |
-| `theme:context_seeking` | `0.0000` | `0.0000` | `0.0000` | `0.0000` |
-| `theme:emergency_referrals` | `0.5000` | `0.2500` | `0.0000` | `0.0000` |
-| `theme:global_health` | `0.5000` | `0.2500` | `0.2500` | `0.5000` |
-| `theme:health_data_tasks` | `0.5000` | `1.0000` | `1.0000` | `1.0000` |
-| `theme:hedging` | `0.2222` | `0.1111` | `0.5556` | `0.3333` |
+| `Response depth` (`theme:complex_responses`) | `1.0000` | `0.5000` | `1.0000` | `1.0000` |
+| `Context seeking` (`theme:context_seeking`) | `0.0000` | `0.0000` | `0.0000` | `0.0000` |
+| `Emergency referrals` (`theme:emergency_referrals`) | `0.5000` | `0.2500` | `0.0000` | `0.0000` |
+| `Global health` (`theme:global_health`) | `0.5000` | `0.2500` | `0.2500` | `0.5000` |
+| `Health data tasks` (`theme:health_data_tasks`) | `0.5000` | `1.0000` | `1.0000` | `1.0000` |
+| `Responding under uncertainty` (`theme:hedging`) | `0.2222` | `0.1111` | `0.5556` | `0.3333` |
 
 Reading:
 
-- `huatuo_5w` shows a meaningful improvement on `hedging`, especially at `ckpt-75`
-- `huatuo_5w` preserves the strong `health_data_tasks` behavior
-- `emergency_referrals` is weak for both `5w` checkpoints and is currently worse than base on this smoke slice
+- `huatuo_5w` shows a meaningful improvement on `Responding under uncertainty`, especially at `ckpt-75`
+- `huatuo_5w` preserves the strong `Health data tasks` behavior
+- `Emergency referrals` is weak for both `5w` checkpoints and is currently worse than base on this smoke slice
 - this suggests the next stage should not only chase more generic medical SFT scale, but should explicitly target safety-sensitive medical interaction behavior
 
 ## Training signal from the 5w run
@@ -197,7 +197,7 @@ Based on the current smoke matrix, the most reasonable next steps are:
 1. Keep `1k` only as a pipeline-validation checkpoint. It is no longer the main SFT candidate.
 2. Use `huatuo_5w checkpoint-75` as the current main SFT baseline, not `checkpoint-925`.
 3. Add explicit early-stopping or best-checkpoint selection to the standard workflow, because this run already shows that later is not better.
-4. Before jumping into `DPO` or `GRPO`, strengthen safety-sensitive and triage-sensitive data slices, especially around `emergency_referrals`.
+4. Before jumping into `DPO` or `GRPO`, strengthen safety-sensitive and triage-sensitive data slices, especially around `Emergency referrals`.
 5. For the next formal comparison, increase the benchmark sample count from `10` to `50` or `100` to reduce smoke-test variance.
 6. If the goal is to beat base rather than merely match it, the next likely lever is not much longer generic SFT, but either:
    - better-distributed SFT data

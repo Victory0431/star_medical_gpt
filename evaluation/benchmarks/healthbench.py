@@ -15,6 +15,17 @@ DATASET_URLS = {
     "hard": "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/hard_2025-05-08-21-00-10.jsonl",
 }
 
+# Official theme labels follow OpenAI's public HealthBench figures and paper.
+OFFICIAL_THEME_DISPLAY_NAMES = {
+    "theme:communication": "Expertise-tailored communication",
+    "theme:complex_responses": "Response depth",
+    "theme:context_seeking": "Context seeking",
+    "theme:emergency_referrals": "Emergency referrals",
+    "theme:global_health": "Global health",
+    "theme:health_data_tasks": "Health data tasks",
+    "theme:hedging": "Responding under uncertainty",
+}
+
 
 @dataclass
 class RubricItem:
@@ -66,6 +77,17 @@ def _get_single_theme_tag(example: "HealthBenchExample") -> str:
             f"Expected exactly one theme tag for prompt_id={example.prompt_id}, got {theme_tags}"
         )
     return theme_tags[0]
+
+
+def get_official_theme_display_name(theme_tag: str) -> str:
+    return OFFICIAL_THEME_DISPLAY_NAMES.get(theme_tag, theme_tag)
+
+
+def format_theme_tag_for_display(theme_tag: str) -> str:
+    display_name = get_official_theme_display_name(theme_tag)
+    if display_name == theme_tag:
+        return theme_tag
+    return f"{display_name} (`{theme_tag}`)"
 
 
 def _select_examples(
@@ -267,8 +289,11 @@ def build_summary_markdown(summary: dict[str, Any]) -> str:
         lines.append("| key | clipped_mean | raw_mean | n |")
         lines.append("| --- | ---: | ---: | ---: |")
         for key, values in section.items():
+            display_key = key
+            if section_name == "by_theme":
+                display_key = format_theme_tag_for_display(key)
             lines.append(
-                f"| {key} | {values['clipped_mean']:.4f} | {values['raw_mean']:.4f} | {values['n']} |"
+                f"| {display_key} | {values['clipped_mean']:.4f} | {values['raw_mean']:.4f} | {values['n']} |"
             )
         lines.append("")
 

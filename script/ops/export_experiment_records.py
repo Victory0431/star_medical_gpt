@@ -7,9 +7,16 @@ import argparse
 import json
 import re
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from evaluation.benchmarks.healthbench import get_official_theme_display_name
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -324,6 +331,9 @@ def build_eval_readme(summary: dict[str, Any], run_name: str, zh: bool) -> str:
     communication = pick(by_theme, "theme:communication")
     emergency = pick(by_theme, "theme:emergency_referrals")
     hedging = pick(by_theme, "theme:hedging")
+    communication_label = get_official_theme_display_name("theme:communication")
+    emergency_label = get_official_theme_display_name("theme:emergency_referrals")
+    hedging_label = get_official_theme_display_name("theme:hedging")
     context = pick(by_axis, "axis:context_awareness")
     overall_text = f"{overall.get('raw_mean', 0.0):.4f}" if overall else "n/a"
     n_text = overall.get("n", "n/a")
@@ -340,9 +350,9 @@ def build_eval_readme(summary: dict[str, Any], run_name: str, zh: bool) -> str:
             f"主要结果：\n\n"
             f"- overall clipped mean：`{overall_text}`\n"
             f"- `axis:context_awareness`：`{context}`\n"
-            f"- `theme:communication`：`{communication}`\n"
-            f"- `theme:emergency_referrals`：`{emergency}`\n"
-            f"- `theme:hedging`：`{hedging}`\n"
+            f"- `{communication_label}`（`theme:communication`）：`{communication}`\n"
+            f"- `{emergency_label}`（`theme:emergency_referrals`）：`{emergency}`\n"
+            f"- `{hedging_label}`（`theme:hedging`）：`{hedging}`\n"
         )
 
     return (
@@ -356,9 +366,9 @@ def build_eval_readme(summary: dict[str, Any], run_name: str, zh: bool) -> str:
         f"Key metrics:\n\n"
         f"- overall clipped mean: `{overall_text}`\n"
         f"- `axis:context_awareness`: `{context}`\n"
-        f"- `theme:communication`: `{communication}`\n"
-        f"- `theme:emergency_referrals`: `{emergency}`\n"
-        f"- `theme:hedging`: `{hedging}`\n"
+        f"- `{communication_label}` (`theme:communication`): `{communication}`\n"
+        f"- `{emergency_label}` (`theme:emergency_referrals`): `{emergency}`\n"
+        f"- `{hedging_label}` (`theme:hedging`): `{hedging}`\n"
     )
 
 

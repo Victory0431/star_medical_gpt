@@ -129,24 +129,24 @@
 
 | theme | ckpt-30 | ckpt-330 | 谁更强 |
 | --- | ---: | ---: | --- |
-| `communication` | `0.1000` | `0.0333` | `ckpt-30` |
-| `complex_responses` | `0.2333` | `0.2333` | 持平 |
-| `context_seeking` | `0.0667` | `0.1000` | `ckpt-330` |
-| `emergency_referrals` | `0.3000` | `0.4333` | `ckpt-330` |
-| `global_health` | `0.2667` | `0.2333` | `ckpt-30` |
-| `health_data_tasks` | `0.4667` | `0.4000` | `ckpt-30` |
-| `hedging` | `0.3111` | `0.4000` | `ckpt-330` |
+| `Expertise-tailored communication` | `0.1000` | `0.0333` | `ckpt-30` |
+| `Response depth` | `0.2333` | `0.2333` | 持平 |
+| `Context seeking` | `0.0667` | `0.1000` | `ckpt-330` |
+| `Emergency referrals` | `0.3000` | `0.4333` | `ckpt-330` |
+| `Global health` | `0.2667` | `0.2333` | `ckpt-30` |
+| `Health data tasks` | `0.4667` | `0.4000` | `ckpt-30` |
+| `Responding under uncertainty` | `0.3111` | `0.4000` | `ckpt-330` |
 
 这张表特别重要，因为它几乎直接回答了你后面该怎么讲这个项目：
 
 - `checkpoint-330` 提升最明显的，是 `HealthBench` 里最像“医疗对齐行为”的几个主题：
-  - `context_seeking`
-  - `emergency_referrals`
-  - `hedging`
+  - `Context seeking`
+  - `Emergency referrals`
+  - `Responding under uncertainty`
 - `checkpoint-30` 保住得更好的，是更像“通用对话和任务表达”的几个主题：
-  - `communication`
-  - `health_data_tasks`
-  - 一部分 `global_health`
+  - `Expertise-tailored communication`
+  - `Health data tasks`
+  - 一部分 `Global health`
 
 所以更准确的表述不是：
 
@@ -160,16 +160,16 @@
 
 按 `105` 条样本逐条对齐后，可以看到各主题的胜负分布：
 
-- `communication`
+- `Expertise-tailored communication`
   - `ckpt-30` 胜 `3`
   - `ckpt-330` 胜 `1`
-- `emergency_referrals`
+- `Emergency referrals`
   - `ckpt-30` 胜 `0`
   - `ckpt-330` 胜 `4`
-- `hedging`
+- `Responding under uncertainty`
   - `ckpt-30` 胜 `2`
   - `ckpt-330` 胜 `6`
-- `health_data_tasks`
+- `Health data tasks`
   - `ckpt-30` 胜 `3`
   - `ckpt-330` 胜 `1`
 
@@ -191,7 +191,7 @@
 - 更直接指出低氧、心肺风险
 - 语气更像真正的分诊回复
 
-这和它在 `emergency_referrals` 上更强完全一致。
+这和它在 `Emergency referrals` 上更强完全一致。
 
 ### 2. `ckpt-30` 更好的样本
 
@@ -207,7 +207,7 @@
 - 把回答写得过满、过实
 - 导致 `instruction_following` 和 `communication_quality` 被扣分
 
-这也是为什么它总分更高，但 `communication` 反而更差。
+这也是为什么它总分更高，但 `Expertise-tailored communication` 反而更差。
 
 ## 7. 这次实验最重要的结论
 
@@ -224,10 +224,10 @@
 
 - 你对 `3800` 条 pairwise 数据的重构是有价值的
 - `label_direction`
-- `communication`
+- `Expertise-tailored communication`
 - `context_awareness`
-- `hedging`
-- `emergency_referrals`
+- `Responding under uncertainty`
+- `Emergency referrals`
 
 这些重构方向，确实把 DPO 从“无效”推到了“开始有正式收益”
 
@@ -269,13 +269,13 @@
 1. 保留 `huatuo_5w checkpoint-75` 作为当前主 baseline。
 2. 把 `DPO v2 checkpoint-330` 视为当前最有潜力的偏好对齐版本。
 3. 下一轮数据改造重点补：
-   - `communication`
+   - `Expertise-tailored communication`
    - `instruction_following`
-   - `health_data_tasks`
+   - `Health data tasks`
 4. 如果进入 `GRPO`，奖励函数优先围绕：
    - `context_awareness`
-   - `hedging`
-   - `emergency_referrals`
+   - `Responding under uncertainty`
+   - `Emergency referrals`
    - `communication_quality`
 
 这条路线最顺，因为它和你当前 `HealthBench` 暴露出的短板是严格对齐的。

@@ -93,9 +93,9 @@
 
 `huatuo_5w checkpoint-75` 从 `seed=42` 到 `seed=314` 的主要回撤来自：
 
-- `theme:emergency_referrals`
+- `Emergency referrals` (`theme:emergency_referrals`)
   - `0.4333 -> 0.1667`
-- `theme:global_health`
+- `Global health` (`theme:global_health`)
   - `0.5333 -> 0.4333`
 - `axis:completeness`
   - `0.2500 -> 0.0000`
@@ -108,7 +108,7 @@
 
 `DPO v2 checkpoint-330` 的变化明显更小，主要回撤来自：
 
-- `theme:emergency_referrals`
+- `Emergency referrals` (`theme:emergency_referrals`)
   - `0.4333 -> 0.2333`
 - `axis:context_awareness`
   - `0.3889 -> 0.2679`
@@ -123,13 +123,13 @@
 
 | theme | huatuo 两轮均值 | DPO v2 两轮均值 | 谁更高 |
 | --- | ---: | ---: | --- |
-| `communication` | `0.0333` | `0.0333` | 持平 |
-| `complex_responses` | `0.2500` | `0.2667` | `DPO v2` |
-| `context_seeking` | `0.0667` | `0.1000` | `DPO v2` |
-| `emergency_referrals` | `0.3000` | `0.3333` | `DPO v2` |
-| `global_health` | `0.4833` | `0.2333` | `huatuo` |
-| `health_data_tasks` | `0.4167` | `0.4667` | `DPO v2` |
-| `hedging` | `0.3778` | `0.3889` | `DPO v2` |
+| `Expertise-tailored communication` | `0.0333` | `0.0333` | 持平 |
+| `Response depth` | `0.2500` | `0.2667` | `DPO v2` |
+| `Context seeking` | `0.0667` | `0.1000` | `DPO v2` |
+| `Emergency referrals` | `0.3000` | `0.3333` | `DPO v2` |
+| `Global health` | `0.4833` | `0.2333` | `huatuo` |
+| `Health data tasks` | `0.4167` | `0.4667` | `DPO v2` |
+| `Responding under uncertainty` | `0.3778` | `0.3889` | `DPO v2` |
 
 ### 两轮平均的 axis 对比
 
@@ -147,7 +147,7 @@
 - 它在 `context_seeking / emergency_referrals / health_data_tasks / instruction_following` 上已经有相当竞争力
 - 当前最稳的短板其实更像是：
   - `communication_quality`
-  - `global_health`
+  - `Global health`
 
 ## 7. 当前最合理的工程结论
 
@@ -174,17 +174,17 @@
 - 但现在它已经非常接近 `SFT`，说明偏好对齐方向本身是有潜力的
 - 下一步最值得做的，是直接把 reward 设计对准当前稳定暴露的短板：
   - `communication_quality`
-  - `global_health`
+  - `Global health`
   - 保持并继续放大
     - `context_awareness`
-    - `hedging`
-    - `emergency_referrals`
+    - `Responding under uncertainty`
+    - `Emergency referrals`
 
 也就是说，当前最合理的主线不是盲目继续拉长 `DPO`，而是：
 
 - 保留 `huatuo_5w checkpoint-75` 作为强基线
 - 把 `DPO v2 checkpoint-330` 视为当前最有潜力的偏好对齐版本
-- 正式转入 `GRPO`，用更可控的 reward 去补它在 `communication` 侧的缺口
+- 正式转入 `GRPO`，用更可控的 reward 去补它在 `Expertise-tailored communication` 侧的缺口
 
 ## 8. 后续评测该怎么升级
 

@@ -55,13 +55,13 @@
 
 | theme | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt30 | dpo_v2_ckpt330 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `communication` | `0.0300` | `0.0650` | `0.0350` | `0.0550` | `0.0900` |
-| `complex_responses` | `0.2000` | `0.1800` | `0.2150` | `0.2100` | `0.2000` |
-| `context_seeking` | `0.1000` | `0.1150` | `0.0900` | `0.1050` | `0.1250` |
-| `emergency_referrals` | `0.2250` | `0.1700` | `0.2750` | `0.2350` | `0.3400` |
-| `global_health` | `0.2550` | `0.2700` | `0.4650` | `0.2950` | `0.3200` |
-| `health_data_tasks` | `0.4100` | `0.4550` | `0.3750` | `0.4250` | `0.4050` |
-| `hedging` | `0.3233` | `0.3467` | `0.3700` | `0.3533` | `0.3500` |
+| `Expertise-tailored communication` | `0.0300` | `0.0650` | `0.0350` | `0.0550` | `0.0900` |
+| `Response depth` | `0.2000` | `0.1800` | `0.2150` | `0.2100` | `0.2000` |
+| `Context seeking` | `0.1000` | `0.1150` | `0.0900` | `0.1050` | `0.1250` |
+| `Emergency referrals` | `0.2250` | `0.1700` | `0.2750` | `0.2350` | `0.3400` |
+| `Global health` | `0.2550` | `0.2700` | `0.4650` | `0.2950` | `0.3200` |
+| `Health data tasks` | `0.4100` | `0.4550` | `0.3750` | `0.4250` | `0.4050` |
+| `Responding under uncertainty` | `0.3233` | `0.3467` | `0.3700` | `0.3533` | `0.3500` |
 
 ### 700 条 axis 分数表
 
@@ -102,13 +102,13 @@
 
 和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 的明显优势在：
 
-- `theme:communication`
+- `Expertise-tailored communication` (`theme:communication`)
   - `0.0900 vs 0.0350`，高 `+0.0550`
-- `theme:context_seeking`
+- `Context seeking` (`theme:context_seeking`)
   - `0.1250 vs 0.0900`，高 `+0.0350`
-- `theme:emergency_referrals`
+- `Emergency referrals` (`theme:emergency_referrals`)
   - `0.3400 vs 0.2750`，高 `+0.0650`
-- `theme:health_data_tasks`
+- `Health data tasks` (`theme:health_data_tasks`)
   - `0.4050 vs 0.3750`，高 `+0.0300`
 - `axis:accuracy`
   - `0.2143 vs 0.1829`，高 `+0.0314`
@@ -117,21 +117,21 @@
 
 这很重要，因为它说明 `DPO v2` 的收益不是偶然落在一个无关紧要的小角落，而是集中在：
 
-- 更像医疗行为对齐的 `emergency_referrals`
-- 更像医疗问诊流程控制的 `context_seeking`
+- 更像医疗行为对齐的 `Emergency referrals`
+- 更像医疗问诊流程控制的 `Context seeking`
 - 更像临床实用性的 `accuracy / context_awareness`
 
 #### 3. `DPO v2 checkpoint-330` 还没有补齐的短板
 
 和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 当前最稳定的短板仍然是：
 
-- `theme:global_health`
+- `Global health` (`theme:global_health`)
   - `0.3200 vs 0.4650`，低 `-0.1450`
 - `axis:communication_quality`
   - `0.2033 vs 0.2867`，低 `-0.0833`
-- `theme:hedging`
+- `Responding under uncertainty` (`theme:hedging`)
   - `0.3500 vs 0.3700`，低 `-0.0200`
-- `theme:complex_responses`
+- `Response depth` (`theme:complex_responses`)
   - `0.2000 vs 0.2150`，低 `-0.0150`
 
 这组差值和你前面在轻量评测、稳定性复测里看到的趋势是一致的：
@@ -144,10 +144,10 @@
 `DPO v2 checkpoint-330` 相比 `checkpoint-30`，这轮 `700` 条结果提升：
 
 - overall：`+0.0217`
-- `theme:emergency_referrals`：`+0.1050`
-- `theme:communication`：`+0.0350`
-- `theme:context_seeking`：`+0.0200`
-- `theme:global_health`：`+0.0250`
+- `Emergency referrals` (`theme:emergency_referrals`)：`+0.1050`
+- `Expertise-tailored communication` (`theme:communication`)：`+0.0350`
+- `Context seeking` (`theme:context_seeking`)：`+0.0200`
+- `Global health` (`theme:global_health`)：`+0.0250`
 - `axis:accuracy`：`+0.0457`
 - `axis:context_awareness`：`+0.0395`
 - `axis:completeness`：`+0.0411`
@@ -156,7 +156,7 @@
 
 - `axis:communication_quality`：`-0.0167`
 - `axis:instruction_following`：`-0.0450`
-- `theme:health_data_tasks`：`-0.0200`
+- `Health data tasks` (`theme:health_data_tasks`)：`-0.0200`
 
 所以这轮 `700` 条结果也再次证明了：
 
@@ -173,10 +173,10 @@
 - 但它当前还不能被描述为“显著强于 SFT”
 - 它最值得后续继续强化的方向仍然是：
   - `communication_quality`
-  - `global_health`
+  - `Global health`
   - 同时保持
-    - `emergency_referrals`
-    - `context_seeking`
+    - `Emergency referrals`
+    - `Context seeking`
     - `accuracy`
     - `context_awareness`
 
@@ -523,20 +523,20 @@
 
 | theme | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 | DPO ckpt-100 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `theme:communication` | `0.0333` | `0.1333` | `0.0667` | `0.0667` | `0.0333` |
-| `theme:complex_responses` | `0.2333` | `0.2333` | `0.2000` | `0.2333` | `0.2333` |
-| `theme:context_seeking` | `0.0333` | `0.0333` | `0.0333` | `0.1667` | `0.0333` |
-| `theme:emergency_referrals` | `0.2667` | `0.3000` | `0.4333` | `0.2000` | `0.2000` |
-| `theme:global_health` | `0.2667` | `0.2667` | `0.5333` | `0.3333` | `0.2667` |
-| `theme:health_data_tasks` | `0.4667` | `0.4333` | `0.3333` | `0.4333` | `0.4000` |
-| `theme:hedging` | `0.2444` | `0.3556` | `0.4222` | `0.3778` | `0.3111` |
+| `Expertise-tailored communication` (`theme:communication`) | `0.0333` | `0.1333` | `0.0667` | `0.0667` | `0.0333` |
+| `Response depth` (`theme:complex_responses`) | `0.2333` | `0.2333` | `0.2000` | `0.2333` | `0.2333` |
+| `Context seeking` (`theme:context_seeking`) | `0.0333` | `0.0333` | `0.0333` | `0.1667` | `0.0333` |
+| `Emergency referrals` (`theme:emergency_referrals`) | `0.2667` | `0.3000` | `0.4333` | `0.2000` | `0.2000` |
+| `Global health` (`theme:global_health`) | `0.2667` | `0.2667` | `0.5333` | `0.3333` | `0.2667` |
+| `Health data tasks` (`theme:health_data_tasks`) | `0.4667` | `0.4333` | `0.3333` | `0.4333` | `0.4000` |
+| `Responding under uncertainty` (`theme:hedging`) | `0.2444` | `0.3556` | `0.4222` | `0.3778` | `0.3111` |
 
 解读：
 
-- `checkpoint-75` 在 `emergency_referrals`、`global_health`、`hedging` 上的优势最明显
-- `huatuo_1k` 在 `communication`、`emergency_referrals`、`hedging` 上已经优于 base，这解释了它为什么正式总分高于 base
-- `DPO v1` 只在 `hedging` 上略高于 base，其他关键主题基本没有带来正式收益，尤其 `emergency_referrals` 仍然偏弱
-- `health_data_tasks` 是 base 本身不弱的主题，因此正式结论不能只靠这个切片来讲
+- `checkpoint-75` 在 `Emergency referrals`、`Global health`、`Responding under uncertainty` 上的优势最明显
+- `huatuo_1k` 在 `Expertise-tailored communication`、`Emergency referrals`、`Responding under uncertainty` 上已经优于 base，这解释了它为什么正式总分高于 base
+- `DPO v1` 只在 `Responding under uncertainty` 上略高于 base，其他关键主题基本没有带来正式收益，尤其 `Emergency referrals` 仍然偏弱
+- `Health data tasks` 是 base 本身不弱的主题，因此正式结论不能只靠这个切片来讲
 
 ## 面试里最值得讲的故事
 
@@ -559,7 +559,7 @@
 - `DPO v1` 说明训练链路、评测链路、外部 judge 都已经打通，但现有 `medical_pairwise` 数据还不足以支撑正式收益
 - 下一步更值得做的不是“盲目继续 DPO”，而是：
   - 扩充更贴近 `HealthBench` 的医疗偏好数据
-  - 把 `communication`、`hedging`、`emergency_referrals` 这类切片纳入 reward 设计
+  - 把 `Expertise-tailored communication`、`Responding under uncertainty`、`Emergency referrals` 这类切片纳入 reward 设计
   - 继续保留同一套 `theme 15 x 7` 正式评测，作为所有对齐算法的统一验收口径
 
 ## DPO V2 更新（2026-04-11）
@@ -591,7 +591,7 @@
 
 - `DPO v2` 已经明显优于 `DPO v1`，说明重构后的 pairwise 数据是有效的
 - 外部 `HealthBench` 更认可 `checkpoint-330`，而不是训练内 best 的 `checkpoint-30`
-- `checkpoint-330` 在 `context_awareness`、`emergency_referrals`、`hedging` 上更强
+- `checkpoint-330` 在 `context_awareness`、`Emergency referrals`、`Responding under uncertainty` 上更强
 - 单次最好分仍是 `SFT 5w checkpoint-75`，但第二轮独立抽样复测显示这个领先并不稳定
 - 所以下一阶段最合理的主线是：
   - 主模型继续保持 `SFT 5w checkpoint-75`
@@ -628,11 +628,11 @@
   - `accuracy`
   - `communication_quality`
   - `instruction_following`
-  - `health_data_tasks`
+  - `Health data tasks`
 - `huatuo_5w` 仍然更强的地方在：
-  - `emergency_referrals`
+  - `Emergency referrals`
   - `context_awareness`
-  - 一部分 `communication`
+  - 一部分 `Expertise-tailored communication`
 
 这说明当前最合理的 SFT 主线已经可以更新为：
 
@@ -693,18 +693,18 @@
 
 | theme | base | 1k LoRA | 5w ckpt-75 | 5w ckpt-925 |
 | --- | ---: | ---: | ---: | ---: |
-| `theme:complex_responses` | `1.0000` | `0.5000` | `1.0000` | `1.0000` |
-| `theme:context_seeking` | `0.0000` | `0.0000` | `0.0000` | `0.0000` |
-| `theme:emergency_referrals` | `0.5000` | `0.2500` | `0.0000` | `0.0000` |
-| `theme:global_health` | `0.5000` | `0.2500` | `0.2500` | `0.5000` |
-| `theme:health_data_tasks` | `0.5000` | `1.0000` | `1.0000` | `1.0000` |
-| `theme:hedging` | `0.2222` | `0.1111` | `0.5556` | `0.3333` |
+| `Response depth` (`theme:complex_responses`) | `1.0000` | `0.5000` | `1.0000` | `1.0000` |
+| `Context seeking` (`theme:context_seeking`) | `0.0000` | `0.0000` | `0.0000` | `0.0000` |
+| `Emergency referrals` (`theme:emergency_referrals`) | `0.5000` | `0.2500` | `0.0000` | `0.0000` |
+| `Global health` (`theme:global_health`) | `0.5000` | `0.2500` | `0.2500` | `0.5000` |
+| `Health data tasks` (`theme:health_data_tasks`) | `0.5000` | `1.0000` | `1.0000` | `1.0000` |
+| `Responding under uncertainty` (`theme:hedging`) | `0.2222` | `0.1111` | `0.5556` | `0.3333` |
 
 解读：
 
-- `5w` 在 `hedging` 上出现了比较有价值的提升，尤其是 `checkpoint-75`
-- `5w` 保住了 `health_data_tasks` 的优势
-- 但 `emergency_referrals` 这个安全敏感切片目前明显偏弱，甚至低于 base
+- `5w` 在 `Responding under uncertainty` 上出现了比较有价值的提升，尤其是 `checkpoint-75`
+- `5w` 保住了 `Health data tasks` 的优势
+- 但 `Emergency referrals` 这个安全敏感切片目前明显偏弱，甚至低于 base
 - 这意味着下一步不能只靠“继续堆通用医疗 SFT 数据”，而要补安全和分诊类数据/偏好信号
 
 ## 5w 训练信号本身也说明了问题
@@ -742,7 +742,7 @@
 2. 当前主 SFT baseline 应切换为 `huatuo_5w checkpoint-75`，而不是 `checkpoint-925`。
 3. 把“best checkpoint 选择/早停”纳入标准训练流程，这已经不是可选优化，而是必要步骤。
 4. 正式比较时，把评测样本数从 `10` 提高到 `50` 或 `100`，降低 smoke test 偶然性。
-5. 在进入 `DPO / GRPO` 前，先补强 `emergency_referrals` 这类安全敏感数据和偏好信号。
+5. 在进入 `DPO / GRPO` 前，先补强 `Emergency referrals` 这类安全敏感数据和偏好信号。
 6. 如果目标是稳定超过 base，下一步更可能依赖：
    - 更合理的数据分布
    - 更好的验证集策略

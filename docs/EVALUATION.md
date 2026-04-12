@@ -64,15 +64,15 @@ From the released rubric tags, the benchmark naturally exposes these axes:
 - `axis:communication_quality`
 - `axis:instruction_following`
 
-And the released example tags naturally expose themes such as:
+And the released example tags naturally expose themes and official display names such as:
 
-- `theme:global_health`
-- `theme:hedging`
-- `theme:communication`
-- `theme:context_seeking`
-- `theme:emergency_referrals`
-- `theme:health_data_tasks`
-- `theme:complex_responses`
+- `theme:communication` -> `Expertise-tailored communication`
+- `theme:complex_responses` -> `Response depth`
+- `theme:context_seeking` -> `Context seeking`
+- `theme:emergency_referrals` -> `Emergency referrals`
+- `theme:global_health` -> `Global health`
+- `theme:health_data_tasks` -> `Health data tasks`
+- `theme:hedging` -> `Responding under uncertainty`
 
 ## Recommended mapping to training stages
 
@@ -97,9 +97,9 @@ Primary focus:
 - `axis:communication_quality`
 - `axis:instruction_following`
 - `axis:context_awareness`
-- `theme:communication`
-- `theme:hedging`
-- `theme:context_seeking`
+- `Expertise-tailored communication` (`theme:communication`)
+- `Responding under uncertainty` (`theme:hedging`)
+- `Context seeking` (`theme:context_seeking`)
 
 Reason:
 
@@ -110,7 +110,7 @@ Reason:
 Primary focus:
 
 - same style-oriented axes as DPO
-- plus safety-sensitive themes such as `theme:emergency_referrals`
+- plus safety-sensitive themes such as `Emergency referrals` (`theme:emergency_referrals`)
 
 Reason:
 

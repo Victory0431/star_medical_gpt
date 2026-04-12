@@ -23,6 +23,16 @@ HealthBench is more suitable than medical multiple-choice sets such as `C-EVAL` 
 
 This makes it a better fit for later `DPO` and `GRPO` stages, where improvements often appear in response style and clinical communication quality rather than pure multiple-choice accuracy.
 
+The theme display names are aligned with the official OpenAI HealthBench naming:
+
+- `theme:communication` -> `Expertise-tailored communication`
+- `theme:complex_responses` -> `Response depth`
+- `theme:context_seeking` -> `Context seeking`
+- `theme:emergency_referrals` -> `Emergency referrals`
+- `theme:global_health` -> `Global health`
+- `theme:health_data_tasks` -> `Health data tasks`
+- `theme:hedging` -> `Responding under uncertainty`
+
 ## Supported modes
 
 - `full`: local generation plus official rubric judging

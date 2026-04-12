@@ -138,24 +138,24 @@
 
 | theme | huatuo_5w ckpt-75 | HQ-50k best | 谁更强 |
 | --- | ---: | ---: | --- |
-| `communication` | `0.0667` | `0.0000` | `huatuo_5w ckpt-75` |
-| `complex_responses` | `0.2000` | `0.2667` | `HQ-50k best` |
-| `context_seeking` | `0.0333` | `0.0667` | `HQ-50k best` |
-| `emergency_referrals` | `0.4333` | `0.2667` | `huatuo_5w ckpt-75` |
-| `global_health` | `0.5333` | `0.5333` | 持平 |
-| `health_data_tasks` | `0.3333` | `0.4333` | `HQ-50k best` |
-| `hedging` | `0.4222` | `0.4667` | `HQ-50k best` |
+| `Expertise-tailored communication` | `0.0667` | `0.0000` | `huatuo_5w ckpt-75` |
+| `Response depth` | `0.2000` | `0.2667` | `HQ-50k best` |
+| `Context seeking` | `0.0333` | `0.0667` | `HQ-50k best` |
+| `Emergency referrals` | `0.4333` | `0.2667` | `huatuo_5w ckpt-75` |
+| `Global health` | `0.5333` | `0.5333` | 持平 |
+| `Health data tasks` | `0.3333` | `0.4333` | `HQ-50k best` |
+| `Responding under uncertainty` | `0.4222` | `0.4667` | `HQ-50k best` |
 
 这张表说明得更直接：
 
 - `HQ-50k best` 更擅长：
-  - `complex_responses`
-  - `health_data_tasks`
-  - `hedging`
-  - 一部分 `context_seeking`
+  - `Response depth`
+  - `Health data tasks`
+  - `Responding under uncertainty`
+  - 一部分 `Context seeking`
 - `huatuo_5w ckpt-75` 更擅长：
-  - `emergency_referrals`
-  - `communication`
+  - `Emergency referrals`
+  - `Expertise-tailored communication`
 
 这很符合筛选数据的直觉：
 
@@ -221,8 +221,8 @@
 1. 保留 `HQ-50k best` 作为当前最强 SFT 候选。
 2. 把 `huatuo_5w checkpoint-75` 继续保留为强基线。
 3. 下一轮补更定向的数据或对齐信号，优先强化：
-   - `emergency_referrals`
-   - `communication`
+   - `Emergency referrals`
+   - `Expertise-tailored communication`
    - `context_awareness`
 
 因为这些恰好是 `HQ-50k` 还没补齐的地方。
@@ -235,6 +235,6 @@
 
 而是：
 
-- “我先搭了规则粗筛、轻量质量打分、来源分层抽样三层数据漏斗，再做了 `HQ-50k` 训练。训练内验证显示它优于原始 5w，外部 `HealthBench` 正式评测上 `HQ-50k best` 也以 `0.2905` 略高于 `huatuo_5w checkpoint-75` 的 `0.2889`。但这个优势并不大，而且 `HQ-50k` 在 `emergency_referrals` 和 `context_awareness` 上仍不占优，所以我没有简单地下结论说‘筛选就一定万能’，而是把它视为数据工程有效、但仍需要配合更定向对齐的证据。” 
+- “我先搭了规则粗筛、轻量质量打分、来源分层抽样三层数据漏斗，再做了 `HQ-50k` 训练。训练内验证显示它优于原始 5w，外部 `HealthBench` 正式评测上 `HQ-50k best` 也以 `0.2905` 略高于 `huatuo_5w checkpoint-75` 的 `0.2889`。但这个优势并不大，而且 `HQ-50k` 在 `Emergency referrals` 和 `context_awareness` 上仍不占优，所以我没有简单地下结论说‘筛选就一定万能’，而是把它视为数据工程有效、但仍需要配合更定向对齐的证据。” 
 
 这种说法会比“我做了数据清洗”更像真实工业实验。
