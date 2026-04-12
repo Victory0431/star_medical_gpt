@@ -61,6 +61,75 @@
 - 还不是一份可以正式引用的 `6` 模型大样本 benchmark 报告
 - 当前仍应以本文后面的 `theme 15 x 7 = 105` 正式结果矩阵作为对外主结论
 
+## 2026-04-12 大样本续跑进度
+
+在修复队列挂起方式和 judge 重试逻辑后，我重新启动了同口径的 `700` 条大样本评测批次：
+
+- 批次 ID：`20260412_healthbench_theme100x7_resume`
+- benchmark：`HealthBench consensus`
+- 采样方式：`stratified_theme`
+- 采样配置：`7` 个主题，每个主题 `100` 条，共 `700` 条
+- 随机种子：`42`
+- judge 模型：`gpt-5.2`
+
+截至 `2026-04-12 22:43 CST`，这批任务的状态是：
+
+- `6/6` 个模型的生成都已完成
+- `4/6` 个模型已经完成 judge，形成正式 `700` 条结果
+- `DPO v2 checkpoint-330` 正在 judge
+- `HQ-50k best` 尚未进入 judge
+
+当前已经完成正式 judge 的 `4` 个模型如下：
+
+| 模型 | overall clipped mean | 相对 base | 状态 |
+| --- | ---: | ---: | --- |
+| `Qwen3-8B base` | `0.2205` | `0.0000` | 已完成 |
+| `Qwen3-8B + huatuo_1k LoRA` | `0.2288` | `+0.0083` | 已完成 |
+| `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)` | `0.2607` | `+0.0402` | 已完成 |
+| `Qwen3-8B + DPO v2 (checkpoint-30)` | `0.2398` | `+0.0193` | 已完成 |
+
+阶段性解读：
+
+- 在更大样本 `700` 条口径下，`huatuo_5w checkpoint-75` 仍然是当前已完成模型里最强的版本
+- `DPO v2 checkpoint-30` 明确高于 `base`，说明重构后的偏好对齐方向在大样本口径下依然成立
+- 但就目前已完成的结果看，`DPO v2 checkpoint-30` 还没有超过 `huatuo_5w checkpoint-75`
+- `huatuo_1k` 在 `700` 条大样本口径下仍略高于 `base`，但领先幅度比 `105` 条小样本口径更保守
+
+这批 `700` 条结果的一个重要意义是：
+
+- 它开始把“轻量抽样探索”推进到“更高可信度的正式复核”
+- 目前已经能确认：
+  - `5w SFT` 的优势不是单次小样本偶然波动
+  - `DPO v2` 至少在 `checkpoint-30` 上对 `base` 仍有正式收益
+
+对应 run：
+
+- `base`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_base_gpt-52_consensus_theme100x7_seed42`
+- `sft_1k`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_huatuo_1k_lora_gpt-52_consensus_theme100x7_seed42`
+- `sft_5w_ckpt75`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_huatuo_5w_ckpt75_gpt-52_consensus_theme100x7_seed42`
+- `dpo_v2_ckpt30`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_dpo_v2_ckpt30_gpt-52_consensus_theme100x7_seed42`
+- `dpo_v2_ckpt330`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_dpo_v2_ckpt330_gpt-52_consensus_theme100x7_seed42`
+- `hq50k_best`
+  - `20260412_healthbench_theme100x7_resume_healthbench_qwen3_8b_hq50k_best_gpt-52_consensus_theme100x7_seed42`
+
+当前进行中状态：
+
+- `DPO v2 checkpoint-330`
+  - 已 judge `458 / 700`
+- `HQ-50k best`
+  - 生成已完成，等待 judge 排队
+
+所以现阶段最准确的说法是：
+
+- `700` 条大样本正式结果已经完成过半
+- 当前可以正式引用 `base / sft_1k / sft_5w_ckpt75 / dpo_v2_ckpt30` 这 `4` 个模型的结果
+- `DPO v2 checkpoint-330` 和 `HQ-50k best` 需要等整批 judge 完成后再做最终六模型总表
+
 ## 正式分层结果矩阵
 
 对比配置：
