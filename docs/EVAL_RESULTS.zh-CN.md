@@ -4,6 +4,63 @@
 
 这份文档记录了当前最值得在面试里讨论的一组 benchmark 快照。
 
+## 2026-04-11 夜跑验收
+
+昨晚额外启动了一轮更大样本的 `HealthBench consensus` 队列评测，目标是一次性评完下面 `6` 个模型：
+
+- `base`
+- `SFT 1K`
+- `SFT 5W checkpoint-75`
+- `DPO v2 checkpoint-30`
+- `DPO v2 checkpoint-330`
+- `HQ-50k best`
+
+对应口径：
+
+- 采样方式：`stratified_theme`
+- 采样配置：`7` 个主题，每个主题 `100` 条，共 `700` 条
+- 随机种子：`42`
+- 生成 batch size：`8`
+- 目标：主要用于检查大样本下的排序稳定性
+
+这轮夜跑的验收结论要先说清楚：
+
+- 这批任务没有完整跑完
+- 实际只完成了 `base` 和 `SFT 1K` 的生成阶段
+- 没有形成 `6` 模型同口径、同批样本、同轮 judge 的最终对比结果
+- 因此这批夜跑结果目前不能直接并入“正式分数矩阵”
+
+已确认完成的部分如下：
+
+| 模型 | 状态 | 样本数 | generation_seconds | 直观耗时 |
+| --- | --- | ---: | ---: | --- |
+| `Qwen3-8B base` | 已完成生成，未完成 judge | `700` | `1097.105` | 约 `18.3` 分钟 |
+| `Qwen3-8B + huatuo_1k LoRA` | 已完成生成，未完成 judge | `700` | `2133.430` | 约 `35.6` 分钟 |
+
+对应 run：
+
+- `20260411_overnight_theme100x7_live_healthbench_qwen3_8b_base_gpt-52_consensus_theme100x7_seed42`
+- `20260411_overnight_theme100x7_live_healthbench_qwen3_8b_huatuo_1k_lora_gpt-52_consensus_theme100x7_seed42`
+
+日志验收结论：
+
+- 队列日志显示 `base` 于 `2026-04-11 23:44:43` 完成 `700` 条生成
+- `SFT 1K` 于 `2026-04-12 00:02:02` 完成 `700` 条生成
+- 之后没有继续看到 `sft_5w_ckpt75 / dpo_v2_ckpt30 / dpo_v2_ckpt330 / hq50k_best` 的排队执行记录
+- 也没有看到这批任务的 judge 阶段完成记录
+
+工程上这批夜跑并不是完全白跑，原因是：
+
+- `base` 和 `SFT 1K` 的 `responses.jsonl` 已经落盘
+- 共享 response cache 也已经写入
+- 后续如果继续用完全相同的采样配置补 judge，或者补跑同配置复现实验，这两部分生成可以直接复用
+
+所以当前最准确的说法是：
+
+- 这次夜跑更像一次“大样本生成吞吐验收 + 缓存验证”
+- 还不是一份可以正式引用的 `6` 模型大样本 benchmark 报告
+- 当前仍应以本文后面的 `theme 15 x 7 = 105` 正式结果矩阵作为对外主结论
+
 ## 正式分层结果矩阵
 
 对比配置：
