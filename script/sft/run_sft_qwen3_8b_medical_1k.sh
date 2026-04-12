@@ -47,7 +47,7 @@ mkdir -p "${RUN_DIR}/logs"
 
 export WANDB_PROJECT="${WANDB_PROJECT:-my-medical-gpt-sft}"
 export WANDB_MODE="${WANDB_MODE:-online}"
-export WANDB_API_KEY="${WANDB_API_KEY:-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}"
+export WANDB_API_KEY="${WANDB_API_KEY:-}"
 export TOKENIZERS_PARALLELISM=false
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES_VALUE}"
 
