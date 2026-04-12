@@ -27,6 +27,8 @@ BATCH_ID="${BATCH_ID:-$(date +%Y%m%d_%H%M%S)}"
 DRY_RUN="${DRY_RUN:-0}"
 MODEL_FILTER="${MODEL_FILTER:-}"
 SKIP_JUDGE="${SKIP_JUDGE:-0}"
+STAGE_MAX_RETRIES="${STAGE_MAX_RETRIES:-3}"
+RETRY_SLEEP_SECONDS="${RETRY_SLEEP_SECONDS:-15}"
 
 SCHEDULER_LOG_DIR="${PROJECT_ROOT}/evaluation/logs"
 SCHEDULER_LOG="${SCHEDULER_LOG_DIR}/${BATCH_ID}_healthbench_theme${PER_THEME_EXAMPLES}x${THEME_COUNT}_queue.log"
@@ -158,6 +160,38 @@ run_eval_stage() {
   fi
 }
 
+run_eval_stage_with_retries() {
+  local stage="$1"
+  local gpu="$2"
+  local label="$3"
+  local alias="$4"
+  local adapter_path="$5"
+  local run_name="$6"
+
+  local attempt=1
+  local exit_code=0
+  while (( attempt <= STAGE_MAX_RETRIES )); do
+    if (( attempt > 1 )); then
+      log "retry ${attempt}/${STAGE_MAX_RETRIES} for ${stage} ${label} after sleep=${RETRY_SLEEP_SECONDS}s"
+      sleep "${RETRY_SLEEP_SECONDS}"
+    fi
+
+    set +e
+    run_eval_stage "${stage}" "${gpu}" "${label}" "${alias}" "${adapter_path}" "${run_name}"
+    exit_code=$?
+    set -e
+
+    if [[ "${exit_code}" -eq 0 ]]; then
+      return 0
+    fi
+
+    log "${stage} attempt ${attempt}/${STAGE_MAX_RETRIES} failed for ${label} -> ${run_name} (exit=${exit_code})"
+    attempt=$((attempt + 1))
+  done
+
+  return "${exit_code}"
+}
+
 launch_generate() {
   local gpu="$1"
   local spec="$2"
@@ -174,7 +208,7 @@ launch_generate() {
   fi
 
   (
-    run_eval_stage generate "${gpu}" "${label}" "${alias}" "${adapter_path}" "${run_name}"
+    run_eval_stage_with_retries generate "${gpu}" "${label}" "${alias}" "${adapter_path}" "${run_name}"
   ) &
   local pid=$!
 
@@ -200,7 +234,7 @@ launch_judge() {
   fi
 
   (
-    run_eval_stage judge "-" "${label}" "${alias}" "${adapter_path}" "${run_name}"
+    run_eval_stage_with_retries judge "-" "${label}" "${alias}" "${adapter_path}" "${run_name}"
   ) &
   local pid=$!
 
@@ -287,6 +321,8 @@ log "max_examples=${MAX_EXAMPLES}"
 log "seed=${SEED}"
 log "generator_batch_size=${GENERATOR_BATCH_SIZE}"
 log "skip_judge=${SKIP_JUDGE}"
+log "stage_max_retries=${STAGE_MAX_RETRIES}"
+log "retry_sleep_seconds=${RETRY_SLEEP_SECONDS}"
 log "model_filter=${MODEL_FILTER:-<all>}"
 log "output_root=${OUTPUT_ROOT}"
 log "manifest_path=${MANIFEST_PATH}"

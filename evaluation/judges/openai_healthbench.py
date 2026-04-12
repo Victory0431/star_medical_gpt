@@ -5,6 +5,8 @@ import json
 import os
 import re
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from urllib.parse import urlparse
 import urllib.error
 import urllib.request
@@ -61,7 +63,7 @@ class OpenAIHealthBenchJudge:
         api_key: str | None = None,
         base_url: str | None = None,
         timeout_seconds: int = 120,
-        max_retries: int = 5,
+        max_retries: int | None = None,
     ) -> None:
         self.model_name = model_name
         self.api_key = (
@@ -80,8 +82,35 @@ class OpenAIHealthBenchJudge:
             or "https://api.openai.com/v1"
         )
         self.base_url = _normalize_chat_completions_url(raw_base_url)
-        self.timeout_seconds = timeout_seconds
-        self.max_retries = max_retries
+        self.timeout_seconds = int(
+            os.environ.get("OPENAI_JUDGE_TIMEOUT_SECONDS")
+            or os.environ.get("JUDGE_TIMEOUT_SECONDS")
+            or timeout_seconds
+        )
+        self.max_retries = int(
+            os.environ.get("OPENAI_JUDGE_MAX_RETRIES")
+            or os.environ.get("JUDGE_MAX_RETRIES")
+            or (max_retries if max_retries is not None else 8)
+        )
+
+    @staticmethod
+    def _retry_sleep_seconds(exc: urllib.error.HTTPError, attempt: int) -> float:
+        retry_after = exc.headers.get("Retry-After")
+        if retry_after:
+            retry_after = retry_after.strip()
+            if retry_after.isdigit():
+                return min(float(retry_after), 60.0)
+            try:
+                retry_at = parsedate_to_datetime(retry_after)
+                now = datetime.now(tz=timezone.utc)
+                if retry_at.tzinfo is None:
+                    retry_at = retry_at.replace(tzinfo=timezone.utc)
+                return max(0.0, min((retry_at - now).total_seconds(), 60.0))
+            except Exception:
+                pass
+        if exc.code == 429:
+            return min(3.0 * attempt, 30.0)
+        return min(2 ** attempt, 20.0)
 
     def grade(self, conversation_text: str, rubric_item: str) -> dict[str, Any]:
         prompt = GRADER_TEMPLATE.replace("<<conversation>>", conversation_text).replace(
@@ -131,7 +160,7 @@ class OpenAIHealthBenchJudge:
                         f"OpenAI judge request failed after {self.max_retries} attempts: "
                         f"HTTP {exc.code} {exc.reason}. body={error_body}"
                     ) from exc
-                time.sleep(min(2 ** attempt, 20))
+                time.sleep(self._retry_sleep_seconds(exc, attempt))
             except (
                 urllib.error.URLError,
                 TimeoutError,
