@@ -129,3 +129,218 @@
 - `GRPO v0` 奖励函数设计
 - `GRPO` 训练脚本与双卡 launcher
 - 首轮训练配置与运行记录
+
+## 9. GRPO v0 奖励函数设计
+
+这版先不上“在线 LLM judge”，而是采用一版更稳、更便宜、能快速闭环的 `hybrid reward`：
+
+- 主奖励：多维行为 reward
+- 约束项：规则 penalty
+- 方向锚点：`reference_answer / negative_reference_answer`
+
+这不是最终形态，但非常适合你当前这个阶段：
+
+- 先验证 `GRPO` 训练链路能不能稳定跑起来
+- 先看它能不能把 `DPO v2 checkpoint-330` 的稳定短板往上拉
+- 先把 reward 和 `HealthBench` 暴露出来的问题对齐
+
+### 9.1 当前 6 个 reward 函数
+
+#### `communication_quality_reward`
+
+目标：
+
+- 奖励更清晰、更有安抚性、更可执行的医学沟通
+
+主要看：
+
+- 回答长度是否过短
+- 是否带有安抚/共情表达
+- 是否给出明确下一步动作
+- 是否具备一定结构化表达
+- 是否只是空泛废话
+
+#### `context_awareness_reward`
+
+目标：
+
+- 奖励在信息不足时先补上下文、补检查，而不是直接下结论
+
+主要看：
+
+- 是否主动询问关键补充信息
+- 是否建议完善检查/复查
+- 是否使用条件化表达
+- 是否出现“没看全信息就直接断言”的情况
+
+#### `hedging_reward`
+
+目标：
+
+- 奖励医疗不确定场景下的保守表达
+
+主要看：
+
+- 是否出现 `可能 / 需要结合 / 不能仅凭 / 还不能完全确定`
+- 是否存在绝对化表达
+
+#### `emergency_referral_reward`
+
+目标：
+
+- 奖励高风险样本里的急诊识别与及时转诊
+
+主要看：
+
+- 高风险 prompt 下是否保留 `尽快就医 / 急诊 / 立即就医 / 住院` 等建议
+- 如果该转急诊却没转，会被明显扣分
+
+#### `reference_alignment_reward`
+
+目标：
+
+- 用本地轻量方式把输出锚定在“更像正参考答案、远离负参考答案”的方向上
+
+实现方式：
+
+- 计算生成回答与 `reference_answer` 的 lexical overlap
+- 计算生成回答与 `negative_reference_answer` 的 lexical overlap
+- 做一个轻量 margin：
+  - 靠近正例加分
+  - 靠近负例扣分
+
+它不是完整 RM，也不是 LLM judge，但对 `GRPO v0` 很有价值，因为它能防止 reward 完全漂到纯关键词投机。
+
+#### `safety_penalty_reward`
+
+目标：
+
+- 对明显坏行为做负奖励
+
+主要包括：
+
+- 低信息、过短回答
+- 过度绝对化表达
+- 该给急诊建议却没给
+- 明显重复、灌水
+
+### 9.2 为什么这样设计
+
+这版 reward 设计的核心思路是：
+
+1. 不让 reward 完全依赖关键词
+2. 也不让 reward 完全失去“方向锚点”
+3. 用样本自带的 `reward_profile / penalty_profile / hard_constraints` 做 prompt 级别差异化加权
+
+也就是说：
+
+- `communication` 主切片会更看重沟通质量
+- `emergency` 主切片会更看重急诊转诊
+- `global_health` 主切片会更看重参考答案一致性与医学合理性
+
+这比“一套固定 reward 打所有样本”更符合你这批数据的设计目标。
+
+## 10. 当前训练实现
+
+已经新增的训练相关脚本：
+
+- [reward_functions.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/reward_functions.py)
+- [train_grpo.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/train_grpo.py)
+- [run_grpo_qwen3_8b_dpo330_v0.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v0.sh)
+
+### 10.1 训练起点
+
+当前 `GRPO v0` 默认不是从裸基座起跑，而是从：
+
+- `huatuo_5w checkpoint-75` merged model
+- 再加载 `DPO v2 checkpoint-330` adapter
+
+也就是：
+
+- `base = SFT 5w merged`
+- `init policy = DPO v2 checkpoint-330`
+
+这和你当前项目目标是一致的，因为我们不是要证明“GRPO 从零也能训”，而是要验证：
+
+- 在当前最有潜力的 `DPO v2` 版本上
+- 能不能进一步补齐 `communication / global_health` 等短板
+
+### 10.2 当前默认配置
+
+首轮配置偏保守，目标是先把链路稳定跑通：
+
+- `2 GPU`
+- `per_device_train_batch_size = 1`
+- `gradient_accumulation_steps = 8`
+- `num_generations = 4`
+- `max_steps = 120`
+- `learning_rate = 1e-6`
+- `beta = 0.02`
+- `loss_type = dapo`
+- `scale_rewards = group`
+- `max_eval_samples = 120`
+
+### 10.3 工程行为
+
+当前训练脚本已经支持：
+
+- `W&B` 记录
+- 时间戳控制台日志
+- `metrics.jsonl` 逐步日志落盘
+- `best_checkpoint.json`
+- `reward_manifest.json`
+- `dataset_summary.json`
+- 双卡 `torchrun` 启动
+
+另外补了一个很实用的工程兜底：
+
+- `GRPO` 要求全局 `train / eval batch` 与 `num_generations` 可整除
+- 当前脚本会主动校验训练 batch
+- 对 `eval batch` 会自动向上调整到可整除的最小值
+
+这样可以避免夜里后台训练时，因为一个看似很小的 batch 配置细节在评估阶段直接报错。
+
+### 10.4 当前 smoke 验证
+
+已经做过一次超小样本 smoke：
+
+- `train = 4`
+- `valid = 4`
+- `max_steps = 1`
+- `num_generations = 2`
+
+验证到的关键点：
+
+- `SFT 5w merged + DPO v2 checkpoint-330` 可以作为 `GRPO` 初始化策略正常加载
+- 自定义 `reward_functions.py` 能正常参与训练与评估
+- `metrics.jsonl` 已经成功记录训练和评估 reward 指标
+
+这说明当前最关键的链路已经打通：
+
+- 模型加载
+- adapter 接续
+- group generation
+- reward 计算
+- 训练日志落盘
+
+## 11. 当前定位
+
+这版可以理解为：
+
+- `GRPO v0`
+- `rule + reference anchored reward`
+- `先验证链路和方向，不宣称已经是最终 reward 方案`
+
+如果首轮训练结果能把：
+
+- `communication_quality`
+- `global_health`
+
+这两个当前最稳定短板明显拉上来，那这条路线就已经非常有价值。
+
+后续再往上走，可以继续加两种更强版本：
+
+1. `GRPO v1`
+   - 在离线阶段引入 `LLM judge` 给一小批样本打多维分，验证 reward 与人工偏好方向是否一致
+2. `GRPO v2`
+   - 把 `LLM judge` 分数蒸馏成本地 reward scorer / RM，降低线上训练成本
