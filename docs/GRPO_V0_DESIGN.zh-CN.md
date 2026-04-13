@@ -323,6 +323,82 @@
 - reward 计算
 - 训练日志落盘
 
+### 10.5 当前参数结构到底是什么
+
+这部分很容易让人误解，所以单独说明。
+
+当前 `GRPO v0` 不是：
+
+- `base + SFT LoRA + DPO LoRA`
+
+而是：
+
+- `SFT 5w merged backbone`
+- `DPO v2 checkpoint-330 adapter`
+
+也就是说：
+
+- `SFT 5w` 已经先被 merge 进底座参数
+- 当前在线训练时真正外挂、真正更新的 LoRA 只有一套，就是 `DPO v2 checkpoint-330`
+
+因此这轮 `GRPO` 的本质不是“在 SFT 上重新开一套全新的 GRPO LoRA 从零学”，而是：
+
+- 以 `DPO v2 checkpoint-330` 作为当前策略初始化
+- 在这套 `DPO` adapter 上继续做 `GRPO` 优化
+
+这么做的直接好处是：
+
+- 起点精确等于当前最有潜力的 `DPO v2` 版本
+- 不需要额外先产出一个新的 `DPO merged` 中间模型
+- 工程链路更短，先验证 `GRPO` 能否补齐 `DPO v2` 暴露出的稳定短板
+
+### 10.6 参考策略是怎么实现的
+
+当前训练不是“没有参考策略”，而是“参考策略没有额外以一整份 8B 模型的形式重新加载到显存里”。
+
+在当前 `PEFT + beta != 0` 的设置下，`trl` 的 `GRPOTrainer` 会：
+
+1. 将当前可训练 adapter 视为 `default`
+2. 在初始化时复制一份得到 `ref`
+3. 训练过程中：
+   - `default` 持续更新
+   - `ref` 保持冻结
+4. 计算 `KL` 时，使用同一套 backbone 上的 `ref adapter` 作为参考策略
+
+所以当前结构可以理解为：
+
+- `backbone = SFT merged`
+- `policy adapter = DPO330 default`
+- `reference adapter = DPO330 ref`
+
+这就是为什么显存里不会再多出一整份“完整 reference model”。
+
+### 10.7 为什么这次不先 merge DPO 再新开一套 GRPO LoRA
+
+这是一个合理但不是唯一的设计选择。
+
+当前版本选择“直接续训 DPO adapter”，主要是为了：
+
+- 尽量少改工程链路，先把 `GRPO v0` 跑通
+- 让参考策略精确锁定为“训练开始时的 `DPO330`”
+- 直接利用 `trl` 对现有 adapter 复制 `ref` 的机制
+
+但从实验设计上看，另一条路线同样成立：
+
+1. 先把 `DPO330` merge 进 backbone
+2. 再在 `DPO-merged backbone` 上新开一套 `GRPO LoRA`
+
+两条路线的差异是：
+
+- 当前路线：
+  - 更像“继续微调 DPO policy”
+  - 更适合快速验证方向
+- 另一条路线：
+  - 更像“在 DPO policy 上再叠一层 GRPO 修正量”
+  - 参数职责会更清晰，更适合做后续严格 ablation
+
+当前 `v0` 先选前者，是为了让首轮链路尽快闭环；如果 `GRPO` 证明有效，下一版完全可以补做“`merge DPO` 再新开 `GRPO LoRA`”的对照实验。
+
 ## 11. 当前定位
 
 这版可以理解为：
@@ -388,3 +464,136 @@
 - reward 函数在真实训练中已经开始分化不同 completion
 - 日志、指标、W&B、双卡训练链路都已经进入稳定工作状态
 - 这版 `GRPO v0` 可以继续完整跑完，再决定是否调奖励权重或扩大 prompt 集
+
+## 13. 常见问题
+
+### 13.1 当前是规则打分还是 LLM judge 打分
+
+当前 `GRPO v0` 是：
+
+- `规则打分`
+- `轻量 reference overlap`
+- `样本级动态加权`
+
+不是在线调用 `LLM judge API` 打分。
+
+也就是说，当前 reward 来源于本地 `reward_functions.py` 中的 6 个 reward 函数，而不是 GPT 类评审器。
+
+这样做的原因是：
+
+- 先把 `GRPO` 训练链路稳定跑起来
+- 控制训练成本和延迟
+- 避免在线 `LLM judge` 成为训练吞吐瓶颈
+
+后续如果 `v0` 方向成立，再升级到：
+
+- 离线 `LLM judge` 标注小批量样本
+- 蒸馏成本地 reward scorer / RM
+
+### 13.2 动态权重是怎么实现的
+
+动态权重不是一个额外的大模块，而是直接体现在每条样本自带的元信息里：
+
+- `reward_profile`
+- `penalty_profile`
+- `slice_tags`
+- `hard_constraints`
+- `risk_level`
+
+具体机制是：
+
+1. reward 函数先判断这条样本属于什么类型
+   - 例如是否属于 `context_seeking`
+   - 是否属于 `emergency`
+   - 是否带有“不能过度断言”“不能漏急诊”的硬约束
+2. 再根据这条样本自己的 `reward_profile / penalty_profile` 调整对应 reward 的权重
+
+例如：
+
+- `communication` 切片会更重视 `communication_quality`
+- `emergency` 切片会更重视 `emergency_referral`
+- 高风险样本漏掉急诊建议时会被更重地处罚
+
+这就是“按样本切片动态加权”的含义。
+
+### 13.3 `max_completion_length` 为什么会导致截断
+
+`GRPO` 和 `SFT / DPO` 的关键区别是：
+
+- `SFT / DPO` 是离线吃现成回答
+- `GRPO` 是在线生成多条 completion 再打分
+
+因此 `GRPO` 必须给 rollout 设置 completion 上限，否则：
+
+- 显存和训练时间会快速失控
+- group generation 吞吐会明显下降
+
+当前配置中：
+
+- `max_completion_length = 512`
+
+如果模型在生成到 `512 token` 时还没有自然结束，就会被记为 `clipped`。
+
+所以：
+
+- `clipped_ratio` 高，不等于训练直接失效
+- 但它说明当前上限可能偏紧，或者模型回答偏长
+
+当前脚本已打开：
+
+- `mask_truncated_completions = True`
+
+这意味着训练时会尽量避免把“被硬截断的 completion”当成完整回答去直接强化。
+
+后续版本如果继续观察到较高 `clipped_ratio`，优先会做两件事：
+
+- 提高 `max_completion_length`
+- 让 rollout 长度尽量和现有医疗回答分布更对齐
+
+### 13.4 当前显卡上为什么会看到 3 个进程
+
+这通常不是“3 个完整模型副本”，而是分布式训练的正常现象。
+
+当前双卡训练大体由三类进程构成：
+
+- `torchrun` 启动器父进程
+- `rank 0` 训练 worker
+- `rank 1` 训练 worker
+
+在 `nvidia-smi` 里，有时还会看到某个 worker 在另一张卡上保留少量通信上下文显存，这会让进程显示得像“多了一条”。
+
+所以看到 `3` 条 GPU 相关进程记录时，不能直接理解为“多启动了一份完整模型”。
+
+### 13.5 DPO 为什么要先 merge SFT，而 GRPO 这里又没有先 merge DPO
+
+这是因为两阶段想固定的“参考基线”不一样。
+
+在当前项目里：
+
+- `DPO` 阶段想固定的是 `SFT policy`
+- `GRPO` 阶段想固定的是“训练开始时的 `DPO330 policy`”
+
+因此：
+
+- `DPO` 先把 `SFT` merge 到 backbone
+  - 这样 `adapter off` 时就能自然回到 `SFT policy`
+- `GRPO` 当前版本直接继续训练 `DPO330 adapter`
+  - 这样 `ref adapter` 就能自然代表“初始 DPO330 policy”
+
+两者并不矛盾，只是各自想保留的参考策略不同。
+
+### 13.6 后续最值得补做的结构对照实验
+
+如果首轮 `GRPO v0` 有正向结果，后面最值得补的结构性对照不是继续盲目调学习率，而是直接比较两条结构路线：
+
+1. `continue DPO adapter`
+   - 当前路线
+2. `merge DPO -> fresh GRPO LoRA`
+   - 更利于参数职责分离
+
+这个对照实验的意义很大，因为它能直接回答：
+
+- `GRPO` 更适合做“继续修正已有偏好策略”
+- 还是更适合做“在固定 DPO 基线之上再加一层独立修正”
+
+如果后续要把项目做得更完整，这会是一个很好的补充实验点。
