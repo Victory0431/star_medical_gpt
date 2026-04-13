@@ -373,7 +373,11 @@ def build_training_arguments(
     save_strategy = args.save_strategy
     if save_strategy != "no" and eval_strategy == "epoch" and save_strategy == "steps":
         save_strategy = "epoch"
-    load_best_model_at_end = do_eval and eval_strategy == save_strategy and eval_strategy != "no"
+    # GRPOTrainer can expose eval_reward and other rich evaluation signals through logging, but
+    # Transformers' built-in best-checkpoint selection only inspects the raw evaluate() return.
+    # In practice this can crash if metric_for_best_model points to eval_reward. We therefore keep
+    # best-checkpoint tracking in our own callback instead of relying on load_best_model_at_end.
+    load_best_model_at_end = False
 
     return GRPOConfig(
         output_dir=str(run_dir / "checkpoints"),
@@ -461,17 +465,17 @@ class BestMetricCallback(TrainerCallback):
         self.logger = logger
         self.best_value: Optional[float] = None
 
-    def on_evaluate(
+    def on_log(
         self,
         args: GRPOConfig,
         state: TrainerState,
         control: TrainerControl,
-        metrics: Optional[Dict[str, float]] = None,
+        logs: Optional[Dict[str, float]] = None,
         **kwargs: Any,
     ) -> None:
-        if not is_local_main_process() or not metrics or self.metric_name not in metrics:
+        if not is_local_main_process() or not logs or self.metric_name not in logs:
             return
-        value = metrics[self.metric_name]
+        value = logs[self.metric_name]
         candidate_checkpoint = str(Path(args.output_dir) / f"checkpoint-{state.global_step}")
         should_update = self.best_value is None or (value > self.best_value if args.greater_is_better else value < self.best_value)
         if not should_update:
