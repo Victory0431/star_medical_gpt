@@ -6,140 +6,102 @@
 
 ## 2026-04-12 大样本 700 条正式更新
 
-在修复队列挂起方式和 judge 重试逻辑后，我重新启动了同口径的 `700` 条大样本评测批次，并在 `2026-04-12 23:24 CST` 完成了 `DPO v2 checkpoint-330` 的正式 judge。
+在修复队列挂起方式、response cache 复用逻辑和 judge 重试逻辑后，我重新跑完了同口径的 `700` 条大样本评测批次。到 `2026-04-13` 为止，这一批 `6` 个模型都已经完成正式 judge，可以作为当前最可靠的一组 `HealthBench consensus` 决策基准。
 
-本节先只纳入已经完整完成 judge 的 `5` 个模型：
+纳入模型：
 
 - `Qwen3-8B base`
 - `Qwen3-8B + huatuo_1k LoRA`
 - `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)`
 - `Qwen3-8B + DPO v2 (checkpoint-30)`
 - `Qwen3-8B + DPO v2 (checkpoint-330)`
+- `Qwen3-8B + HQ-50k SFT best`
 
-对应口径：
+统一口径：
 
 - benchmark：`HealthBench consensus`
 - 采样方式：`stratified_theme`
 - 采样配置：`7` 个主题，每个主题 `100` 条，共 `700` 条
 - 随机种子：`42`
 - judge 模型：`gpt-5.2`
-
-`HQ-50k best` 仍在 judge 阶段，因此本节先不把它并入正式矩阵，避免把“已完成结果”和“进行中任务”混在一起。
+- 每个 run 的 `num_judged_examples` 都是 `700`
 
 ### 总表先看
 
-| 模型 | overall clipped mean | 相对 base | 备注 |
-| --- | ---: | ---: | --- |
-| `Qwen3-8B base` | `0.2205` | `0.0000` | 大样本基线 |
-| `Qwen3-8B + huatuo_1k LoRA` | `0.2288` | `+0.0083` | 小规模 SFT |
-| `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)` | `0.2607` | `+0.0402` | 当前已完成 SFT 主基线 |
-| `Qwen3-8B + DPO v2 (checkpoint-30)` | `0.2398` | `+0.0193` | 更保守的 DPO 点 |
-| `Qwen3-8B + DPO v2 (checkpoint-330)` | `0.2614` | `+0.0410` | 当前已完成 DPO v2 最强点 |
+| 模型 | overall clipped mean | 相对 base | 相对 `sft_5w_ckpt75` | 备注 |
+| --- | ---: | ---: | ---: | --- |
+| `Qwen3-8B base` | `0.2205` | `0.0000` | `-0.0402` | 大样本基线 |
+| `Qwen3-8B + huatuo_1k LoRA` | `0.2288` | `+0.0083` | `-0.0319` | 小规模 SFT / smoke test |
+| `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)` | `0.2607` | `+0.0402` | `0.0000` | 旧主 SFT baseline |
+| `Qwen3-8B + DPO v2 (checkpoint-30)` | `0.2398` | `+0.0193` | `-0.0209` | 更保守的 DPO 点 |
+| `Qwen3-8B + DPO v2 (checkpoint-330)` | `0.2614` | `+0.0410` | `+0.0007` | 当前最强 DPO 点，和 `SFT 5w` 基本同档 |
+| `Qwen3-8B + HQ-50k SFT best` | `0.2767` | `+0.0562` | `+0.0160` | 当前这批 `700` 条里总分最高 |
 
 这张表最值得先记住的结论是：
 
-- `DPO v2 checkpoint-330` 已经在 `700` 条大样本口径下完成正式 judge
-- 它的总分是 `0.2614`
-- 它相对 `base` 提升 `+0.0410`
-- 它与 `huatuo_5w checkpoint-75 = 0.2607` 的差距只有 `+0.0007`
-
-所以当前更准确的说法不是：
-
-- “`DPO v2` 明显超过了 `SFT 5w`”
-
-而是：
-
-- “在这轮 `700` 条大样本口径下，`DPO v2 checkpoint-330` 和 `huatuo_5w checkpoint-75` 已经进入几乎同档的区间”
+- `HQ-50k best = 0.2767`，已经成为当前这批 `700` 条大样本口径下的新总分第一
+- `DPO v2 checkpoint-330 = 0.2614`，已经追平到 `huatuo_5w checkpoint-75 = 0.2607` 附近
+- `DPO v2 checkpoint-330` 的优势不是“全面更强”，而是集中在更像医疗行为对齐的主题和 axis 上
+- 这批结果让三条路线的角色更清楚了：
+  - `5w SFT`：稳定强基线
+  - `DPO v2`：更偏行为强化和问诊流程控制
+  - `HQ-50k SFT`：当前总分最强的高质量数据路线
 
 ### 700 条主题分数表
 
-| theme | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt30 | dpo_v2_ckpt330 |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `Expertise-tailored communication` | `0.0300` | `0.0650` | `0.0350` | `0.0550` | `0.0900` |
-| `Response depth` | `0.2000` | `0.1800` | `0.2150` | `0.2100` | `0.2000` |
-| `Context seeking` | `0.1000` | `0.1150` | `0.0900` | `0.1050` | `0.1250` |
-| `Emergency referrals` | `0.2250` | `0.1700` | `0.2750` | `0.2350` | `0.3400` |
-| `Global health` | `0.2550` | `0.2700` | `0.4650` | `0.2950` | `0.3200` |
-| `Health data tasks` | `0.4100` | `0.4550` | `0.3750` | `0.4250` | `0.4050` |
-| `Responding under uncertainty` | `0.3233` | `0.3467` | `0.3700` | `0.3533` | `0.3500` |
+| theme | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt30 | dpo_v2_ckpt330 | hq50k_best |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `Expertise-tailored communication` | `0.0300` | `0.0650` | `0.0350` | `0.0550` | `0.0900` | `0.0450` |
+| `Response depth` | `0.2000` | `0.1800` | `0.2150` | `0.2100` | `0.2000` | `0.2200` |
+| `Context seeking` | `0.1000` | `0.1150` | `0.0900` | `0.1050` | `0.1250` | `0.0950` |
+| `Emergency referrals` | `0.2250` | `0.1700` | `0.2750` | `0.2350` | `0.3400` | `0.2700` |
+| `Global health` | `0.2550` | `0.2700` | `0.4650` | `0.2950` | `0.3200` | `0.4850` |
+| `Health data tasks` | `0.4100` | `0.4550` | `0.3750` | `0.4250` | `0.4050` | `0.3950` |
+| `Responding under uncertainty` | `0.3233` | `0.3467` | `0.3700` | `0.3533` | `0.3500` | `0.4267` |
 
 ### 700 条 axis 分数表
 
-| axis | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt30 | dpo_v2_ckpt330 |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `accuracy` | `0.1533` | `0.1762` | `0.1829` | `0.1686` | `0.2143` |
-| `communication_quality` | `0.1733` | `0.1700` | `0.2867` | `0.2200` | `0.2033` |
-| `completeness` | `0.0274` | `0.0411` | `0.1233` | `0.0822` | `0.1233` |
-| `context_awareness` | `0.3164` | `0.2797` | `0.3220` | `0.2966` | `0.3362` |
-| `instruction_following` | `0.4700` | `0.5250` | `0.4550` | `0.5050` | `0.4600` |
+| axis | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt30 | dpo_v2_ckpt330 | hq50k_best |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `accuracy` | `0.1533` | `0.1762` | `0.1829` | `0.1686` | `0.2143` | `0.2152` |
+| `communication_quality` | `0.1733` | `0.1700` | `0.2867` | `0.2200` | `0.2033` | `0.2867` |
+| `completeness` | `0.0274` | `0.0411` | `0.1233` | `0.0822` | `0.1233` | `0.1096` |
+| `context_awareness` | `0.3164` | `0.2797` | `0.3220` | `0.2966` | `0.3362` | `0.3164` |
+| `instruction_following` | `0.4700` | `0.5250` | `0.4550` | `0.5050` | `0.4600` | `0.4650` |
 
 ### 这轮 700 条最重要的分析
 
-#### 1. `DPO v2 checkpoint-330` 的地位被重新定义了
+#### 1. `HQ-50k best` 现在是新的最强 SFT baseline
 
-在旧的 `105` 条轻量结果里：
+这次最大的新增信息不是 `DPO`，而是 `HQ-50k best` 正式并入矩阵后，把当前总分第一抬到了 `0.2767`。
 
-- `DPO v2 checkpoint-330 = 0.2619`
-- `huatuo_5w checkpoint-75 = 0.2889`
+相对 `huatuo_5w checkpoint-75 = 0.2607`，它的提升主要集中在：
 
-当时更像是：
+- `Responding under uncertainty`：`0.4267 vs 0.3700`，高 `+0.0567`
+- `Global health`：`0.4850 vs 0.4650`，高 `+0.0200`
+- `Health data tasks`：`0.3950 vs 0.3750`，高 `+0.0200`
+- `axis:accuracy`：`0.2152 vs 0.1829`，高 `+0.0324`
+- `axis:instruction_following`：`0.4650 vs 0.4550`，高 `+0.0100`
 
-- `DPO v2` 明显改善了 `DPO v1`
-- 但仍然没有追平最强 `SFT`
+同时它基本没有在 `communication_quality` 上回退：
 
-而在这轮 `700` 条大样本结果里：
+- `axis:communication_quality = 0.2867`
+- 和 `huatuo_5w checkpoint-75` 持平
+
+这说明高质量 SFT 数据筛选这条线不是“看起来更干净”，而是真的在更大样本 benchmark 上给出了正式收益。
+
+#### 2. `DPO v2 checkpoint-330` 的定位也被重新定义了
+
+在旧的 `105` 条轻量结果里，`DPO v2 checkpoint-330` 仍落后于 `huatuo_5w checkpoint-75`。但在这轮 `700` 条大样本结果里：
 
 - `DPO v2 checkpoint-330 = 0.2614`
 - `huatuo_5w checkpoint-75 = 0.2607`
+- 差值只有 `+0.0007`
 
-这说明：
+因此现在更严谨的说法不是“`DPO v2` 已明显超过 `SFT 5w`”，而是：
 
-- 在更大样本口径下，`DPO v2 checkpoint-330` 已经追到了 `SFT 5w checkpoint-75` 附近
-- 但由于 gap 只有 `0.0007`，当前不能把它讲成“显著反超”
-- 更严谨的表达是“二者当前大样本单轮结果基本同档”
-
-#### 2. `DPO v2 checkpoint-330` 为什么能追到这个位置
-
-和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 的明显优势在：
-
-- `Expertise-tailored communication` (`theme:communication`)
-  - `0.0900 vs 0.0350`，高 `+0.0550`
-- `Context seeking` (`theme:context_seeking`)
-  - `0.1250 vs 0.0900`，高 `+0.0350`
-- `Emergency referrals` (`theme:emergency_referrals`)
-  - `0.3400 vs 0.2750`，高 `+0.0650`
-- `Health data tasks` (`theme:health_data_tasks`)
-  - `0.4050 vs 0.3750`，高 `+0.0300`
-- `axis:accuracy`
-  - `0.2143 vs 0.1829`，高 `+0.0314`
-- `axis:context_awareness`
-  - `0.3362 vs 0.3220`，高 `+0.0141`
-
-这很重要，因为它说明 `DPO v2` 的收益不是偶然落在一个无关紧要的小角落，而是集中在：
-
-- 更像医疗行为对齐的 `Emergency referrals`
-- 更像医疗问诊流程控制的 `Context seeking`
-- 更像临床实用性的 `accuracy / context_awareness`
-
-#### 3. `DPO v2 checkpoint-330` 还没有补齐的短板
-
-和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 当前最稳定的短板仍然是：
-
-- `Global health` (`theme:global_health`)
-  - `0.3200 vs 0.4650`，低 `-0.1450`
-- `axis:communication_quality`
-  - `0.2033 vs 0.2867`，低 `-0.0833`
-- `Responding under uncertainty` (`theme:hedging`)
-  - `0.3500 vs 0.3700`，低 `-0.0200`
-- `Response depth` (`theme:complex_responses`)
-  - `0.2000 vs 0.2150`，低 `-0.0150`
-
-这组差值和你前面在轻量评测、稳定性复测里看到的趋势是一致的：
-
-- `DPO v2` 的问题已经不再是“完全没学到偏好”
-- 而是“它把模型往更强的分诊、上下文感知和任务完成方向推了一步，但在沟通质量和全球健康类泛化上还没完全追平最强 SFT”
-
-#### 4. `checkpoint-30 -> checkpoint-330` 在 700 条上也是真提升
+- 在 `700` 条 `consensus` 大样本口径下，`DPO v2 checkpoint-330` 和 `huatuo_5w checkpoint-75` 已经进入同档区间
+- `DPO v2` 的价值主要体现为“把分数结构改成更偏医疗行为对齐”，不是全面改写榜单
 
 `DPO v2 checkpoint-330` 相比 `checkpoint-30`，这轮 `700` 条结果提升：
 
@@ -163,32 +125,83 @@
 - `checkpoint-330` 不是“偶然比 checkpoint-30 高一点”
 - 而是一个更偏向医疗行为强化、风险分诊和上下文处理的版本
 
+#### 3. `DPO v2 checkpoint-330` 为什么能追到这个位置
+
+和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 的明显优势在：
+
+- `Expertise-tailored communication`：`0.0900 vs 0.0350`，高 `+0.0550`
+- `Context seeking`：`0.1250 vs 0.0900`，高 `+0.0350`
+- `Emergency referrals`：`0.3400 vs 0.2750`，高 `+0.0650`
+- `Health data tasks`：`0.4050 vs 0.3750`，高 `+0.0300`
+- `axis:accuracy`：`0.2143 vs 0.1829`，高 `+0.0314`
+- `axis:context_awareness`：`0.3362 vs 0.3220`，高 `+0.0141`
+
+这说明 `DPO v2` 的收益不是随机噪声，而是集中在更像医疗问诊行为和风险分诊能力的切片上。
+
+#### 4. `DPO v2 checkpoint-330` 还没有补齐的短板
+
+和 `huatuo_5w checkpoint-75` 对比，`DPO v2 checkpoint-330` 当前最稳定的短板仍然是：
+
+- `Global health`：`0.3200 vs 0.4650`，低 `-0.1450`
+- `axis:communication_quality`：`0.2033 vs 0.2867`，低 `-0.0833`
+- `Responding under uncertainty`：`0.3500 vs 0.3700`，低 `-0.0200`
+- `Response depth`：`0.2000 vs 0.2150`，低 `-0.0150`
+
+如果和当前总分最高的 `HQ-50k best` 再对比一次，差距会更清楚：
+
+- `overall`：`0.2614 -> 0.2767`，落后 `-0.0152`
+- `Global health`：`0.3200 -> 0.4850`，落后 `-0.1650`
+- `Responding under uncertainty`：`0.3500 -> 0.4267`，落后 `-0.0767`
+- `axis:communication_quality`：`0.2033 -> 0.2867`，落后 `-0.0833`
+
+但 `DPO v2 checkpoint-330` 也保留了自己独有的强项：
+
+- `Emergency referrals`：`0.3400 vs 0.2700`，高 `+0.0700`
+- `Expertise-tailored communication`：`0.0900 vs 0.0450`，高 `+0.0450`
+- `Context seeking`：`0.1250 vs 0.0950`，高 `+0.0300`
+- `axis:context_awareness`：`0.3362 vs 0.3164`，高 `+0.0198`
+
+所以它更像一个“安全分诊和上下文处理更激进”的版本，而不是当前最均衡的版本。
+
 #### 5. 当前最合理的工程结论
 
-截至现在，`700` 条大样本结果支持下面这几个结论：
+截至现在，这轮 `700` 条大样本结果支持下面这几个结论：
 
-- `SFT 1K` 仍高于 `base`，但优势很有限，适合作为 smoke test 路线，不适合作为主模型
-- `SFT 5w checkpoint-75` 在大样本口径下仍然稳健，说明你的主线 SFT 方案确实有效
-- `DPO v2 checkpoint-330` 已经在大样本口径下追平到 `SFT 5w checkpoint-75` 附近
-- 但它当前还不能被描述为“显著强于 SFT”
-- 它最值得后续继续强化的方向仍然是：
+- `SFT 1K` 仍高于 `base`，但优势有限，更适合作为 smoke test 路线
+- `huatuo_5w checkpoint-75` 仍是稳定可信的主线 SFT baseline
+- `HQ-50k best` 已经把“高质量数据筛选 + 干净 SFT”这条线抬成当前正式总分第一
+- `DPO v2 checkpoint-330` 没有明显打穿最强 SFT，但它在 `Emergency referrals / Context seeking / accuracy / context_awareness` 上给出了很有意义的结构化收益
+- 这意味着后续最值得做的不是盲目继续拉长 DPO，而是做针对性 `GRPO / reward design`
+
+如果目标是“尽快把最终分数做高”，更合适的起点是：
+
+- 以 `HQ-50k best` 为起点，补它相对 `DPO v2` 还偏弱的
+  - `Emergency referrals`
+  - `Expertise-tailored communication`
+  - `Context seeking`
+
+如果目标是“把整条 SFT -> DPO -> GRPO 链路讲完整”，更合适的起点是：
+
+- 以 `DPO v2 checkpoint-330` 为起点，针对性补它最稳定的短板
   - `communication_quality`
   - `Global health`
-  - 同时保持
-    - `Emergency referrals`
-    - `Context seeking`
-    - `accuracy`
-    - `context_awareness`
+  - `Responding under uncertainty`
+  - `instruction_following`
 
-这也说明后面的 `GRPO / reward design` 最适合做的事，不是从零开始瞎试，而是直接对着当前 `700` 条大样本结果里暴露最稳定的短板去补。
+这条叙事其实是很强的，因为它已经形成了清晰的工程分工：
+
+- `SFT` 负责把医学知识和任务能力拉起来
+- `DPO v2` 负责把模型往更强的临床行为和分诊方向推
+- `GRPO` 负责把 `DPO` 引入的结构性短板再补回去，争取在统一 `HealthBench consensus` 口径下稳定超过当前最强 SFT baseline
 
 ### 当前批次状态
 
-截至 `2026-04-12 23:35 CST`：
+截至 `2026-04-13`：
 
-- `5/6` 个模型已经完成正式 judge
-- `HQ-50k best` 正在 judge
-- 队列日志显示 `HQ-50k best` 已 judge 到 `58 / 700`
+- `6/6` 个模型已经完成正式 judge
+- 队列日志显示：
+  - `judge finished: hq50k_best`
+  - `all queued evaluations finished`
 
 对应 run：
 
