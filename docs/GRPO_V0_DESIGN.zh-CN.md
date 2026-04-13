@@ -344,3 +344,47 @@
    - 在离线阶段引入 `LLM judge` 给一小批样本打多维分，验证 reward 与人工偏好方向是否一致
 2. `GRPO v2`
    - 把 `LLM judge` 分数蒸馏成本地 reward scorer / RM，降低线上训练成本
+
+## 12. 当前运行状态
+
+`GRPO v0` 首轮正式训练已于 `2026-04-13 12:55` 启动，当前采用双卡后台运行。
+
+本轮运行标识：
+
+- `run_name = 20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid`
+- `W&B project = my-medical-gpt-grpo`
+- `W&B mode = online`
+
+当前本地日志位置：
+
+- `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid.nohup.log`
+- `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid/logs/console.log`
+- `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid/logs/metrics.jsonl`
+
+启动后已确认：
+
+- 双卡 `torchrun` 进程已脱离终端独立运行
+- `W&B` 已成功在线同步
+- `metrics.jsonl` 已持续写入训练步指标
+- 调试用 `grpo_online_probe` 已清理，当前显卡仅保留正式训练任务
+
+当前已观测到的前两步训练信号：
+
+- `step 1`
+  - `reward = 0.3723`
+  - `communication_quality_reward = 0.0813`
+  - `context_awareness_reward = 0.1284`
+  - `hedging_reward = 0.1578`
+  - `safety_penalty_reward = -0.0468`
+- `step 2`
+  - `reward = 0.0934`
+  - `communication_quality_reward = 0.0828`
+  - `context_awareness_reward = 0.0794`
+  - `reference_alignment_reward = 0.0398`
+  - `safety_penalty_reward = -0.1307`
+
+这两步样本还非常早期，暂时不能拿来判断最终效果，但已经足够说明：
+
+- reward 函数在真实训练中已经开始分化不同 completion
+- 日志、指标、W&B、双卡训练链路都已经进入稳定工作状态
+- 这版 `GRPO v0` 可以继续完整跑完，再决定是否调奖励权重或扩大 prompt 集
