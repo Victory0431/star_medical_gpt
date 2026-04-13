@@ -23,93 +23,180 @@ SHORTFALL_SLICES = [
     "emergency",
 ]
 
-SLICE_TARGETS = {
-    "communication": 900,
-    "global_health": 700,
-    "hedging": 600,
-    "context_seeking": 450,
-    "emergency": 350,
-}
-
-VALID_SLICE_TARGETS = {
-    "communication": 90,
-    "global_health": 70,
-    "hedging": 60,
-    "context_seeking": 45,
-    "emergency": 35,
-}
-
-SLICE_SOURCE_RATIOS = {
-    "communication": {"hq_holdout": 0.60, "dpo_v2_train": 0.40},
-    "global_health": {"hq_holdout": 0.70, "dpo_v2_train": 0.30},
-    "hedging": {"hq_holdout": 0.50, "dpo_v2_train": 0.50},
-    "context_seeking": {"hq_holdout": 0.30, "dpo_v2_train": 0.70},
-    "emergency": {"hq_holdout": 0.20, "dpo_v2_train": 0.80},
-}
-
-REWARD_PROFILES = {
-    "communication": {
-        "communication_quality": 0.40,
-        "context_awareness": 0.20,
-        "hedging": 0.15,
-        "emergency_referral": 0.05,
-        "medical_plausibility": 0.20,
+PRESET_CONFIGS: dict[str, dict[str, Any]] = {
+    "v0_balanced": {
+        "slice_targets": {
+            "communication": 900,
+            "global_health": 700,
+            "hedging": 600,
+            "context_seeking": 450,
+            "emergency": 350,
+        },
+        "valid_slice_targets": {
+            "communication": 90,
+            "global_health": 70,
+            "hedging": 60,
+            "context_seeking": 45,
+            "emergency": 35,
+        },
+        "slice_source_ratios": {
+            "communication": {"hq_holdout": 0.60, "dpo_v2_train": 0.40},
+            "global_health": {"hq_holdout": 0.70, "dpo_v2_train": 0.30},
+            "hedging": {"hq_holdout": 0.50, "dpo_v2_train": 0.50},
+            "context_seeking": {"hq_holdout": 0.30, "dpo_v2_train": 0.70},
+            "emergency": {"hq_holdout": 0.20, "dpo_v2_train": 0.80},
+        },
+        "reward_profiles": {
+            "communication": {
+                "communication_quality": 0.40,
+                "context_awareness": 0.20,
+                "hedging": 0.15,
+                "emergency_referral": 0.05,
+                "medical_plausibility": 0.20,
+            },
+            "global_health": {
+                "communication_quality": 0.15,
+                "context_awareness": 0.15,
+                "hedging": 0.20,
+                "emergency_referral": 0.10,
+                "medical_plausibility": 0.40,
+            },
+            "hedging": {
+                "communication_quality": 0.15,
+                "context_awareness": 0.25,
+                "hedging": 0.40,
+                "emergency_referral": 0.05,
+                "medical_plausibility": 0.15,
+            },
+            "context_seeking": {
+                "communication_quality": 0.15,
+                "context_awareness": 0.40,
+                "hedging": 0.20,
+                "emergency_referral": 0.10,
+                "medical_plausibility": 0.15,
+            },
+            "emergency": {
+                "communication_quality": 0.10,
+                "context_awareness": 0.15,
+                "hedging": 0.10,
+                "emergency_referral": 0.45,
+                "medical_plausibility": 0.20,
+            },
+        },
+        "penalty_profiles": {
+            "communication": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.6,
+                "low_effort_penalty": 0.3,
+            },
+            "global_health": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.7,
+                "low_effort_penalty": 0.2,
+            },
+            "hedging": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.6,
+                "low_effort_penalty": 0.2,
+            },
+            "context_seeking": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.7,
+                "low_effort_penalty": 0.2,
+            },
+            "emergency": {
+                "unsafe_overclaim_penalty": 1.2,
+                "missed_emergency_penalty": 1.2,
+                "low_effort_penalty": 0.2,
+            },
+        },
     },
-    "global_health": {
-        "communication_quality": 0.15,
-        "context_awareness": 0.15,
-        "hedging": 0.20,
-        "emergency_referral": 0.10,
-        "medical_plausibility": 0.40,
-    },
-    "hedging": {
-        "communication_quality": 0.15,
-        "context_awareness": 0.25,
-        "hedging": 0.40,
-        "emergency_referral": 0.05,
-        "medical_plausibility": 0.15,
-    },
-    "context_seeking": {
-        "communication_quality": 0.15,
-        "context_awareness": 0.40,
-        "hedging": 0.20,
-        "emergency_referral": 0.10,
-        "medical_plausibility": 0.15,
-    },
-    "emergency": {
-        "communication_quality": 0.10,
-        "context_awareness": 0.15,
-        "hedging": 0.10,
-        "emergency_referral": 0.45,
-        "medical_plausibility": 0.20,
-    },
-}
-
-PENALTY_PROFILES = {
-    "communication": {
-        "unsafe_overclaim_penalty": 1.0,
-        "missed_emergency_penalty": 0.6,
-        "low_effort_penalty": 0.3,
-    },
-    "global_health": {
-        "unsafe_overclaim_penalty": 1.0,
-        "missed_emergency_penalty": 0.7,
-        "low_effort_penalty": 0.2,
-    },
-    "hedging": {
-        "unsafe_overclaim_penalty": 1.0,
-        "missed_emergency_penalty": 0.6,
-        "low_effort_penalty": 0.2,
-    },
-    "context_seeking": {
-        "unsafe_overclaim_penalty": 1.0,
-        "missed_emergency_penalty": 0.7,
-        "low_effort_penalty": 0.2,
-    },
-    "emergency": {
-        "unsafe_overclaim_penalty": 1.2,
-        "missed_emergency_penalty": 1.2,
-        "low_effort_penalty": 0.2,
+    "v1_emergency_context": {
+        "slice_targets": {
+            "communication": 780,
+            "global_health": 620,
+            "hedging": 550,
+            "context_seeking": 500,
+            "emergency": 550,
+        },
+        "valid_slice_targets": {
+            "communication": 78,
+            "global_health": 62,
+            "hedging": 55,
+            "context_seeking": 50,
+            "emergency": 55,
+        },
+        "slice_source_ratios": {
+            "communication": {"hq_holdout": 0.60, "dpo_v2_train": 0.40},
+            "global_health": {"hq_holdout": 0.68, "dpo_v2_train": 0.32},
+            "hedging": {"hq_holdout": 0.45, "dpo_v2_train": 0.55},
+            "context_seeking": {"hq_holdout": 0.25, "dpo_v2_train": 0.75},
+            "emergency": {"hq_holdout": 0.10, "dpo_v2_train": 0.90},
+        },
+        "reward_profiles": {
+            "communication": {
+                "communication_quality": 0.40,
+                "context_awareness": 0.22,
+                "hedging": 0.13,
+                "emergency_referral": 0.05,
+                "medical_plausibility": 0.20,
+            },
+            "global_health": {
+                "communication_quality": 0.15,
+                "context_awareness": 0.18,
+                "hedging": 0.18,
+                "emergency_referral": 0.12,
+                "medical_plausibility": 0.37,
+            },
+            "hedging": {
+                "communication_quality": 0.12,
+                "context_awareness": 0.25,
+                "hedging": 0.43,
+                "emergency_referral": 0.05,
+                "medical_plausibility": 0.15,
+            },
+            "context_seeking": {
+                "communication_quality": 0.12,
+                "context_awareness": 0.50,
+                "hedging": 0.15,
+                "emergency_referral": 0.13,
+                "medical_plausibility": 0.10,
+            },
+            "emergency": {
+                "communication_quality": 0.08,
+                "context_awareness": 0.12,
+                "hedging": 0.05,
+                "emergency_referral": 0.65,
+                "medical_plausibility": 0.10,
+            },
+        },
+        "penalty_profiles": {
+            "communication": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.8,
+                "low_effort_penalty": 0.3,
+            },
+            "global_health": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.9,
+                "low_effort_penalty": 0.2,
+            },
+            "hedging": {
+                "unsafe_overclaim_penalty": 1.0,
+                "missed_emergency_penalty": 0.8,
+                "low_effort_penalty": 0.2,
+            },
+            "context_seeking": {
+                "unsafe_overclaim_penalty": 1.05,
+                "missed_emergency_penalty": 1.05,
+                "low_effort_penalty": 0.2,
+            },
+            "emergency": {
+                "unsafe_overclaim_penalty": 1.3,
+                "missed_emergency_penalty": 1.8,
+                "low_effort_penalty": 0.2,
+            },
+        },
     },
 }
 
@@ -302,6 +389,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1",
     )
     parser.add_argument("--output-name", default="medical_grpo_prompt_v1")
+    parser.add_argument(
+        "--preset",
+        default="v0_balanced",
+        choices=sorted(PRESET_CONFIGS.keys()),
+        help="Sampling/reward preset for different GRPO dataset versions",
+    )
     parser.add_argument("--train-size", type=int, default=3000)
     parser.add_argument("--valid-size", type=int, default=300)
     parser.add_argument("--seed", type=int, default=42)
@@ -672,7 +765,11 @@ def source_sort_key(candidate: Candidate, slice_name: str, rng: random.Random) -
 
 
 def allocate_source_targets(slice_name: str, total_target: int) -> dict[str, int]:
-    ratios = SLICE_SOURCE_RATIOS[slice_name]
+    raise RuntimeError("allocate_source_targets requires explicit slice_source_ratios")
+
+
+def allocate_source_targets_from_ratios(slice_name: str, total_target: int, slice_source_ratios: dict[str, dict[str, float]]) -> dict[str, int]:
+    ratios = slice_source_ratios[slice_name]
     allocated: dict[str, int] = {}
     running = 0
     ordered_sources = sorted(ratios)
@@ -695,6 +792,9 @@ def select_split_rows(
     *,
     candidates: list[Candidate],
     slice_targets: dict[str, int],
+    slice_source_ratios: dict[str, dict[str, float]],
+    reward_profiles: dict[str, dict[str, float]],
+    penalty_profiles: dict[str, dict[str, float]],
     selected_source_hashes: set[str],
     rng: random.Random,
 ) -> list[dict[str, Any]]:
@@ -718,7 +818,7 @@ def select_split_rows(
     selected_rows: list[dict[str, Any]] = []
     for slice_name in slice_order:
         target_count = slice_targets[slice_name]
-        source_targets = allocate_source_targets(slice_name, target_count)
+        source_targets = allocate_source_targets_from_ratios(slice_name, target_count, slice_source_ratios)
 
         for source_name, source_target in sorted(source_targets.items()):
             source_pool = sorted(
@@ -731,7 +831,7 @@ def select_split_rows(
                     break
                 if candidate.source_hash in selected_source_hashes:
                     continue
-                selected_rows.append(candidate_to_record(candidate, slice_name))
+                selected_rows.append(candidate_to_record(candidate, slice_name, reward_profiles, penalty_profiles))
                 selected_source_hashes.add(candidate.source_hash)
                 picked += 1
 
@@ -746,7 +846,7 @@ def select_split_rows(
                     break
                 if candidate.source_hash in selected_source_hashes:
                     continue
-                selected_rows.append(candidate_to_record(candidate, slice_name))
+                selected_rows.append(candidate_to_record(candidate, slice_name, reward_profiles, penalty_profiles))
                 selected_source_hashes.add(candidate.source_hash)
                 current_count += 1
 
@@ -782,16 +882,21 @@ def select_split_rows(
                     candidate.slice_tags,
                     key=lambda tag: candidate.slice_scores.get(tag, 0.0),
                 )
-            selected_rows.append(candidate_to_record(candidate, assigned_slice))
+            selected_rows.append(candidate_to_record(candidate, assigned_slice, reward_profiles, penalty_profiles))
             selected_source_hashes.add(candidate.source_hash)
             primary_counts[assigned_slice] += 1
 
     return selected_rows
 
 
-def candidate_to_record(candidate: Candidate, primary_slice: str) -> dict[str, Any]:
-    reward_profile = REWARD_PROFILES[primary_slice]
-    penalty_profile = PENALTY_PROFILES[primary_slice]
+def candidate_to_record(
+    candidate: Candidate,
+    primary_slice: str,
+    reward_profiles: dict[str, dict[str, float]],
+    penalty_profiles: dict[str, dict[str, float]],
+) -> dict[str, Any]:
+    reward_profile = reward_profiles[primary_slice]
+    penalty_profile = penalty_profiles[primary_slice]
     hard_constraints: list[str] = []
     if candidate.risk_level == "high" or "emergency" in candidate.slice_tags:
         hard_constraints.append("must_not_miss_emergency_referral")
@@ -862,6 +967,12 @@ def sample_examples(rows: list[dict[str, Any]], limit: int = 3) -> list[dict[str
 def main() -> None:
     args = build_arg_parser().parse_args()
     rng = random.Random(args.seed)
+    preset = PRESET_CONFIGS[args.preset]
+    slice_targets = dict(preset["slice_targets"])
+    valid_slice_targets = dict(preset["valid_slice_targets"])
+    slice_source_ratios = dict(preset["slice_source_ratios"])
+    reward_profiles = dict(preset["reward_profiles"])
+    penalty_profiles = dict(preset["penalty_profiles"])
 
     output_root = Path(args.output_root).resolve()
     train_path = output_root / "train" / f"{args.output_name}.train.jsonl"
@@ -883,22 +994,25 @@ def main() -> None:
         seen_hashes.add(candidate.source_hash)
         deduped_candidates.append(candidate)
 
-    train_slice_targets = dict(SLICE_TARGETS)
-    valid_slice_targets = dict(VALID_SLICE_TARGETS)
-
-    train_slice_targets = scale_targets_to_total(train_slice_targets, args.train_size)
+    train_slice_targets = scale_targets_to_total(slice_targets, args.train_size)
     valid_slice_targets = scale_targets_to_total(valid_slice_targets, args.valid_size)
 
     selected_hashes: set[str] = set()
     train_rows = select_split_rows(
         candidates=deduped_candidates,
         slice_targets=train_slice_targets,
+        slice_source_ratios=slice_source_ratios,
+        reward_profiles=reward_profiles,
+        penalty_profiles=penalty_profiles,
         selected_source_hashes=selected_hashes,
         rng=rng,
     )
     valid_rows = select_split_rows(
         candidates=deduped_candidates,
         slice_targets=valid_slice_targets,
+        slice_source_ratios=slice_source_ratios,
+        reward_profiles=reward_profiles,
+        penalty_profiles=penalty_profiles,
         selected_source_hashes=selected_hashes,
         rng=rng,
     )
@@ -913,6 +1027,7 @@ def main() -> None:
     report = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "seed": args.seed,
+        "preset": args.preset,
         "input": {
             "dpo_processed": str(Path(args.dpo_processed).resolve()),
             "dpo_audit": str(Path(args.dpo_audit).resolve()),
@@ -922,6 +1037,13 @@ def main() -> None:
         "output": {
             "train_path": str(train_path),
             "valid_path": str(valid_path),
+        },
+        "preset_config": {
+            "slice_targets": train_slice_targets,
+            "valid_slice_targets": valid_slice_targets,
+            "slice_source_ratios": slice_source_ratios,
+            "reward_profiles": reward_profiles,
+            "penalty_profiles": penalty_profiles,
         },
         "candidate_pool": {
             "deduped_count": len(deduped_candidates),

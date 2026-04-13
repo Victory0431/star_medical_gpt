@@ -1,10 +1,17 @@
-# GRPO v0 设计文档
+# GRPO 设计文档
 
 这份文档记录当前 `GRPO` 路线的第一版数据设计、奖励设计和训练实现。文档采用原地持续更新的方式维护，不再额外拆很多零散说明。
 
 ## 1. 当前阶段
 
-当前已完成的是 `GRPO prompt-only 数据集 v1`。
+当前文档同时维护两版信息：
+
+- `GRPO v0`
+  - 首轮平衡版数据、奖励和训练链路
+- `GRPO v1 emergency/context`
+  - 针对 `DPO v2 checkpoint-330` 的 `emergency / context` 短板做强化后的下一轮版本
+
+当前最新准备进入正式训练的是 `GRPO v1 emergency/context`。
 
 目标不是再做一份“标准答案监督集”，而是围绕 `DPO v2 checkpoint-330` 在 `HealthBench` 上已经稳定暴露出的短板，先把适合 `GRPO` 的训练 prompt 池组织出来，让后续 reward 可以对着这些短板做针对性优化。
 
@@ -25,7 +32,7 @@
 
 ## 3. v1 数据来源
 
-当前 `GRPO v1` 数据由两部分混合组成：
+当前 `GRPO` 数据由两部分混合组成：
 
 - `dpo_v2_train`
   - 来自重构后的 `3800` 条 `DPO v2` 训练集
@@ -34,7 +41,7 @@
   - 来自 `54,080` 条高分桶里未进入 `HQ-50k` 训练子集的剩余高质量样本
   - 优点是相对“新鲜”，没有被 `HQ-50k SFT` 直接见过，适合补 `communication / global_health`
 
-## 4. v1 主切片
+## 4. 主切片
 
 这版不是泛泛抽样，而是按 `HealthBench` 暴露出的短板定向组织了 5 个主切片：
 
@@ -57,9 +64,11 @@
 - `emergency`
   - 高风险场景下不能漏掉急诊 / 及时就医建议
 
-## 5. 当前数据规模
+## 5. 数据规模与版本
 
-本地产物已经生成完成：
+### 5.1 v0 balanced
+
+本地第一版平衡数据产物已经生成完成：
 
 - `train = 3000`
 - `valid = 300`
@@ -86,6 +95,50 @@
 - `dpo_v2_train = 1465`
 - `hq_holdout = 1535`
 
+### 5.2 v1 emergency/context
+
+这版是针对上一轮观察到的“`communication/context` 略有起色，但 `emergency_referral` 基本没起量”做的定向增强版。
+
+正式训练集主切片分布：
+
+- `communication = 780`
+- `global_health = 620`
+- `hedging = 550`
+- `context_seeking = 500`
+- `emergency = 550`
+
+正式验证集主切片分布：
+
+- `communication = 78`
+- `global_health = 62`
+- `hedging = 55`
+- `context_seeking = 50`
+- `emergency = 55`
+
+正式训练集来源分布：
+
+- `dpo_v2_train = 1682`
+- `hq_holdout = 1318`
+
+正式验证集来源分布：
+
+- `dpo_v2_train = 168`
+- `hq_holdout = 132`
+
+风险等级分布：
+
+- `train high = 1405`
+- `train medium = 665`
+- `train low = 930`
+- `valid high = 147`
+- `valid medium = 18`
+- `valid low = 135`
+
+这几个数字说明两件事：
+
+- `emergency` 在主切片里已经被明显抬升，不再像 `v0` 一样只占 `350/3000`
+- 数据来源也更偏向 `dpo_v2_train`，因为这一部分更集中携带“漏急诊 / 缺上下文 / 过度断言”的偏好错误信号
+
 ## 6. 单条样本保留的信息
 
 每条样本不是只有一个 prompt，而是把后续 reward 需要的上下文也一起留了下来：
@@ -109,12 +162,16 @@
 
 - [build_grpo_prompt_dataset.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/build_grpo_prompt_dataset.py)
 - [run_build_grpo_prompt_dataset_v1.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_build_grpo_prompt_dataset_v1.sh)
+- [run_build_grpo_prompt_dataset_v1_emergency.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_build_grpo_prompt_dataset_v1_emergency.sh)
 
 本地产物：
 
 - `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1/train/medical_grpo_prompt_v1.train.jsonl`
 - `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1/valid/medical_grpo_prompt_v1.valid.jsonl`
 - `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1/reports/medical_grpo_prompt_v1.report.json`
+- `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1_emergency_context/train/medical_grpo_prompt_v1_emergency_context.train.jsonl`
+- `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1_emergency_context/valid/medical_grpo_prompt_v1_emergency_context.valid.jsonl`
+- `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1_emergency_context/reports/medical_grpo_prompt_v1_emergency_context.report.json`
 
 说明：
 
@@ -126,9 +183,9 @@
 
 下一步会在这份文档里继续补充：
 
-- `GRPO v0` 奖励函数设计
-- `GRPO` 训练脚本与双卡 launcher
-- 首轮训练配置与运行记录
+- `GRPO v1 emergency/context` 训练记录
+- 实测 `emergency_referral` 是否真正起量
+- 是否需要进一步补强 `prompt/reference` 而不只是调权重
 
 ## 9. GRPO v0 奖励函数设计
 
@@ -247,6 +304,7 @@
 - [reward_functions.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/reward_functions.py)
 - [train_grpo.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/train_grpo.py)
 - [run_grpo_qwen3_8b_dpo330_v0.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v0.sh)
+- [run_grpo_qwen3_8b_dpo330_v1_emergency.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh)
 
 ### 10.1 训练起点
 
@@ -279,6 +337,32 @@
 - `loss_type = dapo`
 - `scale_rewards = group`
 - `max_eval_samples = 120`
+
+### 10.2.1 v1 emergency/context 配置升级
+
+下一轮 `v1 emergency/context` 在不改变整体训练框架的前提下，主要做 4 类优化：
+
+1. 数据切片重配
+   - `emergency: 350 -> 550`
+   - `context_seeking: 450 -> 500`
+   - `communication/global_health` 适度回收，避免稀释高风险样本
+2. reward / penalty 更激进
+   - `emergency` 切片的 `emergency_referral` 权重提高到 `0.65`
+   - `emergency` 切片的 `missed_emergency_penalty` 提高到 `1.8`
+   - `context_seeking` 切片的 `context_awareness` 权重提高到 `0.50`
+3. batch 提速
+   - `per_device_train_batch_size = 4`
+   - `gradient_accumulation_steps = 2`
+   - 双卡下每个 optimizer step 实际消费 `2 x 4 x 2 = 16` 条 prompt
+4. rollout 长度放宽
+   - `max_completion_length = 768`
+   - `model_max_length = 2560`
+
+这版的意图很明确：
+
+- 先不额外引入更复杂的 `LLM reward`
+- 也先不额外补一大批“强 emergency reference”
+- 先验证“仅靠样本配比 + reward 权重 + batch/长度优化”，能不能把 `emergency_referral` 真正拉起来
 
 ### 10.3 工程行为
 
@@ -322,6 +406,15 @@
 - group generation
 - reward 计算
 - 训练日志落盘
+
+另外，`2026-04-13` 已补上一个关键工程修复：
+
+- 之前首轮正式训练在评估保存最优模型时，因 `metric_for_best_model=eval_reward` 与 `Trainer` 默认 best-metric 行为不一致，导致在 `step 10` 后抛出 `KeyError`
+- 当前 [train_grpo.py](/home/qjh/llm_learning/my_medical_gpt/script/grpo/train_grpo.py) 已改为：
+  - 关闭 `load_best_model_at_end`
+  - 用自定义 callback 从日志流里追踪 best metric
+
+这意味着下一轮不会再因为这个评估收尾问题半路停掉。
 
 ### 10.5 当前参数结构到底是什么
 
@@ -421,7 +514,9 @@
 2. `GRPO v2`
    - 把 `LLM judge` 分数蒸馏成本地 reward scorer / RM，降低线上训练成本
 
-## 12. 当前运行状态
+## 12. 运行状态
+
+### 12.1 v0 运行回顾
 
 `GRPO v0` 首轮正式训练已于 `2026-04-13 12:55` 启动，当前采用双卡后台运行。
 
@@ -431,7 +526,7 @@
 - `W&B project = my-medical-gpt-grpo`
 - `W&B mode = online`
 
-当前本地日志位置：
+本地日志位置：
 
 - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid.nohup.log`
 - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid/logs/console.log`
@@ -444,7 +539,7 @@
 - `metrics.jsonl` 已持续写入训练步指标
 - 调试用 `grpo_online_probe` 已清理，当前显卡仅保留正式训练任务
 
-当前已观测到的前两步训练信号：
+已观测到的前两步训练信号：
 
 - `step 1`
   - `reward = 0.3723`
@@ -463,7 +558,23 @@
 
 - reward 函数在真实训练中已经开始分化不同 completion
 - 日志、指标、W&B、双卡训练链路都已经进入稳定工作状态
-- 这版 `GRPO v0` 可以继续完整跑完，再决定是否调奖励权重或扩大 prompt 集
+- 这版 `GRPO v0` 的真正问题不在 reward 本身是否完全失效，而是在首轮配置下 `emergency` 信号仍然偏弱，且训练因为 best-metric 工程问题中断
+
+### 12.2 v1 emergency/context 当前状态
+
+`GRPO v1 emergency/context` 数据已于 `2026-04-13 17:34` 重建完成。
+
+当前本地数据与脚本位置：
+
+- [run_build_grpo_prompt_dataset_v1_emergency.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_build_grpo_prompt_dataset_v1_emergency.sh)
+- [run_grpo_qwen3_8b_dpo330_v1_emergency.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh)
+- `/home/qjh/llm_learning/my_medical_gpt/data/alignment/grpo/v1_emergency_context/reports/medical_grpo_prompt_v1_emergency_context.report.json`
+
+这版的核心优化点就是：
+
+- 先从 `reward + data distribution` 两端同步增强 `emergency`
+- 再用更大的 train batch 和更宽的 completion 上限提升训练吞吐
+- 保持 `communication/global_health` 仍在数据里，但不再让它们过度稀释高风险 prompt 的训练信号
 
 ## 13. 常见问题
 
