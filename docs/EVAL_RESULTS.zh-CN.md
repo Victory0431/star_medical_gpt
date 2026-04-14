@@ -4,6 +4,132 @@
 
 这份文档记录了当前最值得在面试里讨论的一组 benchmark 快照。
 
+## 2026-04-14 更新：GRPO v1 `checkpoint-60` 浅测并入结果矩阵
+
+这次新增的是 `GRPO v1 checkpoint-60` 的一轮快速外部评测，用来验证训练内最优点是否能兑现到 `HealthBench`。
+
+先说明口径，避免和后面的 `700` 条正式结果混淆：
+
+- benchmark：`HealthBench consensus`
+- 采样方式：`stratified_theme`
+- 采样配置：`7` 个主题，每个主题 `15` 条，共 `105` 条
+- 随机种子：`42`
+- judge 模型：`gpt-5.2`
+- 生成模型：`SFT 5w merged backbone + GRPO v1 checkpoint-60 adapter`
+
+对应 run：
+
+- [20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7)
+- [summary.json](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7/summary.json)
+
+### 105 条总结果表
+
+| 模型 | overall | 相对 base | 相对 `sft_5w_ckpt75` | 相对 `dpo_v2_ckpt330` | 备注 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `Qwen3-8B base` | `0.2206` | `0.0000` | `-0.0413` | `-0.0413` | 105 条浅测基线 |
+| `Qwen3-8B + huatuo_1k LoRA` | `0.2508` | `+0.0302` | `-0.0111` | `-0.0111` | 小规模 SFT |
+| `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)` | `0.2619` | `+0.0413` | `0.0000` | `0.0000` | 旧主 SFT baseline |
+| `Qwen3-8B + DPO v2 (checkpoint-330)` | `0.2619` | `+0.0413` | `0.0000` | `0.0000` | 当前主 DPO baseline |
+| `Qwen3-8B + HQ-50k SFT best` | `0.2905` | `+0.0698` | `+0.0286` | `+0.0286` | 当前强 SFT 对照 |
+| `Qwen3-8B + GRPO v1 (checkpoint-60)` | `0.3143` | `+0.0937` | `+0.0524` | `+0.0524` | `2026-04-14` 新增 |
+
+这张总表的直接结论是：
+
+- 在这轮 `105` 条浅测里，`GRPO v1 checkpoint-60 = 0.3143` 已经排到当前第一
+- 它不仅高于 `SFT 5w / DPO330`，也高于当前强 SFT 对照 `HQ-50k best`
+- 但这仍然只是小样本快速验证，更适合拿来确认“方向成立”，不应替代后面的 `700` 条正式口径
+
+### 105 条主题分数总表
+
+| theme | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt330 | hq50k_best | grpo_v1_ckpt60 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `Expertise-tailored communication` | `0.0333` | `0.1333` | `0.0000` | `0.0333` | `0.0000` | `0.1333` |
+| `Response depth` | `0.2333` | `0.2333` | `0.3000` | `0.2333` | `0.2667` | `0.2000` |
+| `Context seeking` | `0.0333` | `0.0333` | `0.1000` | `0.1000` | `0.0667` | `0.1667` |
+| `Emergency referrals` | `0.2667` | `0.3000` | `0.1667` | `0.4333` | `0.2667` | `0.3000` |
+| `Global health` | `0.2667` | `0.2667` | `0.4333` | `0.2333` | `0.5333` | `0.5000` |
+| `Health data tasks` | `0.4667` | `0.4333` | `0.5000` | `0.4000` | `0.4333` | `0.5000` |
+| `Responding under uncertainty` | `0.2444` | `0.3556` | `0.3333` | `0.4000` | `0.4667` | `0.4000` |
+
+### 105 条 axis 分数总表
+
+| axis | base | sft_1k | sft_5w_ckpt75 | dpo_v2_ckpt330 | hq50k_best | grpo_v1_ckpt60 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `accuracy` | `0.1711` | `0.2039` | `0.1667` | `0.2105` | `0.2434` | `0.2566` |
+| `communication_quality` | `0.2000` | `0.2444` | `0.3111` | `0.1556` | `0.3111` | `0.2667` |
+| `completeness` | `0.0000` | `0.0833` | `0.0000` | `0.1667` | `0.0833` | `0.0833` |
+| `context_awareness` | `0.2407` | `0.2778` | `0.2857` | `0.3889` | `0.2963` | `0.3889` |
+| `instruction_following` | `0.5000` | `0.4667` | `0.6000` | `0.4333` | `0.5667` | `0.5667` |
+
+### GRPO 对 `SFT 5w` / `DPO330` 的主题增量对比
+
+| theme | `sft_5w_ckpt75` | `grpo_v1_ckpt60` | `GRPO - SFT` | `dpo_v2_ckpt330` | `GRPO - DPO` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `Expertise-tailored communication` | `0.0000` | `0.1333` | `+0.1333` | `0.0333` | `+0.1000` |
+| `Response depth` | `0.3000` | `0.2000` | `-0.1000` | `0.2333` | `-0.0333` |
+| `Context seeking` | `0.1000` | `0.1667` | `+0.0667` | `0.1000` | `+0.0667` |
+| `Emergency referrals` | `0.1667` | `0.3000` | `+0.1333` | `0.4333` | `-0.1333` |
+| `Global health` | `0.4333` | `0.5000` | `+0.0667` | `0.2333` | `+0.2667` |
+| `Health data tasks` | `0.5000` | `0.5000` | `+0.0000` | `0.4000` | `+0.1000` |
+| `Responding under uncertainty` | `0.3333` | `0.4000` | `+0.0667` | `0.4000` | `+0.0000` |
+
+从主题表看，`GRPO v1 checkpoint-60` 最像是把下面几块补起来了：
+
+- 相对 `SFT 5w`：
+  - `Expertise-tailored communication`
+  - `Emergency referrals`
+  - `Context seeking`
+  - `Global health`
+- 相对 `DPO330`：
+  - `Global health`
+  - `Expertise-tailored communication`
+  - `Health data tasks`
+  - `Context seeking`
+
+但它这轮也还保留了明显代价：
+
+- `Response depth` 低于 `SFT 5w`
+- `Emergency referrals` 仍低于当前更激进的 `DPO330`
+
+### GRPO 对 `SFT 5w` / `DPO330` 的 axis 增量对比
+
+| axis | `sft_5w_ckpt75` | `grpo_v1_ckpt60` | `GRPO - SFT` | `dpo_v2_ckpt330` | `GRPO - DPO` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `accuracy` | `0.1667` | `0.2566` | `+0.0899` | `0.2105` | `+0.0461` |
+| `communication_quality` | `0.3111` | `0.2667` | `-0.0444` | `0.1556` | `+0.1111` |
+| `completeness` | `0.0000` | `0.0833` | `+0.0833` | `0.1667` | `-0.0833` |
+| `context_awareness` | `0.2857` | `0.3889` | `+0.1032` | `0.3889` | `+0.0000` |
+| `instruction_following` | `0.6000` | `0.5667` | `-0.0333` | `0.4333` | `+0.1333` |
+
+这张 axis 表说明得更直观：
+
+- 相对 `SFT 5w`，`GRPO` 这轮最大收获在
+  - `accuracy`
+  - `context_awareness`
+  - `completeness`
+- 相对 `DPO330`，`GRPO` 这轮最大收获在
+  - `communication_quality`
+  - `instruction_following`
+  - `accuracy`
+- 这也解释了为什么它总分能往上走：
+  - 它并不是简单复制 `SFT` 或 `DPO`
+  - 而是在两者之间做出了一种更均衡的补齐
+
+### 2026-04-14 这轮更新该怎么理解
+
+如果只看这次 `105` 条结果，当前最合理的理解是：
+
+- `GRPO v1 checkpoint-60` 已经第一次拿到了“外部 benchmark 小样本领先”的明确信号
+- 它补上了此前 `DPO330` 最需要补的 `communication / global_health / instruction_following` 中的一大部分
+- 它保留了 `DPO` 带来的 `context / accuracy` 优势
+- 但 `emergency` 还没有形成对 `DPO330` 的继续领先，`Response depth` 还有回撤
+
+因此更严谨的结论不是“GRPO 已经彻底通关”，而是：
+
+- `GRPO` 路线已经被证明有效
+- 下一步应该做的是更大样本复测，确认这轮 `0.3143` 不是小样本波动
+- 如果大样本还能保持领先，那么这条 `SFT -> DPO -> GRPO` 链路就真正闭环了
+
 ## 2026-04-12 大样本 700 条正式更新
 
 在修复队列挂起方式、response cache 复用逻辑和 judge 重试逻辑后，我重新跑完了同口径的 `700` 条大样本评测批次。到 `2026-04-13` 为止，这一批 `6` 个模型都已经完成正式 judge，可以作为当前最可靠的一组 `HealthBench consensus` 决策基准。
