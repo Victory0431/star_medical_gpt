@@ -911,6 +911,52 @@
   - `logs/console.log`
   - `logs/metrics.jsonl`
 
+#### 12.10.6 2026-04-14 11:08 正式环境已重新拉起 GRPO v1
+
+在正式环境中，已重新启动一轮新的 `GRPO v1 emergency/context`：
+
+- `run_name = 20260414_110300_qwen3-8b_dpo330_grpo_v1_emergency`
+- `master_port = 29641`
+- launcher：
+  - `/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh`
+- nohup 外层日志：
+  - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_110300_qwen3-8b_dpo330_grpo_v1_emergency.nohup.log`
+- run 目录：
+  - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_110300_qwen3-8b_dpo330_grpo_v1_emergency`
+
+已确认的正式启动证据：
+
+- `torchrun` 进程存在
+- 双卡 worker 已加载到 GPU
+- `console.log` 已进入：
+  - `Loading GRPO init adapter`
+  - `Starting GRPO training`
+- `W&B` 已在线同步
+  - run id: `ucujxfbd`
+- `metrics.jsonl` 已写出 `step 1`
+
+`step 1` 当前记录：
+
+- 时间：
+  - `2026-04-14 11:09:56`
+- 核心指标：
+  - `reward = 0.05795`
+  - `context_awareness_reward = 0.08531`
+  - `emergency_referral_reward = 0.02437`
+  - `reference_alignment_reward = 0.03607`
+  - `safety_penalty_reward = -0.13784`
+  - `completions/mean_length = 676.69`
+  - `completions/clipped_ratio = 0.75`
+  - `step_time = 60.38s`
+
+截至这次记录时，这一轮 run 应视为：
+
+- 已在正式环境成功启动
+- 已经过了假启动阶段
+- 已经进入真实训练并完成首个 step
+
+后续 agent 如果继续接手，优先检查这个目录，而不是旧的 `20260413_*` 失败尝试目录。
+
 ---
 
 ## 13. 当前最合理的项目结论
