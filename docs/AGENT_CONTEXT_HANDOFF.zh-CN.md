@@ -957,6 +957,35 @@
 
 后续 agent 如果继续接手，优先检查这个目录，而不是旧的 `20260413_*` 失败尝试目录。
 
+#### 12.10.7 2026-04-14 20:32 GRPO v1 emergency/context 已完成
+
+`GRPO v1 emergency/context` 正式 run：
+
+- `20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1`
+
+已于 `2026-04-14 20:32` 正常结束。
+
+结果摘要：
+
+- `global_step = 120`
+- `train_runtime = 25207.9s`
+- 真实最优 `eval_reward` 出现在：
+  - `checkpoint-60 = 0.1629`
+- 训练结束时自动写出的 best checkpoint 一度错误指向更差 checkpoint
+  - 原因是旧版 callback 把更小的 `eval_reward` 当成“更好”
+  - 该问题已在代码中修复
+  - 并已对本次 run 的 `best_checkpoint.json / summary.json` 做手动回填
+
+这轮最重要的经验：
+
+- `GRPO` 首次正式 run 已经完整闭环
+- `emergency_referral` 在中段确实被拉高过
+- 但 `step 60` 之后出现明显回撤
+- 说明下一轮更适合：
+  - 缩短训练长度到 `60~80 step`
+  - 更聚焦 `emergency + context`
+  - 先拿 `checkpoint-60` 做正式外部评测
+
 ---
 
 ## 13. 当前最合理的项目结论

@@ -576,6 +576,151 @@
 - 再用更大的 train batch 和更宽的 completion 上限提升训练吞吐
 - 保持 `communication/global_health` 仍在数据里，但不再让它们过度稀释高风险 prompt 的训练信号
 
+### 12.3 v1 emergency/context 正式训练结果
+
+`GRPO v1 emergency/context` 正式双卡训练已于 `2026-04-14 20:32` 完成。
+
+本轮运行：
+
+- `run_name = 20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1`
+- [run dir](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1)
+- [metrics.jsonl](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/logs/metrics.jsonl)
+- [summary.json](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/artifacts/summary.json)
+
+核心配置：
+
+- `train prompts = 3000`
+- `valid prompts = 300`
+- `max_eval_samples = 120`
+- `max_steps = 120`
+- `per_device_train_batch_size = 4`
+- `gradient_accumulation_steps = 2`
+- `world_size = 2`
+- `num_generations = 4`
+- `max_completion_length = 768`
+
+因此这轮的单个 `global_step` 对应：
+
+- `2` 个 micro-batch
+- `16` 个 train prompt
+- 约 `64` 条 rollout completion
+
+训练总耗时约：
+
+- `25207.9s`
+- 约 `7.0h`
+
+#### 12.3.1 真实 best checkpoint
+
+由于本轮训练前半段仍受旧版 callback 的 best-direction 问题影响，训练结束时自动写出的 `best_checkpoint.json` 一度错误指向较差 checkpoint。
+
+训练结束后已按真实 `metrics.jsonl` 回填：
+
+- `best checkpoint = checkpoint-60`
+- `best eval_reward = 0.1629`
+
+对应文件已修正为：
+
+- [best_checkpoint.json](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/artifacts/best_checkpoint.json)
+- [summary.json](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/artifacts/summary.json)
+
+#### 12.3.2 eval 结果摘要
+
+每 `10 step` 做一次 eval，关键 `eval_reward` 序列为：
+
+- `step 10 = 0.1565`
+- `step 20 = 0.1046`
+- `step 30 = 0.1225`
+- `step 40 = 0.1159`
+- `step 50 = 0.1248`
+- `step 60 = 0.1629`
+- `step 70 = 0.1434`
+- `step 80 = 0.1484`
+- `step 90 = 0.0977`
+- `step 100 = 0.1231`
+- `step 110 = 0.0956`
+- `step 120 = 0.1337`
+
+从这组数据看：
+
+- 最优点明确出现在 `step 60`
+- `step 60` 之后没有继续稳定变好
+- 后半程出现了明显回撤
+
+这说明当前配置下：
+
+- `GRPO` 不是完全学不到东西
+- 但继续拉长训练并没有带来单调增益
+- 首轮更像“中途能学到，后面开始过优化/漂移”
+
+#### 12.3.3 reward 维度结论
+
+按 `eval` 维度看，这轮最值得关注的变化是：
+
+1. `emergency_referral`
+   - 在 `step 60` 达到本轮最高：
+     - `0.1366`
+   - 说明这版数据与 reward 确实能把 `emergency` 信号拉起来
+   - 但后期掉到 `0.1049 / 0.1014`，说明稳定保持还不够
+
+2. `communication_quality`
+   - 从早期约 `0.024~0.025` 小幅提升到：
+     - `step 60 = 0.0278`
+     - `step 120 = 0.0279`
+   - 幅度不大，但方向偏正
+
+3. `context_awareness`
+   - 大部分时间落在 `0.040~0.045`
+   - 基本横盘，没有形成明确上升趋势
+
+4. `hedging`
+   - 几乎全程稳定在 `0.040~0.041`
+   - 训练端能看到 reward 抬升，但 eval 端几乎没外显收益
+
+5. `safety_penalty`
+   - `step 60 = -0.1346` 是相对较好的阶段
+   - 后面恶化到 `step 90 / 110` 的 `-0.1678` 左右
+   - 这和总分后半程回撤是对得上的
+
+#### 12.3.4 这轮训练给下一步的指导
+
+这轮首轮正式 run 最重要的结论不是“已经赢了”，而是把后续改法收窄了：
+
+1. `checkpoint-60` 应该作为本轮正式评测入口
+   - 不要默认拿 `final checkpoint-120`
+   - 也不应该再把错误写出的 `checkpoint-110` 当 best
+
+2. 下一轮不宜盲目继续拉长 step
+   - 当前结果更支持：
+     - 缩短到 `60~80 step`
+     - 或引入更明确的 early stopping / best-checkpoint eval 策略
+
+3. `emergency` 不是没学到，而是“拉起来了但没稳住”
+   - 这更像 reward/data 强度不够稳定
+   - 而不是方向完全错了
+
+4. `context_awareness` 仍然是最顽固短板之一
+   - 后续更值得加的是：
+     - 更高占比的 `context_seeking` prompt
+     - 更明确的“缺失关键信息时必须补问”正向 reward
+
+5. `hedging` 已经不再是第一优先级
+   - 训练端涨得最明显的是它
+   - eval 端却没有明显继续受益
+   - 后续不应再让它过度占 reward 预算
+
+6. 真正需要外部验证的是：
+   - `checkpoint-60`
+   - `checkpoint-120`
+   - 与 `DPO v2 checkpoint-330`
+   - 与 `huatuo_5w checkpoint-75`
+   - 在统一 `HealthBench` 口径下比较
+
+如果 `checkpoint-60` 在外部评测上能稳定优于 `DPO330`，即使还没超过最强 `SFT`，这轮 `GRPO` 也已经证明：
+
+- `reward` 设计不是空转
+- `DPO -> GRPO` 这条链路能对开放式医疗行为继续做定向修正
+
 ## 13. 常见问题
 
 ### 13.1 当前是规则打分还是 LLM judge 打分
@@ -643,7 +788,11 @@
 
 - `max_completion_length = 512`
 
-如果模型在生成到 `512 token` 时还没有自然结束，就会被记为 `clipped`。
+`v1 emergency/context` 正式 run 已提高到：
+
+- `max_completion_length = 768`
+
+如果模型在生成到当前 rollout 上限时还没有自然结束，就会被记为 `clipped`。
 
 所以：
 
