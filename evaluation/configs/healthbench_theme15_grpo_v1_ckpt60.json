@@ -1,0 +1,19 @@
+{
+  "benchmark": "healthbench",
+  "subset_name": "consensus",
+  "mode": "full",
+  "judge_mode": "openai",
+  "judge_model": "gpt-5.2",
+  "model_name_or_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model",
+  "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/checkpoints/checkpoint-60",
+  "model_alias": "qwen3_8b_grpo_v1_ckpt60_theme15",
+  "sampling_mode": "stratified_theme",
+  "per_theme_examples": 15,
+  "seed": 42,
+  "generator_device": "cuda:0",
+  "dtype": "bfloat16",
+  "enable_thinking": false,
+  "max_new_tokens": 512,
+  "temperature": 0.0,
+  "top_p": 0.95
+}

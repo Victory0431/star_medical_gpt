@@ -721,6 +721,93 @@
 - `reward` 设计不是空转
 - `DPO -> GRPO` 这条链路能对开放式医疗行为继续做定向修正
 
+#### 12.3.5 `checkpoint-60` 外部 HealthBench 105 条浅测
+
+为尽快验证训练内最优点是否能兑现到外部 benchmark，已在 `2026-04-14 21:22 ~ 21:48` 完成一轮 `HealthBench consensus` 浅测：
+
+- `run_name = 20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7`
+- [summary.json](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7/summary.json)
+- [eval.log](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7/logs/eval.log)
+- [config](/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_grpo_v1_ckpt60.json)
+
+本轮口径：
+
+- `subset = consensus`
+- `sampling = stratified_theme`
+- `7 themes x 15 = 105 examples`
+- `judge_model = gpt-5.2`
+- `generator_batch_size = 8`
+- 生成阶段耗时约 `353s`
+- 全流程完成时间约 `26min`
+
+核心结果：
+
+- `GRPO v1 checkpoint-60 = 0.3143`
+- `HQ-50k best = 0.2905`
+- `SFT 5w checkpoint-75 = 0.2619`
+- `DPO v2 checkpoint-330 = 0.2619`
+- `DPO v2 checkpoint-30 = 0.2492`
+- `SFT 1k = 0.2508`
+- `Base = 0.2206`
+
+相对差值：
+
+- 对 `HQ-50k best`：
+  - `+0.0238`
+- 对 `SFT 5w checkpoint-75`：
+  - `+0.0524`
+- 对 `DPO v2 checkpoint-330`：
+  - `+0.0524`
+- 对 `Base`：
+  - `+0.0937`
+
+这轮浅测里最亮眼的主题分数：
+
+- `theme:global_health = 0.5000`
+- `theme:health_data_tasks = 0.5000`
+- `theme:hedging = 0.4000`
+- `theme:emergency_referrals = 0.3000`
+
+相对 `SFT 5w checkpoint-75` 的主题变化：
+
+- `theme:emergency_referrals = +0.1333`
+- `theme:communication = +0.1333`
+- `theme:context_seeking = +0.0667`
+- `theme:global_health = +0.0667`
+- `theme:hedging = +0.0667`
+- `theme:complex_responses = -0.1000`
+
+相对 `DPO v2 checkpoint-330` 的主题变化：
+
+- `theme:global_health = +0.2667`
+- `theme:communication = +0.1000`
+- `theme:health_data_tasks = +0.1000`
+- `theme:context_seeking = +0.0667`
+- `theme:complex_responses = -0.0333`
+- `theme:emergency_referrals = -0.1333`
+
+相对 `SFT 5w checkpoint-75` 的轴向变化：
+
+- `axis:accuracy = +0.0899`
+- `axis:context_awareness = +0.1032`
+- `axis:completeness = +0.0833`
+- `axis:communication_quality = -0.0444`
+- `axis:instruction_following = -0.0333`
+
+这轮外部浅测说明：
+
+1. `checkpoint-60` 不是只在训练内 eval 看起来更好。
+   它已经在一轮统一 `HealthBench` 口径下，实测超过了当前几组经典对比权重。
+
+2. 这次 `GRPO v1` 确实补到了此前项目最想补的部分。
+   特别是 `context / global_health / communication` 明显起量，说明“围绕暴露短板去组织数据与 reward”这件事是有效的。
+
+3. `emergency` 仍不能算完全解决。
+   它相对 `SFT 5w` 已经明显更强，但相对 `DPO330` 这轮 105 条浅测还没有继续抬升，说明下一轮仍应保留更高的 `emergency prompt` 占比和更强的 missed-emergency penalty。
+
+4. 这还只是 `105` 条小样本结果。
+   这轮非常适合拿来做“方向确认”和阶段结论，但还不能替代更大样本甚至 full consensus 的正式复核。
+
 ## 13. 常见问题
 
 ### 13.1 当前是规则打分还是 LLM judge 打分

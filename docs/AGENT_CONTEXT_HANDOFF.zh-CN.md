@@ -986,6 +986,79 @@
   - 更聚焦 `emergency + context`
   - 先拿 `checkpoint-60` 做正式外部评测
 
+#### 12.10.8 2026-04-14 21:48 GRPO v1 `checkpoint-60` 已完成 105 条 HealthBench 浅测
+
+为尽快确认训练内最优点是否能兑现到外部 benchmark，已完成一轮统一口径浅测：
+
+- 时间：
+  - `2026-04-14 21:22 ~ 21:48`
+- 运行名：
+  - `20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7`
+- 评测配置：
+  - `/home/qjh/llm_learning/my_medical_gpt/evaluation/configs/healthbench_theme15_grpo_v1_ckpt60.json`
+- 输出目录：
+  - `/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt52_consensus_theme15x7`
+
+口径：
+
+- `consensus`
+- `stratified_theme`
+- `7 themes x 15 = 105`
+- `judge = gpt-5.2`
+- `generator_batch_size = 8`
+
+流程耗时：
+
+- 生成阶段：
+  - `353.378s`
+- 全流程：
+  - 约 `26min`
+
+总分结果：
+
+- `GRPO v1 checkpoint-60 = 0.3143`
+
+和经典权重对比：
+
+- 对 `HQ-50k best 0.2905`：
+  - `+0.0238`
+- 对 `SFT 5w checkpoint-75 0.2619`：
+  - `+0.0524`
+- 对 `DPO v2 checkpoint-330 0.2619`：
+  - `+0.0524`
+- 对 `Base 0.2206`：
+  - `+0.0937`
+
+主题观察：
+
+- 相对 `SFT 5w checkpoint-75`
+  - `Emergency referrals = +0.1333`
+  - `Expertise-tailored communication = +0.1333`
+  - `Context seeking = +0.0667`
+  - `Global health = +0.0667`
+  - `Responding under uncertainty = +0.0667`
+  - `Response depth = -0.1000`
+- 相对 `DPO v2 checkpoint-330`
+  - `Global health = +0.2667`
+  - `Expertise-tailored communication = +0.1000`
+  - `Health data tasks = +0.1000`
+  - `Context seeking = +0.0667`
+  - `Response depth = -0.0333`
+  - `Emergency referrals = -0.1333`
+
+这次浅测给后续的意义非常直接：
+
+1. `checkpoint-60` 不是只在训练内指标上更好，外部 `HealthBench` 也已经实测起量。
+2. `GRPO` 主线第一次拿到了“超过 `SFT 5w / DPO330 / HQ50k`”的外部小样本信号。
+3. 当前版本更像是显著补强了：
+   - `context`
+   - `communication`
+   - `global_health`
+4. `emergency` 还不能判定为已经彻底解决：
+   - 相对 `SFT 5w` 这轮更强
+   - 但相对 `DPO330` 的这一轮 105 条浅测没有继续抬升
+5. 这轮结果很适合作为“方向成立”的证据，但仍需要更大样本复核，避免把 `105` 条结果直接当最终定论。
+
 ---
 
 ## 13. 当前最合理的项目结论
