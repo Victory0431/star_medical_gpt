@@ -682,7 +682,7 @@
 
 ### 12.8 当前运行中的 GRPO run
 
-当前正式 run：
+历史正式 run：
 
 - `run_name = 20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid`
 
@@ -701,7 +701,7 @@
 
 ### 12.9 当前 GRPO 训练可见状态
 
-截至本次交接整理时：
+这是 `GRPO v0` 首轮 run 在当时交接时的可见状态：
 
 - `torchrun` 和两个 worker 进程仍然驻留
 - GPU 仍有占用
@@ -726,6 +726,190 @@
 - 训练链路已经跑通
 - 但当前 run 是否正在 eval、还是卡在某一步，需要后续 agent 继续检查
 - 当前最大 completion 长度 `512` 可能偏紧，用户已经明确表达后续要尽量和 `SFT/DPO` 长度分布对齐，避免大量截断
+
+### 12.10 2026-04-14 状态刷新：full consensus 打分与 GRPO v1
+
+以下内容是 `2026-04-14` 新增核查结果，后续 agent 需要优先以这里为准，而不是继续沿用上面的“运行中”表述。
+
+#### 12.10.1 完整 consensus-from-full 评测状态
+
+这两个 full generation -> consensus scoring 任务都已经完成回答生成，但打分没有完成，且当前没有活跃评测进程：
+
+1. `SFT 5w checkpoint-75`
+   - 目录：
+     - `/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260413_healthbench_consensus_from_full_sft5w_dpo330_healthbench_qwen3_8b_huatuo_5w_ckpt75_gpt-52_consensus_all_seed42`
+   - 当前文件状态：
+     - `responses.jsonl = 3671`
+     - `judgments.jsonl = 1771`
+     - `summary.json` 已存在，但由于 `judgments` 未完成，不能视为最终正式结果
+   - 最后日志时间：
+     - `2026-04-13 13:36:30`
+   - 最后可见进度：
+     - `Judging example 1772/3671`
+
+2. `DPO v2 checkpoint-330`
+   - 目录：
+     - `/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260413_healthbench_consensus_from_full_sft5w_dpo330_healthbench_qwen3_8b_dpo_v2_ckpt330_gpt-52_consensus_all_seed42`
+   - 当前文件状态：
+     - `responses.jsonl = 3671`
+     - `judgments.jsonl = 2193`
+   - 最后日志时间：
+     - `2026-04-13 13:42:01`
+   - 最后可见进度：
+     - `Judging example 2194/3671`
+
+重要提醒：
+
+- 当前 full consensus 任务的“生成部分”已经完成，不需要重生回答
+- 只需要后续基于现有 `responses.jsonl` 继续打分
+- 当前没有活跃 `run_eval.py` 进程，因此如果后续要继续，应该视为“续跑评分任务”，不是“重新启动整轮 full eval”
+
+#### 12.10.2 GRPO v0 实际结局
+
+`GRPO v0` 首轮正式 run 最终没有正常完整结束。
+
+关键目录：
+
+- `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid`
+- `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_125800_qwen3-8b_dpo330_grpo_v0_train_setsid.nohup.log`
+
+最终定位到的问题是：
+
+- 训练确实推进到了 `step 10`
+- 也确实产出了 `eval_reward` 等评估日志
+- 但在 best metric / best checkpoint 处理时，`metric_for_best_model=eval_reward` 与 trainer 默认逻辑不兼容，导致 `KeyError`
+
+修复信息：
+
+- 代码已修：
+  - `/home/qjh/llm_learning/my_medical_gpt/script/grpo/train_grpo.py`
+- 对应提交：
+  - `ca62a7b`
+  - `fix: prevent GRPO best-metric eval crash`
+
+结论：
+
+- 以后不要再把 `20260413_125800...` 视为“仍在运行”
+- 它是一个已经暴露并定位完工程问题的失败 run
+
+#### 12.10.3 GRPO v1 emergency/context 数据与脚本
+
+针对用户后来明确要求的两类优化：
+
+- 提高 `emergency_referral` reward 权重
+- 提高 `missed_emergency_penalty`
+- 提高 `emergency` prompt 占比
+- 略提高 `context_seeking` 占比
+- 批量提速、充分利用显存
+
+已经新增的正式脚本与文档：
+
+- 数据构造：
+  - `/home/qjh/llm_learning/my_medical_gpt/script/grpo/build_grpo_prompt_dataset.py`
+  - `/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_build_grpo_prompt_dataset_v1_emergency.sh`
+- 训练 launcher：
+  - `/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh`
+- 设计文档：
+  - `/home/qjh/llm_learning/my_medical_gpt/docs/GRPO_V0_DESIGN.zh-CN.md`
+
+对应提交：
+
+- `b6d8125`
+  - `feat: add GRPO emergency-context v1 pipeline`
+
+这版的核心配置：
+
+- 数据：
+  - `v1_emergency_context`
+  - `train = 3000`
+  - `valid = 300`
+  - `emergency = 550`
+  - `context_seeking = 500`
+- 训练：
+  - `per_device_train_batch_size = 4`
+  - `gradient_accumulation_steps = 2`
+  - 双卡每步实际消费 `16` 条 prompt
+  - `max_completion_length = 768`
+  - `model_max_length = 2560`
+
+#### 12.10.4 GRPO v1 三次实际启动情况
+
+截至 `2026-04-14` 已知有 3 个 `GRPO v1 emergency/context` 运行目录：
+
+1. `20260413_173900_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 目录：
+     - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_173900_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 状态：
+     - 只写了启动头
+     - 没有进入真正训练
+   - 原因：
+     - 当时是沙箱内的后台尝试，不应被视为正式环境成功启动
+
+2. `20260413_174104_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 目录：
+     - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_174104_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 状态：
+     - 明确失败
+   - 错误：
+     - `torch.distributed.DistNetworkError`
+     - `The server socket has failed to bind. port: 29581 ... EPERM`
+   - 含义：
+     - 这是沙箱/受限环境问题，不是训练代码本身问题
+
+3. `20260413_174259_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 目录：
+     - `/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260413_174259_qwen3-8b_dpo330_grpo_v1_emergency`
+   - 状态：
+     - 真正进入了训练
+     - 产出了 artifacts、`train.log`、`metrics.jsonl`
+   - 日志关键时间：
+     - `2026-04-13 17:43:29`
+       - `Starting GRPO training`
+     - `2026-04-13 17:44:35`
+       - `metrics.jsonl` 写出 `step 1`
+   - `step 1` 指标：
+     - `reward = 0.05795`
+     - `context_awareness_reward = 0.08531`
+     - `emergency_referral_reward = 0.02437`
+     - `reference_alignment_reward = 0.03607`
+     - `safety_penalty_reward = -0.13784`
+     - `completions/mean_length = 676.69`
+     - `completions/clipped_ratio = 0.75`
+     - `step_time = 62.13s`
+   - 当前判断：
+     - 它不是“没开始”
+     - 而是“已经真正进训练并写出 step 1，但没有继续稳定跑完”
+
+#### 12.10.5 截至 2026-04-14 的结论与后续动作
+
+截至 `2026-04-14 10:59` 左右再次核查时：
+
+- 没有活跃 `GRPO` 训练进程
+- 没有活跃 full consensus 打分进程
+
+因此后续 agent 的优先动作应理解为：
+
+1. full consensus 打分：
+   - 先不要重生回答
+   - 只在需要时基于现有 `responses.jsonl` 续跑 judge
+2. GRPO：
+   - 应在正式环境重新拉起 `v1 emergency/context`
+   - 不能再把前两次沙箱内失败尝试当成“已经挂上后台”
+
+推荐启动文件：
+
+- `/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh`
+
+推荐注意事项：
+
+- 使用正式环境，不要在受限沙箱里跑 `torchrun`
+- 启动时显式给一个新 `RUN_NAME`
+- `MASTER_PORT` 建议避开旧值，减少端口残留冲突风险
+- 启动后必须立刻核查：
+  - `ps`
+  - `nvidia-smi`
+  - `logs/console.log`
+  - `logs/metrics.jsonl`
 
 ---
 
