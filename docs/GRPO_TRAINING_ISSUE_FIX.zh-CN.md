@@ -157,7 +157,46 @@ KeyError: "The `metric_for_best_model` training argument is set to 'eval_reward'
 - 让 `Trainer` 只负责训练 / eval / save
 - 让我们自己的 callback 负责追踪 `eval_reward` 这类富指标
 
-## 7. 后续训练建议
+## 7. 正式训练复跑状态
+
+在烟测通过后，已重新启动正式双卡训练：
+
+- `run_name = 20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1`
+- 启动脚本：
+  - [run_grpo_qwen3_8b_dpo330_v1_emergency.sh](/home/qjh/llm_learning/my_medical_gpt/script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh)
+- 运行目录：
+  - [full run dir](/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1)
+
+启动命令为：
+
+```bash
+RUN_NAME=20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1 \
+MASTER_PORT=29661 \
+CUDA_VISIBLE_DEVICES=0,1 \
+setsid bash script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh \
+  > outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1.nohup.log 2>&1 < /dev/null &
+```
+
+截至 `2026-04-14 13:47`，正式训练状态为：
+
+- 已稳定跑过 `step 10`
+- 没有再出现：
+  - `KeyError: 'eval_reward'`
+  - worker 退出
+  - `torchrun` 联动 `SIGTERM`
+- 训练进程与 GPU 计算仍处于活跃状态，说明当前已不再是“第一次 eval 结束立刻崩溃”的旧问题
+
+这意味着本次修复已经：
+
+- 在烟测中完整验证了 `eval -> best metric -> save checkpoint` 路径
+- 在正式训练中验证了“第一次真实触发旧 bug 的阶段”不再立即崩溃
+
+正式训练最终 best checkpoint / summary 仍以运行目录中的产物为准：
+
+- `artifacts/best_checkpoint.json`
+- `artifacts/summary.json`
+
+## 8. 后续训练建议
 
 后续正式训练继续使用：
 
