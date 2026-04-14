@@ -196,7 +196,59 @@ setsid bash script/grpo/run_grpo_qwen3_8b_dpo330_v1_emergency.sh \
 - `artifacts/best_checkpoint.json`
 - `artifacts/summary.json`
 
-## 8. 后续训练建议
+## 8. 后续补充修复：best checkpoint 方向错误
+
+在正式训练继续推进后，又发现一个独立但相关的问题：
+
+- `artifacts/best_checkpoint.json` 记录的是 `checkpoint-20`
+- 但按实际 `eval_reward` 序列看，当前更优的是 `checkpoint-60`
+
+排查后确认，这不是训练本身的 reward 逻辑错误，而是我们自定义 `BestMetricCallback` 的比较方向被意外反转了。
+
+根因是：
+
+- 为了绕开 `Trainer` 内部 `metric_for_best_model=eval_reward` 的崩溃路径，我们在 `GRPOConfig` 中设置了：
+  - `metric_for_best_model=None`
+  - `greater_is_better=None`
+- 但 `BestMetricCallback.on_log()` 里仍然写的是：
+  - `value > self.best_value if args.greater_is_better else value < self.best_value`
+
+于是当 `args.greater_is_better is None` 时，这个条件会走到 `else` 分支，等价于：
+
+- 把更小的 `eval_reward` 当成“更好”
+
+这就是为什么：
+
+- `step 20` 的 `eval_reward=0.1046`
+- 会覆盖掉 `step 10` 的 `0.1565`
+- 甚至比 `step 60` 的 `0.1629` 更早被写成 “best checkpoint”
+
+修复方式是：
+
+- 不再依赖传给 callback 的 `training_args.greater_is_better`
+- 改为在构造 `BestMetricCallback` 时显式传入原始 CLI 语义里的 `greater_is_better`
+- 让 callback 自己保存 `self.greater_is_better`
+
+这样即使 `GRPOConfig` 内部继续保持：
+
+- `metric_for_best_model=None`
+- `greater_is_better=None`
+
+也不会再影响我们自己的 best checkpoint 方向判断。
+
+需要注意：
+
+- 这个修复不会影响当前正在运行的进程内存态
+- 因为正在跑的 Python 进程不会自动加载磁盘上的新代码
+- 所以“当前这一次已经启动的正式 run”的 `best_checkpoint.json` 仍需在训练结束后按 `metrics.jsonl` 回填一次
+
+但它不会影响：
+
+- 训练过程本身
+- reward 学习趋势判断
+- 后续新启动 / resume 后的 best checkpoint 记录
+
+## 9. 后续训练建议
 
 后续正式训练继续使用：
 

@@ -467,10 +467,11 @@ class JsonlMetricsCallback(TrainerCallback):
 
 
 class BestMetricCallback(TrainerCallback):
-    def __init__(self, metric_name: str, output_path: Path, logger: logging.Logger) -> None:
+    def __init__(self, metric_name: str, output_path: Path, logger: logging.Logger, greater_is_better: bool = True) -> None:
         self.metric_name = metric_name
         self.output_path = output_path
         self.logger = logger
+        self.greater_is_better = greater_is_better
         self.best_value: Optional[float] = None
         self.best_payload: Optional[Dict[str, Any]] = load_json(output_path)
         if self.best_payload is not None:
@@ -490,7 +491,9 @@ class BestMetricCallback(TrainerCallback):
             return
         value = logs[self.metric_name]
         candidate_checkpoint = str(Path(args.output_dir) / f"checkpoint-{state.global_step}")
-        should_update = self.best_value is None or (value > self.best_value if args.greater_is_better else value < self.best_value)
+        should_update = self.best_value is None or (
+            value > self.best_value if self.greater_is_better else value < self.best_value
+        )
         if not should_update:
             return
         self.best_value = value
@@ -624,7 +627,12 @@ def main() -> None:
         save_json(training_args.to_dict(), run_dir / "artifacts" / "training_args.json")
 
     metrics_callback = JsonlMetricsCallback(log_dir / "metrics.jsonl")
-    best_callback = BestMetricCallback(args.metric_for_best_model, run_dir / "artifacts" / "best_checkpoint.json", logger)
+    best_callback = BestMetricCallback(
+        args.metric_for_best_model,
+        run_dir / "artifacts" / "best_checkpoint.json",
+        logger,
+        greater_is_better=args.greater_is_better,
+    )
 
     trainer = GRPOTrainer(
         model=model,
