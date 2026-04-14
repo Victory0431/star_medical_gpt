@@ -180,6 +180,13 @@ def save_json(data: Dict[str, Any], path: Path) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def load_json(path: Path) -> Optional[Dict[str, Any]]:
+    if not path.is_file():
+        return None
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def truncate_dataset(dataset: Dataset, max_samples: int) -> Dataset:
     if max_samples is None or max_samples < 0 or max_samples >= len(dataset):
         return dataset
@@ -376,7 +383,8 @@ def build_training_arguments(
     # GRPOTrainer can expose eval_reward and other rich evaluation signals through logging, but
     # Transformers' built-in best-checkpoint selection only inspects the raw evaluate() return.
     # In practice this can crash if metric_for_best_model points to eval_reward. We therefore keep
-    # best-checkpoint tracking in our own callback instead of relying on load_best_model_at_end.
+    # best-checkpoint tracking in our own callback instead of relying on Trainer's internal
+    # metric_for_best_model / best-checkpoint selection.
     load_best_model_at_end = False
 
     return GRPOConfig(
@@ -412,8 +420,8 @@ def build_training_arguments(
         disable_tqdm=True,
         ddp_find_unused_parameters=False,
         load_best_model_at_end=load_best_model_at_end,
-        metric_for_best_model=args.metric_for_best_model,
-        greater_is_better=args.greater_is_better,
+        metric_for_best_model=None,
+        greater_is_better=None,
         gradient_checkpointing=args.gradient_checkpointing,
         gradient_checkpointing_kwargs={"use_reentrant": False} if args.gradient_checkpointing else None,
         max_completion_length=args.max_completion_length,
@@ -464,6 +472,11 @@ class BestMetricCallback(TrainerCallback):
         self.output_path = output_path
         self.logger = logger
         self.best_value: Optional[float] = None
+        self.best_payload: Optional[Dict[str, Any]] = load_json(output_path)
+        if self.best_payload is not None:
+            metric_value = self.best_payload.get("metric_value")
+            if isinstance(metric_value, (int, float)):
+                self.best_value = float(metric_value)
 
     def on_log(
         self,
@@ -490,6 +503,7 @@ class BestMetricCallback(TrainerCallback):
             "candidate_checkpoint": candidate_checkpoint,
             "best_model_checkpoint": candidate_checkpoint,
         }
+        self.best_payload = payload
         save_json(payload, self.output_path)
         self.logger.info(
             "Best metric updated: %s=%.6f at step=%s checkpoint=%s",
@@ -629,28 +643,28 @@ def main() -> None:
     trainer.save_model(str(run_dir / "final_model"))
     save_json(train_result.metrics, run_dir / "artifacts" / "train_result.json")
 
-    final_best_payload = {
+    final_best_payload = best_callback.best_payload or {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "metric_name": args.metric_for_best_model,
-        "metric_value": trainer.state.best_metric,
+        "metric_value": None,
         "global_step": trainer.state.global_step,
-        "candidate_checkpoint": trainer.state.best_model_checkpoint,
-        "best_model_checkpoint": trainer.state.best_model_checkpoint,
+        "candidate_checkpoint": None,
+        "best_model_checkpoint": None,
     }
     if is_local_main_process():
         save_json(final_best_payload, run_dir / "artifacts" / "best_checkpoint.json")
         save_json(
             {
                 "global_step": trainer.state.global_step,
-                "best_metric": trainer.state.best_metric,
-                "best_model_checkpoint": trainer.state.best_model_checkpoint,
+                "best_metric": final_best_payload.get("metric_value"),
+                "best_model_checkpoint": final_best_payload.get("best_model_checkpoint"),
                 "train_runtime": train_result.metrics.get("train_runtime"),
                 "train_samples": len(train_dataset),
                 "eval_samples": len(valid_dataset) if valid_dataset is not None else 0,
             },
             run_dir / "artifacts" / "summary.json",
         )
-    logger.info("Best checkpoint: %s", trainer.state.best_model_checkpoint)
+    logger.info("Best checkpoint: %s", final_best_payload.get("best_model_checkpoint"))
 
 
 if __name__ == "__main__":
