@@ -4,6 +4,174 @@
 
 这份文档记录了当前最值得在面试里讨论的一组 benchmark 快照。
 
+## 2026-04-15 更新：`3671` 条 full consensus 正式结果与稳定性复核
+
+这次新增的是两组最完整口径的正式结果：
+
+- `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)`
+- `Qwen3-8B + DPO v2 (checkpoint-330)`
+
+统一口径：
+
+- benchmark：`HealthBench consensus`
+- 样本数：`3671`
+- 采样方式：`sequential`
+- 随机种子：`42`
+- judge 模型：`gpt-5.2`
+
+对应 run：
+
+- [SFT 5w full consensus](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260413_healthbench_consensus_from_full_sft5w_dpo330_healthbench_qwen3_8b_huatuo_5w_ckpt75_gpt-52_consensus_all_seed42)
+- [DPO v2 ckpt330 full consensus](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260413_healthbench_consensus_from_full_sft5w_dpo330_healthbench_qwen3_8b_dpo_v2_ckpt330_gpt-52_consensus_all_seed42)
+
+### `3671` 条总结果表
+
+| 模型 | overall | 相对 `sft_5w_ckpt75` | 备注 |
+| --- | ---: | ---: | --- |
+| `Qwen3-8B + huatuo_5w LoRA (checkpoint-75)` | `0.2731` | `0.0000` | 当前最完整 SFT 正式结果 |
+| `Qwen3-8B + DPO v2 (checkpoint-330)` | `0.2518` | `-0.0213` | 当前最完整 DPO 正式结果 |
+
+这轮 full 结果给出的核心信息非常重要：
+
+- 在最完整的 `3671` 条口径下，`SFT 5w` 明显高于 `DPO330`
+- 前面的 `105` 和 `700` 都没有把这个差距完全拉开
+- 因此当前最稳妥的项目结论应该更新为：
+  - `DPO330` 在若干医疗行为主题上有结构化优势
+  - 但如果只看 full consensus 总分，它仍然没有超过当前主 SFT baseline
+
+### `3671` 条主题分数表
+
+| theme | sft_5w_ckpt75 | dpo_v2_ckpt330 | `DPO - SFT` |
+| --- | ---: | ---: | ---: |
+| `Expertise-tailored communication` | `0.0483` | `0.0918` | `+0.0436` |
+| `Response depth` | `0.2284` | `0.2160` | `-0.0123` |
+| `Context seeking` | `0.1189` | `0.1324` | `+0.0135` |
+| `Emergency referrals` | `0.2395` | `0.2991` | `+0.0596` |
+| `Global health` | `0.4219` | `0.2500` | `-0.1719` |
+| `Health data tasks` | `0.3810` | `0.4266` | `+0.0456` |
+| `Responding under uncertainty` | `0.4468` | `0.3788` | `-0.0680` |
+
+### `3671` 条 axis 分数表
+
+| axis | sft_5w_ckpt75 | dpo_v2_ckpt330 | `DPO - SFT` |
+| --- | ---: | ---: | ---: |
+| `accuracy` | `0.2297` | `0.2139` | `-0.0158` |
+| `communication_quality` | `0.2570` | `0.1772` | `-0.0798` |
+| `completeness` | `0.0815` | `0.1442` | `+0.0627` |
+| `context_awareness` | `0.3499` | `0.3459` | `-0.0040` |
+| `instruction_following` | `0.4595` | `0.4911` | `+0.0316` |
+
+这两张 full 表说明得很清楚：
+
+- `DPO330` 仍然稳定更强的地方：
+  - `Expertise-tailored communication`
+  - `Context seeking`
+  - `Emergency referrals`
+  - `Health data tasks`
+  - `completeness`
+  - `instruction_following`
+- `DPO330` 仍然稳定更弱的地方：
+  - `Global health`
+  - `Responding under uncertainty`
+  - `communication_quality`
+  - `accuracy`
+
+其中最关键的拉分项就是：
+
+- `Global health = -0.1719`
+- `communication_quality = -0.0798`
+- `Responding under uncertainty = -0.0680`
+
+这三个点基本解释了为什么 `DPO330` 在 `3671` 条 full consensus 下没能守住前面小样本里那种“接近甚至偶尔反超”的位置。
+
+### `105 / 700 / 3671` 三档稳定性总表
+
+| 模型 | `105` | `700` | `3671` | `max-min` | 当前结论 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `SFT 5w checkpoint-75` | `0.2619` | `0.2607` | `0.2731` | `0.0124` | 大样本/full 下略有抬升，整体稳定 |
+| `DPO v2 checkpoint-330` | `0.2619` | `0.2614` | `0.2518` | `0.0101` | 小样本看似追平，full 下回落 |
+| `GRPO v1 checkpoint-60` | `0.3143` | `-` | `打分中` | `-` | 已有强正向小样本信号，full 结果待确认 |
+
+### `DPO330 - SFT5w` 在三档样本上的变化
+
+| 对比项 | `105` | `700` | `3671` |
+| --- | ---: | ---: | ---: |
+| `overall (DPO - SFT)` | `0.0000` | `+0.0007` | `-0.0213` |
+
+这个表非常值得记住，因为它直接回答了“前面几轮到底稳不稳”：
+
+- `105` 条时，`DPO330` 和 `SFT5w` 几乎完全打平
+- `700` 条时，`DPO330` 仍然只是非常轻微地领先 `+0.0007`
+- 到 `3671` 条 full consensus 时，差距被拉开成 `SFT5w +0.0213`
+
+也就是说：
+
+- 前两轮并不是“完全错了”
+- 但它们确实低估了 `SFT 5w` 在 full consensus 上的最终领先幅度
+- 因此后续如果要做路线决策，`3671` 条这轮应该拥有最高优先级
+
+### 为什么 `3671` 条结果和 `105 / 700` 不一样
+
+从 `700 -> 3671` 的变化看，有几个趋势非常清楚。
+
+`SFT 5w` 在 full 下进一步变强的点：
+
+- `accuracy`: `+0.0468`
+- `context_awareness`: `+0.0279`
+- `Context seeking`: `+0.0289`
+- `Responding under uncertainty`: `+0.0768`
+
+`DPO330` 在 full 下相对 `700` 没有继续扩大的点：
+
+- `Emergency referrals`: `-0.0409`
+- `Global health`: `-0.0700`
+- `communication_quality`: `-0.0261`
+
+这说明 full consensus 更像在放大模型的“长期稳定行为”而不是少量高亮主题：
+
+- `DPO330` 的优势主题确实存在
+- 但 `SFT 5w` 在 `Global health / uncertainty / communication_quality` 这些覆盖面更大的维度上更稳
+- 样本一旦扩大到 `3671`，这些稳定收益就会把总分重新拉回去
+
+### 截至 2026-04-15 的最合理判断
+
+把三轮结果合起来看，当前最稳妥的判断应该是：
+
+1. `SFT 5w` 仍然是当前更强的正式 baseline。
+   尤其是在 `3671` 条 full consensus 口径下，这个结论已经比前面的 `105 / 700` 更可信。
+
+2. `DPO330` 的价值没有消失，但它的价值应被定义为“结构化行为收益”，不是“当前总分最优解”。
+   它最值得保留的强项仍是：
+   - `Emergency referrals`
+   - `Context seeking`
+   - `Expertise-tailored communication`
+   - `Health data tasks`
+
+3. `DPO330` 的主要短板也进一步坐实了：
+   - `Global health`
+   - `Responding under uncertainty`
+   - `communication_quality`
+
+4. 这也反过来说明，`GRPO` 的主任务仍然很明确：
+   不是重新学 `emergency/context`，而是把这些 `DPO` 已有强项保住，同时把
+   - `Global health`
+   - `communication_quality`
+   - `uncertainty`
+   这几个 full consensus 下真正拉总分的点补上。
+
+### GRPO full consensus 当前状态
+
+`GRPO v1 checkpoint-60` 的 `3671` 条 full consensus 目前状态是：
+
+- `responses.jsonl = 3671`
+- `judge_only` 已于 `2026-04-15 12:09` 启动
+- 当前正在打分中
+
+对应 run：
+
+- [20260414_healthbench_grpo_v1_ckpt60_gpt-52_consensus_all_seed42](/home/qjh/llm_learning/my_medical_gpt/outputs/eval/20260414_healthbench_grpo_v1_ckpt60_gpt-52_consensus_all_seed42)
+- [judge log](/home/qjh/llm_learning/my_medical_gpt/evaluation/logs/20260415_grpo_ckpt60_full_judge.nohup.log)
+
 ## 2026-04-14 更新：GRPO v1 `checkpoint-60` 浅测并入结果矩阵
 
 这次新增的是 `GRPO v1 checkpoint-60` 的一轮快速外部评测，用来验证训练内最优点是否能兑现到 `HealthBench`。
