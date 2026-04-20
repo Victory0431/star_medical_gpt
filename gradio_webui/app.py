@@ -125,7 +125,7 @@ class ModelManager:
                 base_model_name_or_path,
                 cache_dir=self.cache_dir,
                 trust_remote_code=True,
-                torch_dtype=choose_dtype(dtype_name),
+                dtype=choose_dtype(dtype_name),
             )
             if adapter_path:
                 model = PeftModel.from_pretrained(model, adapter_path)
@@ -194,17 +194,15 @@ class ModelManager:
         return response, payload["meta"]
 
 
-def build_messages(system_prompt: str, history: list[tuple[str, str]]) -> list[dict[str, str]]:
+def build_messages(system_prompt: str, history: list[dict[str, str]]) -> list[dict[str, str]]:
     messages: list[dict[str, str]] = []
     if system_prompt.strip():
         messages.append({"role": "system", "content": system_prompt.strip()})
-    for user_text, assistant_text in history:
-        user_text = (user_text or "").strip()
-        assistant_text = (assistant_text or "").strip()
-        if user_text:
-            messages.append({"role": "user", "content": user_text})
-        if assistant_text:
-            messages.append({"role": "assistant", "content": assistant_text})
+    for item in history:
+        role = str(item.get("role", "")).strip()
+        content = str(item.get("content", "")).strip()
+        if role in {"user", "assistant"} and content:
+            messages.append({"role": role, "content": content})
     return messages
 
 
@@ -287,12 +285,12 @@ def build_demo(presets: list[dict[str, Any]], cache_dir: str) -> gr.Blocks:
         def on_unload() -> str:
             return manager.unload()
 
-        def on_clear() -> tuple[list[tuple[str, str]], str]:
+        def on_clear() -> tuple[list[dict[str, str]], str]:
             return [], "已清空对话历史。"
 
         def on_submit(
             user_input: str,
-            history: list[tuple[str, str]] | None,
+            history: list[dict[str, str]] | None,
             preset_id: str,
             dtype_name: str,
             device: str,
@@ -302,7 +300,7 @@ def build_demo(presets: list[dict[str, Any]], cache_dir: str) -> gr.Blocks:
             temperature_value: float,
             top_p_value: float,
             repetition_penalty_value: float,
-        ) -> tuple[list[tuple[str, str]], str, str, str]:
+        ) -> tuple[list[dict[str, str]], str, str, str]:
             history = history or []
             text = user_input.strip()
             if not text:
@@ -325,7 +323,8 @@ def build_demo(presets: list[dict[str, Any]], cache_dir: str) -> gr.Blocks:
                     top_p=float(top_p_value),
                     repetition_penalty=float(repetition_penalty_value),
                 )
-                working_history.append((text, answer))
+                working_history.append({"role": "user", "content": text})
+                working_history.append({"role": "assistant", "content": answer})
                 status = (
                     f"已完成一次推理：`{preset['label']}` | "
                     f"max_new_tokens={int(max_new_tokens_value)} | "
