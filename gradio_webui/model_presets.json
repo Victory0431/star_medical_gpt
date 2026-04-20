@@ -1,0 +1,44 @@
+[
+  {
+    "id": "base_qwen3_8b",
+    "label": "Qwen3-8B Base",
+    "description": "原始基座模型，未挂 LoRA adapter。",
+    "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+    "adapter_path": null
+  },
+  {
+    "id": "sft_medical_1k",
+    "label": "SFT 1K Final",
+    "description": "1K 医疗 SFT smoke 版本，用于快速对话验证。",
+    "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+    "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260408_222930_qwen3-8b_medical-sft-1k_lora_clean/final_model"
+  },
+  {
+    "id": "sft_huatuo_5w_ckpt75",
+    "label": "SFT Huatuo-5W Checkpoint-75",
+    "description": "当前强 SFT baseline。",
+    "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+    "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260409_121822_qwen3-8b_huatuo-5w_lora_eval/checkpoints/checkpoint-75"
+  },
+  {
+    "id": "sft_hq50k_best",
+    "label": "SFT HQ-50K Best",
+    "description": "HQ-50K SFT 当前最佳导出权重。",
+    "model_name_or_path": "/home/qjh/llm_learning/base_model/qwen3_8B",
+    "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/sft/20260410_234458_qwen3-8b_hq-50k_lora_eval/final_model"
+  },
+  {
+    "id": "dpo_v2_ckpt330",
+    "label": "DPO v2 Checkpoint-330",
+    "description": "在 pairwise 偏好目标上较强的 DPO v2 版本。",
+    "model_name_or_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model",
+    "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/dpo/20260411_090021_qwen3-8b_ckpt75_medical_pairwise_v2_dpo/checkpoints/checkpoint-330"
+  },
+  {
+    "id": "grpo_v1_ckpt60",
+    "label": "GRPO v1 Checkpoint-60",
+    "description": "当前 GRPO 主线正式 checkpoint-60。",
+    "model_name_or_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/merged_models/sft/20260410_qwen3-8b_huatuo-5w_ckpt75_merged/model",
+    "adapter_path": "/home/qjh/llm_learning/my_medical_gpt/outputs/grpo/20260414_133600_qwen3-8b_dpo330_grpo_v1_emergency_fix1/checkpoints/checkpoint-60"
+  }
+]
