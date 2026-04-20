@@ -21,13 +21,13 @@ DEFAULT_PRESET_PATH = Path(__file__).resolve().with_name("model_presets.json")
 DEFAULT_CACHE_DIR = PROJECT_ROOT / "cache"
 CUSTOM_CSS = """
 :root {
-  --page-bg: linear-gradient(135deg, #f4efe6 0%, #fbfaf7 45%, #eef3f7 100%);
-  --panel-bg: rgba(255, 255, 255, 0.92);
-  --panel-border: rgba(126, 98, 68, 0.14);
-  --shadow: 0 12px 40px rgba(80, 62, 42, 0.10);
-  --accent: #b96b2c;
-  --accent-deep: #7f4b1f;
-  --soft-text: #6e645a;
+  --page-bg: #f5f6f8;
+  --panel-bg: #ffffff;
+  --panel-border: #dfe3e8;
+  --shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  --accent: #b5662a;
+  --accent-deep: #8f4f1f;
+  --soft-text: #5b6572;
 }
 
 html, body, .gradio-container {
@@ -41,125 +41,177 @@ body {
 
 .gradio-container {
   max-width: 100% !important;
-  padding: 14px !important;
+  padding: 12px !important;
   background: transparent !important;
 }
 
 .app-shell {
-  height: calc(100vh - 28px);
-  gap: 14px;
+  height: calc(100vh - 24px);
+  gap: 12px;
+  flex-wrap: nowrap !important;
 }
 
 .sidebar-panel,
 .chat-panel {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  border-radius: 22px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 
 .sidebar-panel {
-  padding: 14px !important;
-}
-
-.chat-panel {
+  flex: 0 0 360px !important;
+  max-width: 360px !important;
+  min-width: 360px !important;
+  height: 100%;
+  overflow: auto;
   padding: 12px !important;
 }
 
-.sidebar-scroll {
-  height: calc(100vh - 56px);
-  overflow: auto;
-}
-
-.chat-stack {
-  height: calc(100vh - 56px);
+.chat-panel {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 12px !important;
 }
 
-.title-card {
-  padding: 6px 8px 2px 8px;
+.panel-title {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-.title-card h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #35291f;
+.panel-title p {
+  margin: 0 !important;
 }
 
-.title-card p {
-  margin: 6px 0 0 0;
+.panel-hint {
+  margin: 0 0 10px 0;
   color: var(--soft-text);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
 }
 
-.status-card {
-  border-radius: 16px;
-  background: rgba(242, 235, 225, 0.82);
-  border: 1px solid rgba(185, 107, 44, 0.16);
-  padding: 2px 12px !important;
+.panel-hint p {
+  margin: 0 !important;
 }
 
-.status-card p {
-  margin: 6px 0 !important;
-  color: #5e4b39;
-  font-size: 0.92rem;
-}
-
-.chatbot-panel {
-  flex: 1 1 auto;
-  min-height: 0;
-  border-radius: 18px !important;
-}
-
-#chatbot {
-  height: 100% !important;
-}
-
-.composer-card {
-  padding-top: 2px;
-}
-
-.composer-card textarea {
-  min-height: 88px !important;
-}
-
-.button-row {
+.compact-row {
   gap: 8px;
 }
 
-.button-row button {
-  border-radius: 14px !important;
-  min-height: 42px !important;
+.status-card {
+  border-radius: 12px;
+  background: #faf6ef;
+  border: 1px solid #ecdcc9;
+  padding: 0 10px !important;
+}
+
+.status-card p {
+  margin: 8px 0 !important;
+  color: #5c4936;
+  font-size: 0.9rem;
+}
+
+.chatbot-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#chatbot,
+#chatbot > .wrap {
+  height: 100% !important;
+}
+
+.chatbot-panel {
+  height: 100% !important;
+  border-radius: 12px !important;
+}
+
+.chatbot-panel .wrap {
+  border-radius: 12px !important;
+}
+
+.composer-row {
+  align-items: stretch !important;
+  gap: 10px;
+}
+
+.composer-box textarea {
+  min-height: 84px !important;
+  max-height: 110px !important;
+}
+
+.button-col {
+  gap: 8px;
+  min-width: 110px !important;
+}
+
+.button-col button {
+  border-radius: 10px !important;
+  min-height: 38px !important;
   font-weight: 600 !important;
 }
 
 .primary-btn button {
-  background: linear-gradient(135deg, var(--accent) 0%, #d98943 100%) !important;
+  background: var(--accent) !important;
   color: white !important;
   border: none !important;
 }
 
 .primary-btn button:hover {
-  background: linear-gradient(135deg, var(--accent-deep) 0%, #c67938 100%) !important;
+  background: var(--accent-deep) !important;
 }
 
 .secondary-btn button {
-  background: rgba(245, 242, 236, 0.95) !important;
-  color: #4a4038 !important;
-  border: 1px solid rgba(120, 103, 86, 0.18) !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #d7dde5 !important;
 }
 
 .meta-card {
-  border-radius: 16px;
-  background: rgba(249, 247, 243, 0.90);
-  border: 1px solid rgba(120, 103, 86, 0.14);
-  padding: 6px 12px !important;
+  border-radius: 12px;
+  background: #fcfcfd;
+  border: 1px solid #e5e7eb;
+  padding: 6px 10px !important;
 }
 
 .meta-card h3 {
   margin-top: 0 !important;
+}
+
+.meta-card ul,
+.meta-card p {
+  margin-bottom: 0.4rem !important;
+}
+
+.left-accordion {
+  margin-top: 8px !important;
+}
+
+@media (max-width: 1100px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    flex-wrap: wrap !important;
+  }
+
+  .sidebar-panel {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto;
+  }
+
+  .chat-panel {
+    min-height: 70vh;
+  }
 }
 """
 
@@ -416,65 +468,68 @@ def build_demo(presets: list[dict[str, Any]], cache_dir: str) -> gr.Blocks:
 
     with gr.Blocks(title="Medical GPT Gradio WebUI", fill_height=True) as demo:
         with gr.Row(elem_classes=["app-shell"], equal_height=True):
-            with gr.Column(scale=4, min_width=330, elem_classes=["sidebar-panel", "sidebar-scroll"]):
+            with gr.Column(scale=1, elem_classes=["sidebar-panel"]):
+                gr.Markdown("配置面板", elem_classes=["panel-title"])
                 gr.Markdown(
-                    """
-                    ## 配置面板
-                    页面按需加载模型。切换权重后直接发下一条消息即可自动完成卸载与重载。
-                    """
+                    "切换权重后直接发送下一条消息即可自动重载，不需要先手动卸载。",
+                    elem_classes=["panel-hint"],
                 )
                 preset_dropdown = gr.Dropdown(
                     label="代表性权重",
                     choices=[(item["label"], item["id"]) for item in presets],
                     value=default_preset["id"],
                 )
-                dtype_dropdown = gr.Dropdown(
-                    label="推理精度",
-                    choices=["bfloat16", "float16", "float32"],
-                    value="bfloat16",
-                )
-                with gr.Row():
-                    device_box = gr.Textbox(label="设备", value="cuda:0", scale=3)
+                with gr.Row(elem_classes=["compact-row"]):
+                    dtype_dropdown = gr.Dropdown(
+                        label="精度",
+                        choices=["bfloat16", "float16", "float32"],
+                        value="bfloat16",
+                        scale=2,
+                    )
                     thinking_checkbox = gr.Checkbox(label="thinking", value=False, scale=1)
+                device_box = gr.Textbox(label="设备", value="cuda:0")
 
-                system_prompt = gr.Textbox(
-                    label="System Prompt",
-                    value="你是一个专业、谨慎、清晰的医疗助手。请基于已有信息回答；信息不足时先说明不确定性并建议补充必要检查或及时就医。",
-                    lines=5,
-                )
+                with gr.Accordion("System Prompt", open=False, elem_classes=["left-accordion"]):
+                    system_prompt = gr.Textbox(
+                        show_label=False,
+                        value="你是一个专业、谨慎、清晰的医疗助手。请基于已有信息回答；信息不足时先说明不确定性并建议补充必要检查或及时就医。",
+                        lines=5,
+                    )
 
-                with gr.Accordion("推理超参数", open=True):
+                with gr.Accordion("推理参数", open=False, elem_classes=["left-accordion"]):
                     max_new_tokens = gr.Slider(label="max_new_tokens", minimum=32, maximum=1024, value=512, step=32)
                     temperature = gr.Slider(label="temperature", minimum=0.0, maximum=1.5, value=0.7, step=0.05)
                     top_p = gr.Slider(label="top_p", minimum=0.1, maximum=1.0, value=0.95, step=0.05)
                     repetition_penalty = gr.Slider(label="repetition_penalty", minimum=1.0, maximum=1.3, value=1.03, step=0.01)
-
                 model_info = gr.Markdown(value=format_model_info(default_preset), elem_classes=["meta-card"])
 
-            with gr.Column(scale=8, min_width=700, elem_classes=["chat-panel", "chat-stack"]):
-                gr.Markdown(
-                    """
-                    # Medical GPT Demo
-                    <p>紧凑展示版：左侧配置，右侧对话。发送后先展示你的消息，再加载模型并生成回复。</p>
-                    """,
-                    elem_classes=["title-card"],
-                )
+            with gr.Column(scale=3, min_width=0, elem_classes=["chat-panel"]):
+                gr.Markdown("对话", elem_classes=["panel-title"])
                 status_box = gr.Markdown(
                     value=build_status_message("页面已启动，尚未加载模型。"),
                     elem_classes=["status-card"],
                 )
-                chatbot = gr.Chatbot(label="对话", height="100%", elem_id="chatbot", elem_classes=["chatbot-panel"])
-                prompt_box = gr.Textbox(
-                    label="用户输入",
-                    lines=3,
-                    max_lines=4,
-                    placeholder="输入问题后发送。页面会先显示你的消息，再生成模型回复。",
-                    elem_classes=["composer-card"],
-                )
-                with gr.Row(elem_classes=["button-row"]):
-                    send_button = gr.Button("发送", variant="primary", elem_classes=["primary-btn"])
-                    clear_button = gr.Button("清空对话", elem_classes=["secondary-btn"])
-                    unload_button = gr.Button("卸载模型", elem_classes=["secondary-btn"])
+                with gr.Column(elem_classes=["chatbot-wrap"]):
+                    chatbot = gr.Chatbot(
+                        label="对话",
+                        show_label=False,
+                        elem_id="chatbot",
+                        elem_classes=["chatbot-panel"],
+                    )
+                with gr.Row(elem_classes=["composer-row"]):
+                    prompt_box = gr.Textbox(
+                        label="用户输入",
+                        show_label=False,
+                        lines=3,
+                        max_lines=4,
+                        placeholder="输入问题后发送。会先显示你的消息，再生成模型回复。",
+                        scale=8,
+                        elem_classes=["composer-box"],
+                    )
+                    with gr.Column(scale=1, elem_classes=["button-col"]):
+                        send_button = gr.Button("发送", variant="primary", elem_classes=["primary-btn"])
+                        clear_button = gr.Button("清空", elem_classes=["secondary-btn"])
+                        unload_button = gr.Button("卸载", elem_classes=["secondary-btn"])
 
         def on_preset_change(preset_id: str) -> str:
             return format_model_info(preset_map[preset_id])
